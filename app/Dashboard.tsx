@@ -60,6 +60,9 @@ type Sector = {
   flowSource?: string;
   rank: number;
   rankChange: number;
+  buyIndex?: number;
+  sellIndex?: number;
+  buySellRatio?: number;
 };
 
 type MarketStats = {
@@ -404,22 +407,96 @@ function CorrelationHeatmap({ correlation }: { correlation?: Correlation }) {
   );
 }
 
+type OnlineStockPost = {
+  title: string;
+  score: number;
+  date: string;
+  url: string;
+  matched: string[];
+};
+
+type OnlineStockResult = {
+  input: string;
+  code: string;
+  symbol: string;
+  name: string;
+  market: string;
+  quote: {
+    price: number;
+    changePct: number;
+    asOf?: string;
+    source?: string;
+  } | null;
+  metrics: {
+    overall: number;
+    heat: number;
+    novice: number;
+    fomo: number;
+    panic: number;
+    direction: number;
+    buyIndex: number;
+    sellIndex: number;
+    buySellRatio: number;
+    profitEffect: number;
+  } | null;
+  sampleCount: number;
+  analyzedCount: number;
+  posts: OnlineStockPost[];
+  fetchError?: string | null;
+  fetchedAt: string;
+  durationMs: number;
+  source: string;
+  note: string;
+};
+
+function isCodeQuery(value: string) {
+  return /^((sh|sz|bj|of|hk|us)?[a-z0-9]{1,6}|\d{5,6})$/i.test(value.trim());
+}
+
 function QueryPanel({ snapshot }: { snapshot: Snapshot }) {
   const [query, setQuery] = useState("");
+  const [onlineResult, setOnlineResult] = useState<OnlineStockResult | null>(null);
+  const [onlineLoading, setOnlineLoading] = useState(false);
+  const [onlineError, setOnlineError] = useState("");
   const result = useMemo(() => {
     const keyword = query.trim().toLowerCase();
     if (!keyword) return null;
-    return snapshot.sectors.find((sector) => [sector.id, sector.name, sector.representative, sector.stockCode, sector.group].some((value) => String(value ?? "").toLowerCase().includes(keyword))) ?? null;
+    return snapshot.sectors.find((sector) => [sector.id, sector.name, sector.group].some((value) => String(value ?? "").toLowerCase().includes(keyword))) ?? null;
   }, [query, snapshot.sectors]);
   const relatedComments = result ? (snapshot.comments ?? []).filter((comment) => comment.sectorId === result.id).slice(0, 3) : [];
+  const runQuery = async (value = query) => {
+    const keyword = value.trim();
+    if (!keyword) return;
+    setQuery(keyword);
+    setOnlineError("");
+    setOnlineResult(null);
+    // 已配置主题保留本地的完整历史和板块数据；代码/未配置名称走在线查询。
+    const local = snapshot.sectors.find((sector) => [sector.id, sector.name, sector.group].some((item) => String(item ?? "").toLowerCase().includes(keyword.toLowerCase())));
+    if (local && !isCodeQuery(keyword)) return;
+    setOnlineLoading(true);
+    try {
+      const response = await fetch(`/api/stock-query?q=${encodeURIComponent(keyword)}`, { cache: "no-store" });
+      const payload = await response.json() as OnlineStockResult & { error?: string };
+      if (!response.ok || payload.error) throw new Error(payload.error || "在线查询失败");
+      setOnlineResult(payload);
+    } catch (error) {
+      setOnlineError(error instanceof Error ? error.message : "在线查询失败，请稍后重试");
+    } finally {
+      setOnlineLoading(false);
+    }
+  };
+  const onlineMetrics = onlineResult?.metrics;
   return (
     <article className="panel query-panel">
-      <div className="panel-head"><div><span className="eyebrow">股票 / 主题查询</span><h2>查一只股票的情绪</h2></div></div>
-      <div className="query-form"><input aria-label="输入股票代码、名称或主题" placeholder="例如：600519、贵州茅台、CPO 光模块" value={query} onChange={(event) => setQuery(event.target.value)} /><button onClick={() => setQuery(query.trim())}>查询</button></div>
-      <div className="query-hints">试试：{snapshot.sectors.slice(0, 5).map((sector) => <button key={sector.id} onClick={() => setQuery(sector.name)}>{sector.name}</button>)}</div>
-      {query && !result && <div className="query-error">没有匹配到已配置的股票或主题。当前查询范围仅限本地已采集主题。</div>}
-      {result && <div className="query-result"><div className="query-result-head"><div><span className="eyebrow">{result.group} · 代表标的 {result.representative}</span><h3>{result.name}</h3></div><strong>{result.overall.toFixed(1)}</strong></div><div className="query-stat-grid"><span>热度 <b>{result.heat.toFixed(1)}</b></span><span>买入 <b>{(result.buyIndex ?? 50).toFixed(1)}</b></span><span>卖出 <b>{(result.sellIndex ?? 50).toFixed(1)}</b></span><span>赚钱效应 <b>{result.profitEffect.toFixed(1)}</b></span><span>涨跌 <b>{formatPct(result.priceChange)}</b></span><span>净流入 <b>{formatFlow(result.flowNet)}</b></span></div><HeatSparkline points={result.heatSeries ?? []} /><CommentFeed comments={relatedComments} /></div>}
-      <p className="fine-print">查询结果是代表标的/主题代理，不等于完整板块成分指数，也不构成投资建议。</p>
+      <div className="panel-head"><div><span className="eyebrow">股票 / 主题查询</span><h2>查一只股票的情绪</h2></div><span className="online-badge">● 支持在线查询任意 A 股</span></div>
+      <div className="query-form"><input aria-label="输入股票代码、名称或主题" placeholder="例如：600519、贵州茅台、300750、宁德时代" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void runQuery(); }} /><button onClick={() => void runQuery()} disabled={onlineLoading}>{onlineLoading ? "查询中…" : "查询"}</button></div>
+      <div className="query-hints">试试：{snapshot.sectors.slice(0, 5).map((sector) => <button key={sector.id} onClick={() => void runQuery(sector.name)}>{sector.name}</button>)}</div>
+      {onlineLoading && <div className="query-loading">正在查询公开代码、行情和股吧样本…</div>}
+      {onlineError && <div className="query-error">在线查询失败：{onlineError}<br /><small>仍可查询已配置主题；上游公开接口可能暂时限流。</small></div>}
+      {query && !result && !onlineResult && !onlineLoading && !onlineError && <div className="query-error">未匹配到本地主题，点击“查询”可在线查找任意 A 股。</div>}
+      {result && !onlineResult && !isCodeQuery(query) && <div className="query-result"><div className="query-result-head"><div><span className="eyebrow">{result.group} · 代表标的 {result.representative}</span><h3>{result.name}</h3></div><strong>{result.overall.toFixed(1)}</strong></div><div className="query-stat-grid"><span>热度 <b>{result.heat.toFixed(1)}</b></span><span>买入 <b>{(result.buyIndex ?? 50).toFixed(1)}</b></span><span>卖出 <b>{(result.sellIndex ?? 50).toFixed(1)}</b></span><span>赚钱效应 <b>{result.profitEffect.toFixed(1)}</b></span><span>涨跌 <b>{formatPct(result.priceChange)}</b></span><span>净流入 <b>{formatFlow(result.flowNet)}</b></span></div><HeatSparkline points={result.heatSeries ?? []} /><CommentFeed comments={relatedComments} /></div>}
+      {onlineResult && <div className="query-result online-query-result"><div className="query-result-head"><div><span className="eyebrow">{onlineResult.market} · {onlineResult.symbol} · 公开社区样本</span><h3>{onlineResult.name}</h3><small className="query-source">查询耗时 {onlineResult.durationMs}ms · {onlineResult.fetchedAt.slice(0, 16).replace("T", " ")}</small></div><strong>{onlineMetrics ? onlineMetrics.overall.toFixed(1) : "—"}</strong></div>{onlineMetrics ? <div className="query-stat-grid"><span>讨论热度 <b>{onlineMetrics.heat.toFixed(1)}</b></span><span>新手入场 <b>{onlineMetrics.novice.toFixed(1)}</b></span><span>追涨冲动 <b>{onlineMetrics.fomo.toFixed(1)}</b></span><span>恐慌割肉 <b>{onlineMetrics.panic.toFixed(1)}</b></span><span>买入指数 <b>{onlineMetrics.buyIndex.toFixed(1)}</b></span><span>卖出指数 <b>{onlineMetrics.sellIndex.toFixed(1)}</b></span><span>赚钱效应 <b>{onlineMetrics.profitEffect.toFixed(1)}</b></span><span>代表股涨跌 <b className={onlineResult.quote && onlineResult.quote.changePct >= 0 ? "rise" : "fall"}>{onlineResult.quote ? formatPct(onlineResult.quote.changePct) : "—"}</b></span></div> : <div className="query-empty">最近公开帖子不足，暂时无法计算情绪指数。</div>}{onlineResult.quote && <div className="query-quote"><b>{onlineResult.quote.price.toFixed(2)}</b><span className={onlineResult.quote.changePct >= 0 ? "rise" : "fall"}>{formatPct(onlineResult.quote.changePct)}</span><small>{onlineResult.quote.source} · {onlineResult.quote.asOf || "最新"}</small></div>}<div className="online-post-head"><span className="eyebrow">最近典型帖子</span><small>原始 {onlineResult.sampleCount} 条 · 有效分析 {onlineResult.analyzedCount} 条</small></div>{onlineResult.posts.length ? <div className="online-post-list">{onlineResult.posts.slice(0, 6).map((post) => <a className="online-post" href={post.url} target="_blank" rel="noreferrer" key={`${post.url}-${post.title}`}><span className="post-score">{post.score.toFixed(0)}</span><span><b>{post.title}</b><small>{post.date || "公开帖子"}{post.matched.length ? ` · 命中：${post.matched.slice(0, 3).join("、")}` : ""}</small></span></a>)}</div> : <div className="query-empty">暂无可展示的典型帖子。{onlineResult.fetchError ? ` ${onlineResult.fetchError}` : ""}</div>}<p className="online-note">{onlineResult.note}</p></div>}
+      <p className="fine-print">个股结果来自公开社区样本代理；不等于完整市场情绪或板块成分指数，也不构成投资建议。</p>
     </article>
   );
 }
