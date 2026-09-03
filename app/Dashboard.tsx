@@ -449,10 +449,6 @@ type OnlineStockResult = {
   note: string;
 };
 
-function isCodeQuery(value: string) {
-  return /^((sh|sz|bj|of|hk|us)?[a-z0-9]{1,6}|\d{5,6})$/i.test(value.trim());
-}
-
 function QueryPanel({ snapshot }: { snapshot: Snapshot }) {
   const [query, setQuery] = useState("");
   const [onlineResult, setOnlineResult] = useState<OnlineStockResult | null>(null);
@@ -472,7 +468,7 @@ function QueryPanel({ snapshot }: { snapshot: Snapshot }) {
     setOnlineResult(null);
     // 已配置主题保留本地的完整历史和板块数据；代码/未配置名称走在线查询。
     const local = snapshot.sectors.find((sector) => [sector.id, sector.name, sector.group].some((item) => String(item ?? "").toLowerCase().includes(keyword.toLowerCase())));
-    if (local && !isCodeQuery(keyword)) return;
+    if (local) return;
     setOnlineLoading(true);
     try {
       const response = await fetch(`/api/stock-query?q=${encodeURIComponent(keyword)}`, { cache: "no-store" });
