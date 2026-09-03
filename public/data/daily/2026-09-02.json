@@ -1,0 +1,4006 @@
+{
+  "meta": {
+    "generatedAt": "2026-09-02T18:18:25+08:00",
+    "tradeDate": "2026-09-02",
+    "mode": "live",
+    "historyMode": "live_with_estimate",
+    "methodVersion": "MVP-2.0",
+    "coverage": 1.0,
+    "confidence": "A",
+    "estimatedHistoryPoints": 22,
+    "historyNote": "历史曲线中的回溯点来自全市场公开股吧分页观察，仅作估算；最新交易日为实测。",
+    "disclaimer": "本工具仅用于社区情绪观察与研究，不构成投资建议。高分不代表市场必然下跌，低分也不代表市场必然上涨。",
+    "sources": [
+      {
+        "id": "eastmoney",
+        "name": "东方财富股吧",
+        "status": "ok",
+        "sampleCount": 1612,
+        "note": "公开页面读取正常"
+      },
+      {
+        "id": "sina",
+        "name": "新浪股吧",
+        "status": "ok",
+        "sampleCount": 631,
+        "note": "公开页面读取正常"
+      },
+      {
+        "id": "taoguba",
+        "name": "淘股吧",
+        "status": "ok",
+        "sampleCount": 247,
+        "note": "公开页面读取正常"
+      }
+    ]
+  },
+  "summary": {
+    "overall": 51.2,
+    "direction": 2.0,
+    "novice": 1.9,
+    "fomo": 2.8,
+    "panic": 1.6,
+    "heat": 100.0,
+    "buyIndex": 46.5,
+    "sellIndex": 44.9,
+    "buySellRatio": 1.0,
+    "change": 0.4,
+    "sampleCount": 2490,
+    "label": "情绪平稳",
+    "readout": "多空表达接近平衡，暂未出现明确一致方向。"
+  },
+  "marketStats": {
+    "heat": 100.0,
+    "priceChange": -0.97,
+    "profitEffect": 29.4,
+    "breadthUp": 5,
+    "breadthDown": 18,
+    "breadthFlat": 1,
+    "breadthTotal": 24,
+    "breadthUpRate": 20.8,
+    "breadthMedianChange": -1.5,
+    "breadthAverageChange": -1.3,
+    "flowNet": -50.9,
+    "flow5d": -43.0,
+    "flowAvailable": true,
+    "flowCoverage": 7,
+    "flowTotal": 24,
+    "quoteSource": "腾讯行情公开报价",
+    "flowSource": "可用主题代表标的主力净流入合计",
+    "note": "赚钱效应结合代表池涨跌广度、中位涨跌与社区方向估算；资金流只合计当前可得的代表标的。"
+  },
+  "history": [
+    {
+      "date": "2026-07-01",
+      "overall": 47.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 25.0,
+      "profitEffect": 50.0,
+      "sampleCount": 2,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-06",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-07",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-13",
+      "overall": 48.8,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 31.2,
+      "panic": 0.0,
+      "heat": 15.8,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-16",
+      "overall": 48.7,
+      "direction": 0.0,
+      "novice": 26.3,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-20",
+      "overall": 47.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 25.0,
+      "profitEffect": 50.0,
+      "sampleCount": 2,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-21",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-03",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-04",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-06",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-10",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-13",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-18",
+      "overall": 48.7,
+      "direction": 0.0,
+      "novice": 26.3,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-19",
+      "overall": 46.6,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 31.5,
+      "profitEffect": 50.0,
+      "sampleCount": 3,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-20",
+      "overall": 48.7,
+      "direction": 0.0,
+      "novice": 26.3,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-21",
+      "overall": 48.4,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 50.0,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-24",
+      "overall": 46.6,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 31.5,
+      "profitEffect": 50.0,
+      "sampleCount": 3,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-25",
+      "overall": 46.6,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 31.5,
+      "profitEffect": 50.0,
+      "sampleCount": 3,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-26",
+      "overall": 48.8,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 34.3,
+      "panic": 0.0,
+      "heat": 15.8,
+      "profitEffect": 56.9,
+      "sampleCount": 1,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-27",
+      "overall": 46.6,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 31.5,
+      "profitEffect": 50.0,
+      "sampleCount": 3,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-28",
+      "overall": 46.6,
+      "direction": 0.0,
+      "novice": 0.0,
+      "fomo": 0.0,
+      "panic": 0.0,
+      "heat": 31.5,
+      "profitEffect": 50.0,
+      "sampleCount": 3,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-31",
+      "overall": 45.0,
+      "direction": -1.9,
+      "novice": 0.0,
+      "fomo": 4.2,
+      "panic": 0.0,
+      "heat": 58.4,
+      "profitEffect": 50.6,
+      "sampleCount": 12,
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-09-01",
+      "overall": 50.8,
+      "direction": 1.9,
+      "novice": 2.0,
+      "fomo": 4.8,
+      "panic": 1.5,
+      "heat": 97.2,
+      "recordType": "measured"
+    },
+    {
+      "date": "2026-09-02",
+      "overall": 51.2,
+      "direction": 2.0,
+      "novice": 1.9,
+      "fomo": 2.8,
+      "panic": 1.6,
+      "heat": 100.0,
+      "profitEffect": 29.4,
+      "sampleCount": 2490,
+      "recordType": "measured"
+    }
+  ],
+  "sectorHistory": [
+    {
+      "date": "2026-08-31",
+      "sectors": [
+        {
+          "id": "ai-server",
+          "overall": 48.9,
+          "heat": 24.4,
+          "sampleCount": 24
+        },
+        {
+          "id": "ai-application",
+          "overall": 48.9,
+          "heat": 10.5,
+          "sampleCount": 3
+        },
+        {
+          "id": "semi-equipment",
+          "overall": 46.7,
+          "heat": 42.3,
+          "sampleCount": 27
+        },
+        {
+          "id": "chip-foundry",
+          "overall": 46.3,
+          "heat": 44.1,
+          "sampleCount": 25
+        },
+        {
+          "id": "consumer-electronics",
+          "overall": 47.3,
+          "heat": 31.1,
+          "sampleCount": 14
+        },
+        {
+          "id": "humanoid-robot",
+          "overall": 47.6,
+          "heat": 26.3,
+          "sampleCount": 10
+        },
+        {
+          "id": "industrial-automation",
+          "overall": 49.1,
+          "heat": 8.3,
+          "sampleCount": 2
+        },
+        {
+          "id": "military-aviation",
+          "overall": 48.3,
+          "heat": 15.8,
+          "sampleCount": 4
+        },
+        {
+          "id": "low-altitude",
+          "overall": 49.1,
+          "heat": 8.3,
+          "sampleCount": 2
+        },
+        {
+          "id": "brokerage",
+          "overall": 46.6,
+          "heat": 33.3,
+          "sampleCount": 16
+        },
+        {
+          "id": "bank",
+          "overall": 45.5,
+          "heat": 50.4,
+          "sampleCount": 29
+        },
+        {
+          "id": "insurance",
+          "overall": 47.4,
+          "heat": 41.1,
+          "sampleCount": 37
+        },
+        {
+          "id": "real-estate",
+          "overall": 46.8,
+          "heat": 39.7,
+          "sampleCount": 26
+        },
+        {
+          "id": "solar",
+          "overall": 46.9,
+          "heat": 39.2,
+          "sampleCount": 30
+        },
+        {
+          "id": "battery",
+          "overall": 48.3,
+          "heat": 15.8,
+          "sampleCount": 4
+        },
+        {
+          "id": "auto",
+          "overall": 48.9,
+          "heat": 10.5,
+          "sampleCount": 2
+        },
+        {
+          "id": "liquor",
+          "overall": 48.1,
+          "heat": 18.9,
+          "sampleCount": 6
+        },
+        {
+          "id": "game-media",
+          "overall": 49.5,
+          "heat": 5.3,
+          "sampleCount": 1
+        },
+        {
+          "id": "innovative-drug",
+          "overall": 47.7,
+          "heat": 27.2,
+          "sampleCount": 13
+        },
+        {
+          "id": "medical-device",
+          "overall": 47.0,
+          "heat": 31.1,
+          "sampleCount": 12
+        },
+        {
+          "id": "agriculture",
+          "overall": 48.5,
+          "heat": 24.1,
+          "sampleCount": 23
+        },
+        {
+          "id": "gold",
+          "overall": 46.8,
+          "heat": 49.0,
+          "sampleCount": 39
+        },
+        {
+          "id": "nonferrous",
+          "overall": 49.5,
+          "heat": 5.3,
+          "sampleCount": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-01",
+      "sectors": [
+        {
+          "id": "ai-server",
+          "overall": 46.8,
+          "heat": 42.6,
+          "sampleCount": 20
+        },
+        {
+          "id": "ai-application",
+          "overall": 48.9,
+          "heat": 13.6,
+          "sampleCount": 3
+        },
+        {
+          "id": "semi-equipment",
+          "overall": 48.4,
+          "heat": 18.9,
+          "sampleCount": 4
+        },
+        {
+          "id": "chip-foundry",
+          "overall": 46.4,
+          "heat": 36.3,
+          "sampleCount": 13
+        },
+        {
+          "id": "consumer-electronics",
+          "overall": 46.7,
+          "heat": 32.4,
+          "sampleCount": 12
+        },
+        {
+          "id": "humanoid-robot",
+          "overall": 48.9,
+          "heat": 26.0,
+          "sampleCount": 30
+        },
+        {
+          "id": "industrial-automation",
+          "overall": 47.1,
+          "heat": 37.7,
+          "sampleCount": 26
+        },
+        {
+          "id": "military-aviation",
+          "overall": 49.5,
+          "heat": 5.3,
+          "sampleCount": 1
+        },
+        {
+          "id": "low-altitude",
+          "overall": 49.1,
+          "heat": 27.8,
+          "sampleCount": 38
+        },
+        {
+          "id": "brokerage",
+          "overall": 46.2,
+          "heat": 39.9,
+          "sampleCount": 16
+        },
+        {
+          "id": "bank",
+          "overall": 46.2,
+          "heat": 45.7,
+          "sampleCount": 22
+        },
+        {
+          "id": "insurance",
+          "overall": 47.6,
+          "heat": 28.0,
+          "sampleCount": 8
+        },
+        {
+          "id": "real-estate",
+          "overall": 46.8,
+          "heat": 35.5,
+          "sampleCount": 15
+        },
+        {
+          "id": "solar",
+          "overall": 47.1,
+          "heat": 29.4,
+          "sampleCount": 10
+        },
+        {
+          "id": "battery",
+          "overall": 47.1,
+          "heat": 28.4,
+          "sampleCount": 11
+        },
+        {
+          "id": "auto",
+          "overall": 47.4,
+          "heat": 28.9,
+          "sampleCount": 12
+        },
+        {
+          "id": "liquor",
+          "overall": 47.4,
+          "heat": 38.6,
+          "sampleCount": 29
+        },
+        {
+          "id": "game-media",
+          "overall": 48.3,
+          "heat": 17.5,
+          "sampleCount": 9
+        },
+        {
+          "id": "innovative-drug",
+          "overall": 48.3,
+          "heat": 16.7,
+          "sampleCount": 8
+        },
+        {
+          "id": "medical-device",
+          "overall": 48.1,
+          "heat": 18.8,
+          "sampleCount": 5
+        },
+        {
+          "id": "agriculture",
+          "overall": 47.6,
+          "heat": 25.8,
+          "sampleCount": 7
+        },
+        {
+          "id": "gold",
+          "overall": 47.4,
+          "heat": 25.3,
+          "sampleCount": 9
+        },
+        {
+          "id": "nonferrous",
+          "overall": 47.5,
+          "heat": 24.1,
+          "sampleCount": 7
+        }
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "sectors": [
+        {
+          "id": "military-aviation",
+          "overall": 50.1,
+          "heat": 32.6,
+          "sampleCount": 73,
+          "profitEffect": 53.5,
+          "priceChange": 0.99,
+          "flowNet": null
+        },
+        {
+          "id": "game-media",
+          "overall": 49.4,
+          "heat": 36.9,
+          "sampleCount": 65,
+          "profitEffect": 42.0,
+          "priceChange": -2.2,
+          "flowNet": null
+        },
+        {
+          "id": "low-altitude",
+          "overall": 49.3,
+          "heat": 29.4,
+          "sampleCount": 47,
+          "profitEffect": 50.4,
+          "priceChange": 0.09,
+          "flowNet": -0.01
+        },
+        {
+          "id": "nonferrous",
+          "overall": 49.3,
+          "heat": 52.2,
+          "sampleCount": 102,
+          "profitEffect": 39.5,
+          "priceChange": -3.04,
+          "flowNet": null
+        },
+        {
+          "id": "bank",
+          "overall": 49.3,
+          "heat": 28.0,
+          "sampleCount": 39,
+          "profitEffect": 50.5,
+          "priceChange": 0.02,
+          "flowNet": null
+        },
+        {
+          "id": "agriculture",
+          "overall": 48.8,
+          "heat": 45.6,
+          "sampleCount": 72,
+          "profitEffect": 46.6,
+          "priceChange": -0.87,
+          "flowNet": null
+        },
+        {
+          "id": "medical-device",
+          "overall": 48.8,
+          "heat": 25.8,
+          "sampleCount": 29,
+          "profitEffect": 47.7,
+          "priceChange": -0.69,
+          "flowNet": null
+        },
+        {
+          "id": "gold",
+          "overall": 48.8,
+          "heat": 50.0,
+          "sampleCount": 97,
+          "profitEffect": 59.7,
+          "priceChange": 2.71,
+          "flowNet": null
+        },
+        {
+          "id": "insurance",
+          "overall": 48.6,
+          "heat": 50.7,
+          "sampleCount": 71,
+          "profitEffect": 48.8,
+          "priceChange": -1.05,
+          "flowNet": null
+        },
+        {
+          "id": "innovative-drug",
+          "overall": 48.5,
+          "heat": 62.9,
+          "sampleCount": 100,
+          "profitEffect": 44.6,
+          "priceChange": -1.43,
+          "flowNet": null
+        },
+        {
+          "id": "consumer-electronics",
+          "overall": 48.4,
+          "heat": 53.1,
+          "sampleCount": 78,
+          "profitEffect": 51.8,
+          "priceChange": 0.28,
+          "flowNet": null
+        },
+        {
+          "id": "ai-application",
+          "overall": 48.3,
+          "heat": 64.4,
+          "sampleCount": 109,
+          "profitEffect": 35.3,
+          "priceChange": -4.35,
+          "flowNet": -6.53
+        },
+        {
+          "id": "real-estate",
+          "overall": 48.2,
+          "heat": 54.1,
+          "sampleCount": 85,
+          "profitEffect": 47.5,
+          "priceChange": -0.61,
+          "flowNet": null
+        },
+        {
+          "id": "solar",
+          "overall": 48.0,
+          "heat": 56.3,
+          "sampleCount": 81,
+          "profitEffect": 40.7,
+          "priceChange": -2.65,
+          "flowNet": null
+        },
+        {
+          "id": "brokerage",
+          "overall": 47.9,
+          "heat": 59.3,
+          "sampleCount": 81,
+          "profitEffect": 43.5,
+          "priceChange": -1.96,
+          "flowNet": -4.75
+        },
+        {
+          "id": "industrial-automation",
+          "overall": 47.8,
+          "heat": 36.0,
+          "sampleCount": 31,
+          "profitEffect": 44.8,
+          "priceChange": -1.56,
+          "flowNet": null
+        },
+        {
+          "id": "optical-module",
+          "overall": 47.5,
+          "heat": 51.2,
+          "sampleCount": 62,
+          "profitEffect": 34.9,
+          "priceChange": -4.29,
+          "flowNet": -30.66
+        },
+        {
+          "id": "chip-foundry",
+          "overall": 47.4,
+          "heat": 50.8,
+          "sampleCount": 59,
+          "profitEffect": 40.1,
+          "priceChange": -2.82,
+          "flowNet": -5.37
+        },
+        {
+          "id": "battery",
+          "overall": 47.4,
+          "heat": 74.7,
+          "sampleCount": 105,
+          "profitEffect": 40.4,
+          "priceChange": -2.74,
+          "flowNet": null
+        },
+        {
+          "id": "humanoid-robot",
+          "overall": 47.3,
+          "heat": 56.9,
+          "sampleCount": 64,
+          "profitEffect": 43.7,
+          "priceChange": -1.92,
+          "flowNet": null
+        },
+        {
+          "id": "semi-equipment",
+          "overall": 47.0,
+          "heat": 55.9,
+          "sampleCount": 68,
+          "profitEffect": 43.3,
+          "priceChange": -1.89,
+          "flowNet": -4.51
+        },
+        {
+          "id": "ai-server",
+          "overall": 46.9,
+          "heat": 66.4,
+          "sampleCount": 73,
+          "profitEffect": 51.4,
+          "priceChange": 0.11,
+          "flowNet": 0.96
+        },
+        {
+          "id": "liquor",
+          "overall": 46.9,
+          "heat": 59.4,
+          "sampleCount": 66,
+          "profitEffect": 49.9,
+          "priceChange": -0.16,
+          "flowNet": null
+        },
+        {
+          "id": "auto",
+          "overall": 45.9,
+          "heat": 67.8,
+          "sampleCount": 73,
+          "profitEffect": 42.9,
+          "priceChange": -2.15,
+          "flowNet": null
+        }
+      ]
+    }
+  ],
+  "sectors": [
+    {
+      "id": "military-aviation",
+      "name": "军工航空",
+      "stockCode": "600760",
+      "group": "高端制造",
+      "representative": "中航沈飞",
+      "overall": 50.1,
+      "direction": -0.3,
+      "novice": 33.8,
+      "fomo": 34.3,
+      "panic": 33.9,
+      "heat": 32.6,
+      "buyIndex": 56.0,
+      "sellIndex": 55.9,
+      "buySellRatio": 1.0,
+      "sampleCount": 73,
+      "sampleCount3d": 78,
+      "sampleShare": 4.2,
+      "sampleChange": 72,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 0.6,
+      "heatChange": 27.3,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 15.8
+        },
+        {
+          "date": "2026-09-01",
+          "value": 5.3
+        },
+        {
+          "date": "2026-09-02",
+          "value": 32.6
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 63,
+          "share": 86.3
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 4,
+          "share": 5.5
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 3,
+          "share": 4.1
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 2,
+          "share": 2.7
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 1,
+          "share": 1.4
+        }
+      ],
+      "priceChange": 0.99,
+      "profitEffect": 53.5,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 1,
+      "rankChange": 0
+    },
+    {
+      "id": "game-media",
+      "name": "游戏传媒",
+      "stockCode": "002555",
+      "group": "消费医药",
+      "representative": "三七互娱",
+      "overall": 49.4,
+      "direction": -1.2,
+      "novice": 16.8,
+      "fomo": 17.3,
+      "panic": 18.0,
+      "heat": 36.9,
+      "buyIndex": 50.2,
+      "sellIndex": 51.1,
+      "buySellRatio": 1.0,
+      "sampleCount": 65,
+      "sampleCount3d": 75,
+      "sampleShare": 3.8,
+      "sampleChange": 56,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 1.1,
+      "heatChange": 19.4,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 5.3
+        },
+        {
+          "date": "2026-09-01",
+          "value": 17.5
+        },
+        {
+          "date": "2026-09-02",
+          "value": 36.9
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 51,
+          "share": 78.5
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 6,
+          "share": 9.2
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 4,
+          "share": 6.2
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 3,
+          "share": 4.6
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 1,
+          "share": 1.5
+        }
+      ],
+      "priceChange": -2.2,
+      "profitEffect": 42.0,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 2,
+      "rankChange": 0
+    },
+    {
+      "id": "low-altitude",
+      "name": "低空经济",
+      "stockCode": "002085",
+      "group": "高端制造",
+      "representative": "万丰奥威",
+      "overall": 49.3,
+      "direction": 0.2,
+      "novice": 34.5,
+      "fomo": 33.5,
+      "panic": 33.3,
+      "heat": 29.4,
+      "buyIndex": 55.8,
+      "sellIndex": 55.6,
+      "buySellRatio": 1.0,
+      "sampleCount": 47,
+      "sampleCount3d": 87,
+      "sampleShare": 2.7,
+      "sampleChange": 9,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 0.2,
+      "heatChange": 1.6,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "平稳",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 8.3
+        },
+        {
+          "date": "2026-09-01",
+          "value": 27.8
+        },
+        {
+          "date": "2026-09-02",
+          "value": 29.4
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 44,
+          "share": 93.6
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 2,
+          "share": 4.3
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 1,
+          "share": 2.1
+        }
+      ],
+      "priceChange": 0.09,
+      "profitEffect": 50.4,
+      "flowNet": -0.01,
+      "flow5d": 0.15,
+      "flowRatio": null,
+      "flowAvailable": true,
+      "flowSource": "东方财富日线主力净流入（代表标的）",
+      "rank": 3,
+      "rankChange": 0
+    },
+    {
+      "id": "nonferrous",
+      "name": "有色金属",
+      "stockCode": "603799",
+      "group": "周期防御",
+      "representative": "华友钴业",
+      "overall": 49.3,
+      "direction": -2.6,
+      "novice": 21.6,
+      "fomo": 20.4,
+      "panic": 18.1,
+      "heat": 52.2,
+      "buyIndex": 51.3,
+      "sellIndex": 51.0,
+      "buySellRatio": 1.0,
+      "sampleCount": 102,
+      "sampleCount3d": 110,
+      "sampleShare": 5.9,
+      "sampleChange": 95,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "B",
+      "change": 1.8,
+      "heatChange": 28.1,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 5.3
+        },
+        {
+          "date": "2026-09-01",
+          "value": 24.1
+        },
+        {
+          "date": "2026-09-02",
+          "value": 52.2
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 82,
+          "share": 80.4
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 8,
+          "share": 7.8
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 5,
+          "share": 4.9
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 3,
+          "share": 2.9
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 3,
+          "share": 2.9
+        },
+        {
+          "key": "newcomer",
+          "label": "新手求助",
+          "count": 1,
+          "share": 1.0
+        }
+      ],
+      "priceChange": -3.04,
+      "profitEffect": 39.5,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 4,
+      "rankChange": 0
+    },
+    {
+      "id": "bank",
+      "name": "银行",
+      "stockCode": "600036",
+      "group": "金融地产",
+      "representative": "招商银行",
+      "overall": 49.3,
+      "direction": 0.7,
+      "novice": 34.9,
+      "fomo": 34.9,
+      "panic": 33.3,
+      "heat": 28.0,
+      "buyIndex": 56.6,
+      "sellIndex": 55.2,
+      "buySellRatio": 1.0,
+      "sampleCount": 39,
+      "sampleCount3d": 90,
+      "sampleShare": 2.3,
+      "sampleChange": 17,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 3.1,
+      "heatChange": -17.7,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速降温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 50.4
+        },
+        {
+          "date": "2026-09-01",
+          "value": 45.7
+        },
+        {
+          "date": "2026-09-02",
+          "value": 28.0
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 34,
+          "share": 87.2
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 3,
+          "share": 7.7
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 2,
+          "share": 5.1
+        }
+      ],
+      "priceChange": 0.02,
+      "profitEffect": 50.5,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 5,
+      "rankChange": 0
+    },
+    {
+      "id": "agriculture",
+      "name": "农业养殖",
+      "stockCode": "002714",
+      "group": "消费医药",
+      "representative": "牧原股份",
+      "overall": 48.8,
+      "direction": -0.4,
+      "novice": 18.7,
+      "fomo": 19.2,
+      "panic": 20.7,
+      "heat": 45.6,
+      "buyIndex": 50.8,
+      "sellIndex": 52.0,
+      "buySellRatio": 1.0,
+      "sampleCount": 72,
+      "sampleCount3d": 102,
+      "sampleShare": 4.2,
+      "sampleChange": 65,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 1.2,
+      "heatChange": 19.8,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 24.1
+        },
+        {
+          "date": "2026-09-01",
+          "value": 25.8
+        },
+        {
+          "date": "2026-09-02",
+          "value": 45.6
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 58,
+          "share": 80.6
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 5,
+          "share": 6.9
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 5,
+          "share": 6.9
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 3,
+          "share": 4.2
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 1,
+          "share": 1.4
+        }
+      ],
+      "priceChange": -0.87,
+      "profitEffect": 46.6,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 6,
+      "rankChange": 0
+    },
+    {
+      "id": "medical-device",
+      "name": "医疗器械",
+      "stockCode": "300760",
+      "group": "消费医药",
+      "representative": "迈瑞医疗",
+      "overall": 48.8,
+      "direction": 0.0,
+      "novice": 33.9,
+      "fomo": 34.4,
+      "panic": 34.0,
+      "heat": 25.8,
+      "buyIndex": 56.1,
+      "sellIndex": 55.8,
+      "buySellRatio": 1.0,
+      "sampleCount": 29,
+      "sampleCount3d": 46,
+      "sampleShare": 1.7,
+      "sampleChange": 24,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "D",
+      "change": 0.7,
+      "heatChange": 7.0,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 31.1
+        },
+        {
+          "date": "2026-09-01",
+          "value": 18.8
+        },
+        {
+          "date": "2026-09-02",
+          "value": 25.8
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 24,
+          "share": 82.8
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 1,
+          "share": 3.4
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 1,
+          "share": 3.4
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 1,
+          "share": 3.4
+        },
+        {
+          "key": "newcomer",
+          "label": "新手求助",
+          "count": 1,
+          "share": 3.4
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 1,
+          "share": 3.4
+        }
+      ],
+      "priceChange": -0.69,
+      "profitEffect": 47.7,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 7,
+      "rankChange": 1
+    },
+    {
+      "id": "gold",
+      "name": "黄金",
+      "stockCode": "600547",
+      "group": "周期防御",
+      "representative": "山东黄金",
+      "overall": 48.8,
+      "direction": 0.1,
+      "novice": 18.8,
+      "fomo": 18.2,
+      "panic": 17.0,
+      "heat": 50.0,
+      "buyIndex": 51.0,
+      "sellIndex": 50.2,
+      "buySellRatio": 1.0,
+      "sampleCount": 97,
+      "sampleCount3d": 145,
+      "sampleShare": 5.6,
+      "sampleChange": 88,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 1.4,
+      "heatChange": 24.7,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 49.0
+        },
+        {
+          "date": "2026-09-01",
+          "value": 25.3
+        },
+        {
+          "date": "2026-09-02",
+          "value": 50.0
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 79,
+          "share": 81.4
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 6,
+          "share": 6.2
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 6,
+          "share": 6.2
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 5,
+          "share": 5.2
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 1,
+          "share": 1.0
+        }
+      ],
+      "priceChange": 2.71,
+      "profitEffect": 59.7,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 8,
+      "rankChange": -1
+    },
+    {
+      "id": "insurance",
+      "name": "保险",
+      "stockCode": "601318",
+      "group": "金融地产",
+      "representative": "中国平安",
+      "overall": 48.6,
+      "direction": -0.1,
+      "novice": 0.8,
+      "fomo": 13.8,
+      "panic": 1.2,
+      "heat": 50.7,
+      "buyIndex": 51.4,
+      "sellIndex": 43.4,
+      "buySellRatio": 1.2,
+      "sampleCount": 71,
+      "sampleCount3d": 116,
+      "sampleShare": 4.1,
+      "sampleChange": 63,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 1.0,
+      "heatChange": 22.7,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 41.1
+        },
+        {
+          "date": "2026-09-01",
+          "value": 28.0
+        },
+        {
+          "date": "2026-09-02",
+          "value": 50.7
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 58,
+          "share": 81.7
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 5,
+          "share": 7.0
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 4,
+          "share": 5.6
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 3,
+          "share": 4.2
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 1,
+          "share": 1.4
+        }
+      ],
+      "priceChange": -1.05,
+      "profitEffect": 48.8,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 9,
+      "rankChange": 0
+    },
+    {
+      "id": "innovative-drug",
+      "name": "创新药",
+      "stockCode": "600276",
+      "group": "消费医药",
+      "representative": "恒瑞医药",
+      "overall": 48.5,
+      "direction": -2.0,
+      "novice": 1.1,
+      "fomo": 2.2,
+      "panic": 2.9,
+      "heat": 62.9,
+      "buyIndex": 45.2,
+      "sellIndex": 46.5,
+      "buySellRatio": 1.0,
+      "sampleCount": 100,
+      "sampleCount3d": 121,
+      "sampleShare": 5.8,
+      "sampleChange": 92,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "B",
+      "change": 0.2,
+      "heatChange": 46.2,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 27.2
+        },
+        {
+          "date": "2026-09-01",
+          "value": 16.7
+        },
+        {
+          "date": "2026-09-02",
+          "value": 62.9
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 78,
+          "share": 78.0
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 9,
+          "share": 9.0
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 6,
+          "share": 6.0
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 4,
+          "share": 4.0
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 3,
+          "share": 3.0
+        }
+      ],
+      "priceChange": -1.43,
+      "profitEffect": 44.6,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 10,
+      "rankChange": 0
+    },
+    {
+      "id": "consumer-electronics",
+      "name": "消费电子",
+      "stockCode": "002475",
+      "group": "科技",
+      "representative": "立讯精密",
+      "overall": 48.4,
+      "direction": 2.0,
+      "novice": 1.6,
+      "fomo": 4.0,
+      "panic": 1.3,
+      "heat": 53.1,
+      "buyIndex": 47.2,
+      "sellIndex": 44.5,
+      "buySellRatio": 1.1,
+      "sampleCount": 78,
+      "sampleCount3d": 104,
+      "sampleShare": 4.5,
+      "sampleChange": 66,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 1.7,
+      "heatChange": 20.7,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 31.1
+        },
+        {
+          "date": "2026-09-01",
+          "value": 32.4
+        },
+        {
+          "date": "2026-09-02",
+          "value": 53.1
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 63,
+          "share": 80.8
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 8,
+          "share": 10.3
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 4,
+          "share": 5.1
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 2,
+          "share": 2.6
+        },
+        {
+          "key": "newcomer",
+          "label": "新手求助",
+          "count": 1,
+          "share": 1.3
+        }
+      ],
+      "priceChange": 0.28,
+      "profitEffect": 51.8,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 11,
+      "rankChange": 0
+    },
+    {
+      "id": "ai-application",
+      "name": "AI 应用",
+      "stockCode": "300033",
+      "group": "科技",
+      "representative": "同花顺",
+      "overall": 48.3,
+      "direction": 2.0,
+      "novice": 7.4,
+      "fomo": 2.5,
+      "panic": 1.0,
+      "heat": 64.4,
+      "buyIndex": 46.5,
+      "sellIndex": 44.6,
+      "buySellRatio": 1.0,
+      "sampleCount": 109,
+      "sampleCount3d": 115,
+      "sampleShare": 6.3,
+      "sampleChange": 106,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "B",
+      "change": -0.6,
+      "heatChange": 50.8,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 10.5
+        },
+        {
+          "date": "2026-09-01",
+          "value": 13.6
+        },
+        {
+          "date": "2026-09-02",
+          "value": 64.4
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 89,
+          "share": 81.7
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 9,
+          "share": 8.3
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 5,
+          "share": 4.6
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 4,
+          "share": 3.7
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 2,
+          "share": 1.8
+        }
+      ],
+      "priceChange": -4.35,
+      "profitEffect": 35.3,
+      "flowNet": -6.53,
+      "flow5d": -7.52,
+      "flowRatio": null,
+      "flowAvailable": true,
+      "flowSource": "东方财富日线主力净流入（代表标的）",
+      "rank": 12,
+      "rankChange": 0
+    },
+    {
+      "id": "real-estate",
+      "name": "房地产",
+      "stockCode": "600048",
+      "group": "金融地产",
+      "representative": "保利发展",
+      "overall": 48.2,
+      "direction": -1.6,
+      "novice": 0.3,
+      "fomo": 0.8,
+      "panic": 1.8,
+      "heat": 54.1,
+      "buyIndex": 44.7,
+      "sellIndex": 46.1,
+      "buySellRatio": 1.0,
+      "sampleCount": 85,
+      "sampleCount3d": 126,
+      "sampleShare": 4.9,
+      "sampleChange": 70,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 1.4,
+      "heatChange": 18.6,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 39.7
+        },
+        {
+          "date": "2026-09-01",
+          "value": 35.5
+        },
+        {
+          "date": "2026-09-02",
+          "value": 54.1
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 63,
+          "share": 74.1
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 8,
+          "share": 9.4
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 7,
+          "share": 8.2
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 5,
+          "share": 5.9
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 2,
+          "share": 2.4
+        }
+      ],
+      "priceChange": -0.61,
+      "profitEffect": 47.5,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 13,
+      "rankChange": 0
+    },
+    {
+      "id": "solar",
+      "name": "光伏",
+      "stockCode": "601012",
+      "group": "新能源车",
+      "representative": "隆基绿能",
+      "overall": 48.0,
+      "direction": -1.8,
+      "novice": 2.5,
+      "fomo": 1.0,
+      "panic": 0.0,
+      "heat": 56.3,
+      "buyIndex": 45.1,
+      "sellIndex": 45.2,
+      "buySellRatio": 1.0,
+      "sampleCount": 81,
+      "sampleCount3d": 121,
+      "sampleShare": 4.7,
+      "sampleChange": 71,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 0.9,
+      "heatChange": 26.9,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 39.2
+        },
+        {
+          "date": "2026-09-01",
+          "value": 29.4
+        },
+        {
+          "date": "2026-09-02",
+          "value": 56.3
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 66,
+          "share": 81.5
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 8,
+          "share": 9.9
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 3,
+          "share": 3.7
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 2,
+          "share": 2.5
+        },
+        {
+          "key": "newcomer",
+          "label": "新手求助",
+          "count": 2,
+          "share": 2.5
+        }
+      ],
+      "priceChange": -2.65,
+      "profitEffect": 40.7,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 14,
+      "rankChange": 0
+    },
+    {
+      "id": "brokerage",
+      "name": "券商",
+      "stockCode": "600030",
+      "group": "金融地产",
+      "representative": "中信证券",
+      "overall": 47.9,
+      "direction": -0.1,
+      "novice": 0.9,
+      "fomo": 2.9,
+      "panic": 0.8,
+      "heat": 59.3,
+      "buyIndex": 46.2,
+      "sellIndex": 44.9,
+      "buySellRatio": 1.0,
+      "sampleCount": 81,
+      "sampleCount3d": 113,
+      "sampleShare": 4.7,
+      "sampleChange": 65,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 1.7,
+      "heatChange": 19.4,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 33.3
+        },
+        {
+          "date": "2026-09-01",
+          "value": 39.9
+        },
+        {
+          "date": "2026-09-02",
+          "value": 59.3
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 69,
+          "share": 85.2
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 5,
+          "share": 6.2
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 4,
+          "share": 4.9
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 2,
+          "share": 2.5
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 1,
+          "share": 1.2
+        }
+      ],
+      "priceChange": -1.96,
+      "profitEffect": 43.5,
+      "flowNet": -4.75,
+      "flow5d": -0.08,
+      "flowRatio": null,
+      "flowAvailable": true,
+      "flowSource": "东方财富日线主力净流入（代表标的）",
+      "rank": 15,
+      "rankChange": 0
+    },
+    {
+      "id": "industrial-automation",
+      "name": "工业自动化",
+      "stockCode": "300124",
+      "group": "高端制造",
+      "representative": "汇川技术",
+      "overall": 47.8,
+      "direction": -0.1,
+      "novice": 17.3,
+      "fomo": 19.2,
+      "panic": 18.0,
+      "heat": 36.0,
+      "buyIndex": 51.3,
+      "sellIndex": 50.6,
+      "buySellRatio": 1.0,
+      "sampleCount": 31,
+      "sampleCount3d": 59,
+      "sampleShare": 1.8,
+      "sampleChange": 5,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 0.7,
+      "heatChange": -1.7,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "平稳",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 8.3
+        },
+        {
+          "date": "2026-09-01",
+          "value": 37.7
+        },
+        {
+          "date": "2026-09-02",
+          "value": 36.0
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 24,
+          "share": 77.4
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 3,
+          "share": 9.7
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 2,
+          "share": 6.5
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 1,
+          "share": 3.2
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 1,
+          "share": 3.2
+        }
+      ],
+      "priceChange": -1.56,
+      "profitEffect": 44.8,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 16,
+      "rankChange": 0
+    },
+    {
+      "id": "optical-module",
+      "name": "CPO 光模块",
+      "stockCode": "300308",
+      "group": "科技",
+      "representative": "中际旭创",
+      "overall": 47.5,
+      "direction": -1.0,
+      "novice": 17.5,
+      "fomo": 16.8,
+      "panic": 16.7,
+      "heat": 51.2,
+      "buyIndex": 50.2,
+      "sellIndex": 50.5,
+      "buySellRatio": 1.0,
+      "sampleCount": 62,
+      "sampleCount3d": 62,
+      "sampleShare": 3.6,
+      "sampleChange": 0,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 0.0,
+      "heatChange": 0.0,
+      "heatChange5d": null,
+      "heatChangeAvailable": false,
+      "heatChange5dAvailable": false,
+      "heatTrend": "基线不足",
+      "heatSeries": [
+        {
+          "date": "2026-09-02",
+          "value": 51.2
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 50,
+          "share": 80.6
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 9,
+          "share": 14.5
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 3,
+          "share": 4.8
+        }
+      ],
+      "priceChange": -4.29,
+      "profitEffect": 34.9,
+      "flowNet": -30.66,
+      "flow5d": -28.14,
+      "flowRatio": null,
+      "flowAvailable": true,
+      "flowSource": "东方财富日线主力净流入（代表标的）",
+      "rank": 17,
+      "rankChange": 0
+    },
+    {
+      "id": "chip-foundry",
+      "name": "芯片制造",
+      "stockCode": "688981",
+      "group": "科技",
+      "representative": "中芯国际",
+      "overall": 47.4,
+      "direction": 0.8,
+      "novice": 0.6,
+      "fomo": 0.4,
+      "panic": 0.8,
+      "heat": 50.8,
+      "buyIndex": 45.2,
+      "sellIndex": 45.1,
+      "buySellRatio": 1.0,
+      "sampleCount": 59,
+      "sampleCount3d": 97,
+      "sampleShare": 3.4,
+      "sampleChange": 46,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 1.0,
+      "heatChange": 14.5,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 44.1
+        },
+        {
+          "date": "2026-09-01",
+          "value": 36.3
+        },
+        {
+          "date": "2026-09-02",
+          "value": 50.8
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 51,
+          "share": 86.4
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 3,
+          "share": 5.1
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 2,
+          "share": 3.4
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 2,
+          "share": 3.4
+        },
+        {
+          "key": "newcomer",
+          "label": "新手求助",
+          "count": 1,
+          "share": 1.7
+        }
+      ],
+      "priceChange": -2.82,
+      "profitEffect": 40.1,
+      "flowNet": -5.37,
+      "flow5d": -5.29,
+      "flowRatio": null,
+      "flowAvailable": true,
+      "flowSource": "东方财富日线主力净流入（代表标的）",
+      "rank": 18,
+      "rankChange": 0
+    },
+    {
+      "id": "battery",
+      "name": "锂电池",
+      "stockCode": "300750",
+      "group": "新能源车",
+      "representative": "宁德时代",
+      "overall": 47.4,
+      "direction": -1.2,
+      "novice": 1.3,
+      "fomo": 2.4,
+      "panic": 1.9,
+      "heat": 74.7,
+      "buyIndex": 45.6,
+      "sellIndex": 45.8,
+      "buySellRatio": 1.0,
+      "sampleCount": 105,
+      "sampleCount3d": 120,
+      "sampleShare": 6.1,
+      "sampleChange": 94,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "B",
+      "change": 0.3,
+      "heatChange": 46.3,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 15.8
+        },
+        {
+          "date": "2026-09-01",
+          "value": 28.4
+        },
+        {
+          "date": "2026-09-02",
+          "value": 74.7
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 85,
+          "share": 81.0
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 9,
+          "share": 8.6
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 6,
+          "share": 5.7
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 4,
+          "share": 3.8
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 1,
+          "share": 1.0
+        }
+      ],
+      "priceChange": -2.74,
+      "profitEffect": 40.4,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 19,
+      "rankChange": 0
+    },
+    {
+      "id": "humanoid-robot",
+      "name": "人形机器人",
+      "stockCode": "300024",
+      "group": "高端制造",
+      "representative": "机器人",
+      "overall": 47.3,
+      "direction": 2.2,
+      "novice": 0.4,
+      "fomo": 1.5,
+      "panic": 0.6,
+      "heat": 56.9,
+      "buyIndex": 46.1,
+      "sellIndex": 44.6,
+      "buySellRatio": 1.0,
+      "sampleCount": 64,
+      "sampleCount3d": 104,
+      "sampleShare": 3.7,
+      "sampleChange": 34,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": -1.6,
+      "heatChange": 30.9,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 26.3
+        },
+        {
+          "date": "2026-09-01",
+          "value": 26.0
+        },
+        {
+          "date": "2026-09-02",
+          "value": 56.9
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 56,
+          "share": 87.5
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 4,
+          "share": 6.2
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 2,
+          "share": 3.1
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 1,
+          "share": 1.6
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 1,
+          "share": 1.6
+        }
+      ],
+      "priceChange": -1.92,
+      "profitEffect": 43.7,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 20,
+      "rankChange": 0
+    },
+    {
+      "id": "semi-equipment",
+      "name": "半导体设备",
+      "stockCode": "688012",
+      "group": "科技",
+      "representative": "中微公司",
+      "overall": 47.0,
+      "direction": 0.6,
+      "novice": 0.6,
+      "fomo": 0.0,
+      "panic": 0.7,
+      "heat": 55.9,
+      "buyIndex": 45.0,
+      "sellIndex": 45.2,
+      "buySellRatio": 1.0,
+      "sampleCount": 68,
+      "sampleCount3d": 99,
+      "sampleShare": 3.9,
+      "sampleChange": 64,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": -1.4,
+      "heatChange": 37.0,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 42.3
+        },
+        {
+          "date": "2026-09-01",
+          "value": 18.9
+        },
+        {
+          "date": "2026-09-02",
+          "value": 55.9
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 60,
+          "share": 88.2
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 4,
+          "share": 5.9
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 2,
+          "share": 2.9
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 2,
+          "share": 2.9
+        }
+      ],
+      "priceChange": -1.89,
+      "profitEffect": 43.3,
+      "flowNet": -4.51,
+      "flow5d": -15.62,
+      "flowRatio": null,
+      "flowAvailable": true,
+      "flowSource": "东方财富日线主力净流入（代表标的）",
+      "rank": 21,
+      "rankChange": 0
+    },
+    {
+      "id": "ai-server",
+      "name": "AI 服务器",
+      "stockCode": "000977",
+      "group": "科技",
+      "representative": "浪潮信息",
+      "overall": 46.9,
+      "direction": 5.6,
+      "novice": 2.2,
+      "fomo": 4.7,
+      "panic": 2.8,
+      "heat": 66.4,
+      "buyIndex": 48.0,
+      "sellIndex": 44.4,
+      "buySellRatio": 1.1,
+      "sampleCount": 73,
+      "sampleCount3d": 117,
+      "sampleShare": 4.2,
+      "sampleChange": 53,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": 0.1,
+      "heatChange": 23.8,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 24.4
+        },
+        {
+          "date": "2026-09-01",
+          "value": 42.6
+        },
+        {
+          "date": "2026-09-02",
+          "value": 66.4
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 49,
+          "share": 67.1
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 16,
+          "share": 21.9
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 3,
+          "share": 4.1
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 2,
+          "share": 2.7
+        },
+        {
+          "key": "trapped",
+          "label": "套牢恐慌",
+          "count": 2,
+          "share": 2.7
+        },
+        {
+          "key": "newcomer",
+          "label": "新手求助",
+          "count": 1,
+          "share": 1.4
+        }
+      ],
+      "priceChange": 0.11,
+      "profitEffect": 51.4,
+      "flowNet": 0.96,
+      "flow5d": 13.48,
+      "flowRatio": null,
+      "flowAvailable": true,
+      "flowSource": "东方财富日线主力净流入（代表标的）",
+      "rank": 22,
+      "rankChange": 0
+    },
+    {
+      "id": "liquor",
+      "name": "白酒",
+      "stockCode": "600519",
+      "group": "消费医药",
+      "representative": "贵州茅台",
+      "overall": 46.9,
+      "direction": 0.4,
+      "novice": 0.9,
+      "fomo": 2.2,
+      "panic": 0.0,
+      "heat": 59.4,
+      "buyIndex": 46.1,
+      "sellIndex": 44.6,
+      "buySellRatio": 1.0,
+      "sampleCount": 66,
+      "sampleCount3d": 101,
+      "sampleShare": 3.8,
+      "sampleChange": 37,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": -0.5,
+      "heatChange": 20.8,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 18.9
+        },
+        {
+          "date": "2026-09-01",
+          "value": 38.6
+        },
+        {
+          "date": "2026-09-02",
+          "value": 59.4
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 57,
+          "share": 86.4
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 4,
+          "share": 6.1
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 3,
+          "share": 4.5
+        },
+        {
+          "key": "chaser",
+          "label": "追涨短线",
+          "count": 2,
+          "share": 3.0
+        }
+      ],
+      "priceChange": -0.16,
+      "profitEffect": 49.9,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 23,
+      "rankChange": 0
+    },
+    {
+      "id": "auto",
+      "name": "汽车整车",
+      "stockCode": "002594",
+      "group": "新能源车",
+      "representative": "比亚迪",
+      "overall": 45.9,
+      "direction": 0.8,
+      "novice": 1.0,
+      "fomo": 1.4,
+      "panic": 0.0,
+      "heat": 67.8,
+      "buyIndex": 45.8,
+      "sellIndex": 44.6,
+      "buySellRatio": 1.0,
+      "sampleCount": 73,
+      "sampleCount3d": 87,
+      "sampleShare": 4.2,
+      "sampleChange": 61,
+      "dataWindow": "当日",
+      "mixWindow": "当日",
+      "confidence": "C",
+      "change": -1.5,
+      "heatChange": 38.9,
+      "heatChange5d": null,
+      "heatChangeAvailable": true,
+      "heatChange5dAvailable": false,
+      "heatTrend": "快速升温",
+      "heatSeries": [
+        {
+          "date": "2026-08-31",
+          "value": 10.5
+        },
+        {
+          "date": "2026-09-01",
+          "value": 28.9
+        },
+        {
+          "date": "2026-09-02",
+          "value": 67.8
+        }
+      ],
+      "participantMix": [
+        {
+          "key": "observer",
+          "label": "观望讨论",
+          "count": 69,
+          "share": 94.5
+        },
+        {
+          "key": "bull",
+          "label": "看多跟随",
+          "count": 2,
+          "share": 2.7
+        },
+        {
+          "key": "bear",
+          "label": "看空防守",
+          "count": 2,
+          "share": 2.7
+        }
+      ],
+      "priceChange": -2.15,
+      "profitEffect": 42.9,
+      "flowNet": null,
+      "flow5d": null,
+      "flowRatio": null,
+      "flowAvailable": false,
+      "flowSource": "公开资金流字段暂不可用",
+      "rank": 24,
+      "rankChange": 0
+    }
+  ],
+  "signals": [
+    {
+      "label": "涨停",
+      "count": 51,
+      "tone": "hot"
+    },
+    {
+      "label": "下跌",
+      "count": 49,
+      "tone": "hot"
+    },
+    {
+      "label": "冲",
+      "count": 44,
+      "tone": "hot"
+    },
+    {
+      "label": "大跌",
+      "count": 31,
+      "tone": "hot"
+    },
+    {
+      "label": "大涨",
+      "count": 31,
+      "tone": "hot"
+    }
+  ],
+  "comments": [
+    {
+      "id": "eastmoney-market-2026-09-02T18:00:58+08:00",
+      "date": "2026-09-02 18:00",
+      "source": "东方财富股吧",
+      "sectorId": "market",
+      "sectorName": "全市场",
+      "excerpt": "满仓科技,普及亏得裤衩子都没了,问问大佬,科技行情真的,完了么?",
+      "tone": "fomo",
+      "intent": "追涨/买入",
+      "signals": [
+        "大佬",
+        "满仓",
+        "完了"
+      ]
+    },
+    {
+      "id": "eastmoney-real-estate-2026-09-02T12:41:36+08:00",
+      "date": "2026-09-02 12:41",
+      "source": "东方财富股吧",
+      "sectorId": "real-estate",
+      "sectorName": "房地产",
+      "excerpt": "一路补仓,成本还在6块出头,底部割肉是不可能的,除非拉起来少亏点才割肉",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "割肉"
+      ]
+    },
+    {
+      "id": "eastmoney-battery-2026-09-02T16:13:21+08:00",
+      "date": "2026-09-02 16:13",
+      "source": "东方财富股吧",
+      "sectorId": "battery",
+      "sectorName": "锂电池",
+      "excerpt": "亏麻了,394的本。给回钱我不玩了",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "不玩了",
+        "亏麻"
+      ]
+    },
+    {
+      "id": "eastmoney-industrial-automation-2026-09-02T12:14:29+08:00",
+      "date": "2026-09-02 12:14",
+      "source": "东方财富股吧",
+      "sectorId": "industrial-automation",
+      "sectorName": "工业自动化",
+      "excerpt": "慢刀子割肉,虽然不疼,但回头一看就是深套",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "割肉",
+        "深套"
+      ]
+    },
+    {
+      "id": "eastmoney-market-2026-09-02T18:07:46+08:00",
+      "date": "2026-09-02 18:07",
+      "source": "东方财富股吧",
+      "sectorId": "market",
+      "sectorName": "全市场",
+      "excerpt": "清仓走人才不会被深套",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "清仓",
+        "深套"
+      ]
+    },
+    {
+      "id": "eastmoney-agriculture-2026-09-02T15:06:39+08:00",
+      "date": "2026-09-02 15:06",
+      "source": "东方财富股吧",
+      "sectorId": "agriculture",
+      "sectorName": "农业养殖",
+      "excerpt": "明天起飞,别问我为什么,我已经满仓",
+      "tone": "fomo",
+      "intent": "追涨/买入",
+      "signals": [
+        "满仓",
+        "起飞"
+      ]
+    },
+    {
+      "id": "eastmoney-nonferrous-2026-09-02T16:46:44+08:00",
+      "date": "2026-09-02 16:46",
+      "source": "东方财富股吧",
+      "sectorId": "nonferrous",
+      "sectorName": "有色金属",
+      "excerpt": "亏麻了",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "亏麻"
+      ]
+    },
+    {
+      "id": "eastmoney-nonferrous-2026-09-02T15:59:57+08:00",
+      "date": "2026-09-02 15:59",
+      "source": "东方财富股吧",
+      "sectorId": "nonferrous",
+      "sectorName": "有色金属",
+      "excerpt": "今天亏麻了",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "亏麻"
+      ]
+    },
+    {
+      "id": "eastmoney-ai-application-2026-09-02T13:35:38+08:00",
+      "date": "2026-09-02 13:35",
+      "source": "东方财富股吧",
+      "sectorId": "ai-application",
+      "sectorName": "AI 应用",
+      "excerpt": "付小桐割肉离场",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "割肉"
+      ]
+    },
+    {
+      "id": "eastmoney-humanoid-robot-2026-09-02T09:57:19+08:00",
+      "date": "2026-09-02 09:57",
+      "source": "东方财富股吧",
+      "sectorId": "humanoid-robot",
+      "sectorName": "人形机器人",
+      "excerpt": "有技术派说14.14这个位置有强支撑,这就是技术派和大多数散户硬扛死不割肉的原因",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "割肉"
+      ]
+    },
+    {
+      "id": "eastmoney-brokerage-2026-09-02T14:35:51+08:00",
+      "date": "2026-09-02 14:35",
+      "source": "东方财富股吧",
+      "sectorId": "brokerage",
+      "sectorName": "券商",
+      "excerpt": "反正散户必须割肉不然一辈子别想涨",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "割肉"
+      ]
+    },
+    {
+      "id": "eastmoney-battery-2026-09-02T17:04:45+08:00",
+      "date": "2026-09-02 17:04",
+      "source": "东方财富股吧",
+      "sectorId": "battery",
+      "sectorName": "锂电池",
+      "excerpt": "372亏5个点割肉了,开始赚钱没出,被回购蒙蔽,气人",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "割肉"
+      ]
+    },
+    {
+      "id": "eastmoney-game-media-2026-09-02T10:50:27+08:00",
+      "date": "2026-09-02 10:50",
+      "source": "东方财富股吧",
+      "sectorId": "game-media",
+      "sectorName": "游戏传媒",
+      "excerpt": "果断割肉去完美学猫叫",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "割肉"
+      ]
+    },
+    {
+      "id": "eastmoney-game-media-2026-09-02T10:01:38+08:00",
+      "date": "2026-09-02 10:01",
+      "source": "东方财富股吧",
+      "sectorId": "game-media",
+      "sectorName": "游戏传媒",
+      "excerpt": "早上没果断跑下午要割肉了",
+      "tone": "panic",
+      "intent": "恐慌/离场",
+      "signals": [
+        "割肉"
+      ]
+    }
+  ],
+  "calendar": [
+    {
+      "date": "2026-07-01",
+      "overall": 47.4,
+      "heat": 25.0,
+      "sampleCount": 2,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-06",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-07",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": null,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-13",
+      "overall": 48.8,
+      "heat": 15.8,
+      "sampleCount": null,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-16",
+      "overall": 48.7,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-20",
+      "overall": 47.4,
+      "heat": 25.0,
+      "sampleCount": 2,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-07-21",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-03",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": null,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-04",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-06",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-10",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-13",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-18",
+      "overall": 48.7,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-19",
+      "overall": 46.6,
+      "heat": 31.5,
+      "sampleCount": 3,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-20",
+      "overall": 48.7,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-21",
+      "overall": 48.4,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-24",
+      "overall": 46.6,
+      "heat": 31.5,
+      "sampleCount": 3,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-25",
+      "overall": 46.6,
+      "heat": 31.5,
+      "sampleCount": 3,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-26",
+      "overall": 48.8,
+      "heat": 15.8,
+      "sampleCount": 1,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-27",
+      "overall": 46.6,
+      "heat": 31.5,
+      "sampleCount": 3,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-28",
+      "overall": 46.6,
+      "heat": 31.5,
+      "sampleCount": 3,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-08-31",
+      "overall": 45.0,
+      "heat": 58.4,
+      "sampleCount": 12,
+      "bucket": "cool",
+      "recordType": "estimated"
+    },
+    {
+      "date": "2026-09-01",
+      "overall": 50.8,
+      "heat": 97.2,
+      "sampleCount": null,
+      "bucket": "cool",
+      "recordType": "measured"
+    },
+    {
+      "date": "2026-09-02",
+      "overall": 51.2,
+      "heat": 100.0,
+      "sampleCount": 2490,
+      "bucket": "cool",
+      "recordType": "measured"
+    }
+  ],
+  "correlation": {
+    "days": 3,
+    "minimumDays": 5,
+    "sufficient": false,
+    "sectors": [
+      {
+        "id": "military-aviation",
+        "name": "军工航空",
+        "group": "高端制造"
+      },
+      {
+        "id": "game-media",
+        "name": "游戏传媒",
+        "group": "消费医药"
+      },
+      {
+        "id": "low-altitude",
+        "name": "低空经济",
+        "group": "高端制造"
+      },
+      {
+        "id": "nonferrous",
+        "name": "有色金属",
+        "group": "周期防御"
+      },
+      {
+        "id": "bank",
+        "name": "银行",
+        "group": "金融地产"
+      },
+      {
+        "id": "agriculture",
+        "name": "农业养殖",
+        "group": "消费医药"
+      },
+      {
+        "id": "medical-device",
+        "name": "医疗器械",
+        "group": "消费医药"
+      },
+      {
+        "id": "gold",
+        "name": "黄金",
+        "group": "周期防御"
+      },
+      {
+        "id": "insurance",
+        "name": "保险",
+        "group": "金融地产"
+      },
+      {
+        "id": "innovative-drug",
+        "name": "创新药",
+        "group": "消费医药"
+      },
+      {
+        "id": "consumer-electronics",
+        "name": "消费电子",
+        "group": "科技"
+      },
+      {
+        "id": "ai-application",
+        "name": "AI 应用",
+        "group": "科技"
+      },
+      {
+        "id": "real-estate",
+        "name": "房地产",
+        "group": "金融地产"
+      },
+      {
+        "id": "solar",
+        "name": "光伏",
+        "group": "新能源车"
+      },
+      {
+        "id": "brokerage",
+        "name": "券商",
+        "group": "金融地产"
+      },
+      {
+        "id": "industrial-automation",
+        "name": "工业自动化",
+        "group": "高端制造"
+      },
+      {
+        "id": "optical-module",
+        "name": "CPO 光模块",
+        "group": "科技"
+      },
+      {
+        "id": "chip-foundry",
+        "name": "芯片制造",
+        "group": "科技"
+      },
+      {
+        "id": "battery",
+        "name": "锂电池",
+        "group": "新能源车"
+      },
+      {
+        "id": "humanoid-robot",
+        "name": "人形机器人",
+        "group": "高端制造"
+      },
+      {
+        "id": "semi-equipment",
+        "name": "半导体设备",
+        "group": "科技"
+      },
+      {
+        "id": "ai-server",
+        "name": "AI 服务器",
+        "group": "科技"
+      },
+      {
+        "id": "liquor",
+        "name": "白酒",
+        "group": "消费医药"
+      },
+      {
+        "id": "auto",
+        "name": "汽车整车",
+        "group": "新能源车"
+      }
+    ],
+    "matrix": [
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    ],
+    "pairs": []
+  },
+  "interpretation": {
+    "interpretation": "2026-09-02：讨论热度 100.0，当前最热是锂电池、汽车整车、AI 服务器，最近升温靠前的是AI 应用、锂电池、创新药。代表主题赚钱效应约 45.6，可见主题净流入合计 -50.87亿。多空没有形成压倒性共识，热闹归热闹，方向还没有被散户投票决定。",
+    "tongue": "毒舌结论：今天的散户不是完全没钱，而是把钱分成了两拨——一拨在追热点，一拨在研究怎么体面地解套。现在热度未被赚钱效应完全确认（热度 100.0 / 赚钱效应 45.6 / 净流入 -50.87亿），别把评论区的音量当成账户收益。"
+  },
+  "diagnostics": {
+    "validPosts": 2490,
+    "filteredPosts": 768,
+    "uniqueAuthors": 1950,
+    "sourceAgreement": 99.3
+  }
+}

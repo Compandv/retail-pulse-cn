@@ -1,0 +1,35 @@
+{
+  "targets": [
+    { "id": "market", "name": "全市场", "group": "市场", "stockCode": "000001", "eastmoneyCode": "zssh000001", "sinaSymbol": "sh000001", "quoteSymbol": "sh000001", "taoguba": false },
+
+    { "id": "ai-server", "name": "AI 服务器", "group": "科技", "representative": "浪潮信息", "stockCode": "000977", "eastmoneyCode": "000977" },
+    { "id": "optical-module", "name": "CPO 光模块", "group": "科技", "representative": "中际旭创", "stockCode": "300308", "eastmoneyCode": "300308" },
+    { "id": "ai-application", "name": "AI 应用", "group": "科技", "representative": "同花顺", "stockCode": "300033", "eastmoneyCode": "300033" },
+    { "id": "semi-equipment", "name": "半导体设备", "group": "科技", "representative": "中微公司", "stockCode": "688012", "eastmoneyCode": "688012" },
+    { "id": "chip-foundry", "name": "芯片制造", "group": "科技", "representative": "中芯国际", "stockCode": "688981", "eastmoneyCode": "688981" },
+    { "id": "consumer-electronics", "name": "消费电子", "group": "科技", "representative": "立讯精密", "stockCode": "002475", "eastmoneyCode": "002475" },
+
+    { "id": "humanoid-robot", "name": "人形机器人", "group": "高端制造", "representative": "机器人", "stockCode": "300024", "eastmoneyCode": "300024" },
+    { "id": "industrial-automation", "name": "工业自动化", "group": "高端制造", "representative": "汇川技术", "stockCode": "300124", "eastmoneyCode": "300124" },
+    { "id": "military-aviation", "name": "军工航空", "group": "高端制造", "representative": "中航沈飞", "stockCode": "600760", "eastmoneyCode": "600760" },
+    { "id": "low-altitude", "name": "低空经济", "group": "高端制造", "representative": "万丰奥威", "stockCode": "002085", "eastmoneyCode": "002085" },
+
+    { "id": "brokerage", "name": "券商", "group": "金融地产", "representative": "中信证券", "stockCode": "600030", "eastmoneyCode": "600030" },
+    { "id": "bank", "name": "银行", "group": "金融地产", "representative": "招商银行", "stockCode": "600036", "eastmoneyCode": "600036" },
+    { "id": "insurance", "name": "保险", "group": "金融地产", "representative": "中国平安", "stockCode": "601318", "eastmoneyCode": "601318" },
+    { "id": "real-estate", "name": "房地产", "group": "金融地产", "representative": "保利发展", "stockCode": "600048", "eastmoneyCode": "600048" },
+
+    { "id": "solar", "name": "光伏", "group": "新能源车", "representative": "隆基绿能", "stockCode": "601012", "eastmoneyCode": "601012" },
+    { "id": "battery", "name": "锂电池", "group": "新能源车", "representative": "宁德时代", "stockCode": "300750", "eastmoneyCode": "300750" },
+    { "id": "auto", "name": "汽车整车", "group": "新能源车", "representative": "比亚迪", "stockCode": "002594", "eastmoneyCode": "002594" },
+
+    { "id": "liquor", "name": "白酒", "group": "消费医药", "representative": "贵州茅台", "stockCode": "600519", "eastmoneyCode": "600519" },
+    { "id": "game-media", "name": "游戏传媒", "group": "消费医药", "representative": "三七互娱", "stockCode": "002555", "eastmoneyCode": "002555" },
+    { "id": "innovative-drug", "name": "创新药", "group": "消费医药", "representative": "恒瑞医药", "stockCode": "600276", "eastmoneyCode": "600276" },
+    { "id": "medical-device", "name": "医疗器械", "group": "消费医药", "representative": "迈瑞医疗", "stockCode": "300760", "eastmoneyCode": "300760" },
+    { "id": "agriculture", "name": "农业养殖", "group": "消费医药", "representative": "牧原股份", "stockCode": "002714", "eastmoneyCode": "002714" },
+
+    { "id": "gold", "name": "黄金", "group": "周期防御", "representative": "山东黄金", "stockCode": "600547", "eastmoneyCode": "600547" },
+    { "id": "nonferrous", "name": "有色金属", "group": "周期防御", "representative": "华友钴业", "stockCode": "603799", "eastmoneyCode": "603799" }
+  ]
+}
