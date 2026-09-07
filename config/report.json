@@ -1,0 +1,14 @@
+{
+  "version": "daily-report-1.0",
+  "topCount": 10,
+  "topKind": "concept",
+  "momentumWeight": 0.5,
+  "turnoverWeight": 0.5,
+  "feedPages": 12,
+  "feedWorkers": 6,
+  "flowWorkers": 3,
+  "minimumMemberCoverage": 0.8,
+  "minimumPosts": 20,
+  "minimumComparableBoards": 5,
+  "indexSymbols": { "sh000001": "上证指数", "sz399001": "深证成指" }
+}

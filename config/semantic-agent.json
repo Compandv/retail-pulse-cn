@@ -1,0 +1,10 @@
+{
+  "version": "semantic-agent-1.0",
+  "model": "gpt-5.4-mini",
+  "mode": "shadow",
+  "batchSize": 6,
+  "maxNewPostsPerRun": 120,
+  "maxOutputTokens": 6000,
+  "timeoutSeconds": 55,
+  "minimumCoverage": 0.8
+}

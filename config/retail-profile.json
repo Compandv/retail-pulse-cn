@@ -1,0 +1,7 @@
+{
+  "version": "retail-profile-1.0",
+  "minimumClassifiedAccounts": 20,
+  "minimumPointCoverage": 0.5,
+  "weights": { "l1l2": 0.35, "chase": 0.25, "discussion": 0.1, "growth": 0.1, "spread": 0.1, "trading": 0.1, "panic": 0 },
+  "labels": { "L1": "小白表达", "L2": "入门表达", "L3": "经验分析", "L4": "进阶分析", "L5": "全局分析" }
+}

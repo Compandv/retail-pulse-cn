@@ -1,0 +1,22 @@
+{
+  "version": "topic-discovery-1.0",
+  "amountStocks": 180,
+  "risingStocks": 80,
+  "turnoverStocks": 60,
+  "explorationStocks": 60,
+  "workers": 6,
+  "feedPages": 6,
+  "minimumMembers": 3,
+  "minimumAccounts": 20,
+  "minimumSourceCoverage": 0.8,
+  "maximumOverlap": 0.65,
+  "excludePattern": "板块$|^昨日|^今日|^近期|^连板|^涨停|^跌停|^融资融券$|股通$|重仓$|^基金|^MSCI|^富时|^标准普尔|^HS300|^中证|^上证|^深证|^深成|^创业|^科创|^北证|^AH股$|^大盘|^中盘|^小盘|风格$|^权重股$|^行业龙头$|^百元股$|^高市|^低市|^高成长|^周期股$|^券商金股$|^密集调研$|^股权分散$|预增$|预减$|^破|^转债|^机构|^央国企改革$|^国企改革$|^深圳特区$",
+  "aliases": {
+    "光通信模块": "光模块/CPO",
+    "CPO概念": "光模块/CPO",
+    "PCB": "PCB/印制电路板",
+    "印制电路板": "PCB/印制电路板",
+    "猪肉概念": "猪肉/养殖",
+    "猪肉": "猪肉/养殖"
+  }
+}

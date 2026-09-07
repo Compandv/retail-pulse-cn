@@ -12,6 +12,7 @@ class Post:
     text: str
     published_at: datetime
     author_key: str
+    url: str = ""
 
 
 @dataclass(frozen=True)

@@ -1,1 +1,1 @@
-@powershell -NoProfile -ExecutionPolicy Bypass -Command "$root = '%~dp0'.TrimEnd('\'); Set-Location -LiteralPath $root; if (-not (Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue)) { Start-Process -FilePath 'cmd.exe' -ArgumentList '/k', ('cd /d "' + $root + '" && npm run dev') -WindowStyle Minimized; Start-Sleep -Seconds 4 }; Start-Process 'http://localhost:3000/'"
+@powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\start_dashboard.ps1"

@@ -7,17 +7,22 @@ from sentiment.models import Post
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from sentiment.pipeline import _calendar_payload, _load_persisted_daily_snapshots, _merge_history_rows, aggregate_group, effective_trade_date, recent_trading_days
+from sentiment.pipeline import _calendar_payload, _load_persisted_daily_snapshots, _merge_history_rows, _merge_sector_history, aggregate_group, effective_trade_date, recent_trading_days
 
 
 class PipelineTests(TestCase):
-    def test_missing_sources_keep_neutral_seats(self):
+    def test_sector_backfill_does_not_replace_daily_measurement(self):
+        measured = {"date": "2026-09-03", "recordType": "measured", "sectors": [{"id": "gold", "overall": 30}]}
+        estimate = {"date": "2026-09-03", "recordType": "estimated", "sectors": [{"id": "gold", "overall": 99}]}
+        self.assertEqual(_merge_sector_history([measured], [estimate]), [measured])
+
+    def test_missing_sources_do_not_dilute_observed_scores(self):
         post = Post("eastmoney", "market", "全市场", "梭哈满仓起飞", datetime(2026, 9, 2, 16, tzinfo=CN_TZ), "a")
         analyzed = analyze_post(post)
         assert analyzed is not None
         metrics = aggregate_group([analyzed])
-        self.assertGreater(metrics["overall"], 45)
-        self.assertLess(metrics["overall"], 70)
+        self.assertEqual(metrics, aggregate_group([analyzed], expected_sources=("eastmoney",)))
+        self.assertIsNone(aggregate_group([])["overall"])
 
     def test_trade_date_before_close_uses_previous_session(self):
         now = datetime(2026, 9, 2, 10, 0, tzinfo=CN_TZ)

@@ -27,3 +27,16 @@ class MarketDataTests(TestCase):
     def test_shanghai_stock_uses_market_one(self):
         target = {"id": "liquor", "stockCode": "600519"}
         self.assertEqual(_eastmoney_secid(target), "1.600519")
+
+    def test_beijing_codes_and_shanghai_b_shares_use_distinct_markets(self):
+        for code, symbol, secid in (
+            ("920970", "bj920970", "0.920970"),
+            ("871970", "bj871970", "0.871970"),
+            ("430047", "bj430047", "0.430047"),
+            ("900901", "sh900901", "1.900901"),
+            ("000001", "sz000001", "0.000001"),
+        ):
+            with self.subTest(code=code):
+                target = {"stockCode": code}
+                self.assertEqual(quote_symbol(target), symbol)
+                self.assertEqual(_eastmoney_secid(target), secid)

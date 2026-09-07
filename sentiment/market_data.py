@@ -31,10 +31,11 @@ def quote_symbol(target: Mapping[str, Any]) -> str:
     if configured:
         return configured
     code = str(target.get("stockCode") or "")
+    # Resolve Beijing's unified codes before Shanghai's 9xx B-share prefix.
+    if code.startswith(("920", "4", "8")):
+        return "bj" + code
     if code.startswith(("5", "6", "9")):
         return "sh" + code
-    if code.startswith(("4", "8")):
-        return "bj" + code
     return "sz" + code
 
 
@@ -69,8 +70,7 @@ def _eastmoney_secid(target: Mapping[str, Any]) -> str | None:
     code = str(target.get("stockCode") or "")
     if not code:
         return None
-    configured_symbol = str(target.get("quoteSymbol") or "").lower()
-    prefix = "1" if configured_symbol.startswith("sh") or code.startswith(("5", "6", "9")) else "0"
+    prefix = "1" if quote_symbol(target).lower().startswith("sh") else "0"
     return f"{prefix}.{code}"
 
 

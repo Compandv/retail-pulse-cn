@@ -1,0 +1,1 @@
+{"code":"gn_hGDR","date":"2026-09-07","collectedAt":"2026-09-07T23:53:31+08:00","expected":1,"complete":true,"reason":"当次采集的新浪成分；腾讯行情按日期核验；剔除 0 个不在完整当期 A 股目录的成员","listedUniverseComplete":true,"rawMemberCount":1,"excludedMembers":[],"members":[{"code":"601688","name":"华泰证券","changePct":-0.97,"amount":895220000.0,"turnover":0.63,"asOf":"2026-09-07T16:14:59+08:00"}]}

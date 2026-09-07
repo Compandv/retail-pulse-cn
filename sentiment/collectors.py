@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import html
 import json
+import os
 import re
 import time
 import unicodedata
@@ -55,6 +56,15 @@ def parse_time(value: object) -> datetime | None:
 
 
 def request_text(url: str, referer: str, timeout: int = 16, attempts: int = 2) -> str:
+    # Domestic public feeds may fail through a system-wide overseas proxy.
+    # This is per-request only: never alter global proxy settings or LLM traffic.
+    host = (urllib.parse.urlsplit(url).hostname or "").lower()
+    domestic = any(host == domain or host.endswith("." + domain) for domain in ("sina.com.cn", "sina.cn", "eastmoney.com", "gtimg.cn", "taoguba.com.cn", "tgb.cn"))
+    proxy_mode = os.environ.get("RETAIL_DATA_PROXY_MODE", "auto")
+    if proxy_mode not in ("auto", "system", "direct"):
+        raise ValueError("RETAIL_DATA_PROXY_MODE必须为auto、system或direct")
+    direct = proxy_mode == "direct" or (proxy_mode == "auto" and domestic)
+    open_request = urllib.request.build_opener(urllib.request.ProxyHandler({})).open if direct else urllib.request.urlopen
     headers = {
         "User-Agent": USER_AGENT,
         "Referer": referer,
@@ -67,7 +77,7 @@ def request_text(url: str, referer: str, timeout: int = 16, attempts: int = 2) -
     for attempt in range(attempts):
         try:
             request = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(request, timeout=timeout) as response:
+            with open_request(request, timeout=timeout) as response:
                 payload = response.read()
                 charset = response.headers.get_content_charset() or "utf-8"
                 try:
@@ -114,6 +124,7 @@ def eastmoney_posts(payload: Mapping[str, Any], target: Mapping[str, Any]) -> tu
             text=text,
             published_at=published,
             author_key=anonymous_author("eastmoney", row.get("user_id")),
+            url=f"https://guba.eastmoney.com/news,{expected_code},{row['post_id']}.html" if str(row.get("post_id", "")).isdigit() else "",
         ))
     return tuple(posts)
 
@@ -252,10 +263,10 @@ class SinaCollector:
         if configured:
             return configured
         code = str(target["stockCode"])
+        if code.startswith(("920", "4", "8")):
+            return "bj" + code
         if code.startswith(("5", "6", "9")):
             return "sh" + code
-        if code.startswith(("4", "8")):
-            return "bj" + code
         return "sz" + code
 
     def collect(self, target: Mapping[str, Any]) -> CollectionOutcome:
@@ -288,7 +299,7 @@ class TaogubaCollector:
         if configured:
             return configured
         code = str(target["stockCode"])
-        prefix = "sh" if code.startswith(("5", "6", "9")) else "bj" if code.startswith(("4", "8")) else "sz"
+        prefix = "bj" if code.startswith(("920", "4", "8")) else "sh" if code.startswith(("5", "6", "9")) else "sz"
         return prefix + code
 
     def collect(self, target: Mapping[str, Any]) -> CollectionOutcome:

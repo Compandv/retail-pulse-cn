@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import math
 import statistics
 from collections import Counter, defaultdict
@@ -13,6 +14,7 @@ from .analyzer import PANIC, evidence_counts, analyze_post
 from .collectors import CN_TZ, COLLECTORS, EastMoneyCollector
 from .market_data import fetch_market_data
 from .models import AnalyzedPost, CollectionOutcome
+from .scoring import METHOD_VERSION, aggregate_scores, score_source, contributions, expression_evidence, rounded
 
 SOURCE_NAMES = {"eastmoney": "东方财富股吧", "sina": "新浪股吧", "taoguba": "淘股吧"}
 EXPECTED_SOURCES = tuple(SOURCE_NAMES)
@@ -77,24 +79,7 @@ def _round(value: float) -> float:
 
 
 def _source_metrics(posts: list[AnalyzedPost]) -> dict[str, float]:
-    if not posts:
-        # Missing sentiment keeps a neutral seat, but missing activity must not
-        # pretend to be medium heat.
-        return {"overall": 50.0, "direction": 0.0, "novice": 50.0, "fomo": 50.0, "panic": 50.0, "heat": 0.0}
-    count = len(posts)
-    novice = min(100.0, statistics.fmean(item.signals.novice for item in posts) * 145)
-    fomo = min(100.0, statistics.fmean(item.signals.fomo for item in posts) * 155)
-    panic = min(100.0, statistics.fmean(item.signals.panic for item in posts) * 155)
-    direction = statistics.fmean(item.signals.direction for item in posts) * 100
-    heat = min(100.0, math.log1p(count) / math.log1p(80) * 100)
-    raw_overall = 20 + 0.30 * heat + 0.20 * fomo + 0.15 * novice + 0.10 * panic + 0.10 * abs(direction)
-    reliability = count / (count + 15)
-    overall = 50 + (raw_overall - 50) * reliability
-    return {
-        "overall": _round(max(0, min(100, overall))),
-        "direction": _round(max(-100, min(100, direction * reliability))),
-        "novice": _round(novice), "fomo": _round(fomo), "panic": _round(panic), "heat": _round(heat),
-    }
+    return score_source(posts)
 
 
 PARTICIPANT_LABELS = {
@@ -140,7 +125,9 @@ def _profit_effect(metrics: Mapping[str, float], quote: Mapping[str, Any]) -> fl
     # A representative quote is deliberately capped; it is a useful visual
     # proxy, not a substitute for constituent-level breadth data.
     price_component = max(-20.0, min(20.0, (price_change or 0.0) * 3.5))
-    sentiment_component = metrics["direction"] * 0.12 + (metrics["fomo"] - metrics["panic"]) * 0.2
+    if metrics.get("overall") is None and price_change is None:
+        return None
+    sentiment_component = (metrics.get("direction") or 0) * 0.12 + ((metrics.get("fomo") or 0) - (metrics.get("panic") or 0)) * 0.2
     return _round(max(0.0, min(100.0, 50.0 + price_component + sentiment_component)))
 
 
@@ -188,13 +175,16 @@ def _trend_label(delta: float) -> str:
 
 def _participant_indices(metrics: Mapping[str, float]) -> dict[str, float | str]:
     """Expose buy/sell sub-indices in the same 0-100 language as mom-index."""
+    if metrics.get("overall") is None:
+        return {"buyIndex": None, "sellIndex": None, "buySellRatio": None}
     buy = max(0.0, min(100.0, 45.0 + metrics["direction"] * 0.22 + metrics["fomo"] * 0.48 - metrics["panic"] * 0.16))
     sell = max(0.0, min(100.0, 45.0 - metrics["direction"] * 0.22 + metrics["panic"] * 0.48 - metrics["fomo"] * 0.16))
+    buy, sell = rounded(buy), rounded(sell)
     ratio = buy / sell if sell > 0.5 else (99.0 if buy > 0.5 else 1.0)
     return {
-        "buyIndex": _round(buy),
-        "sellIndex": _round(sell),
-        "buySellRatio": _round(min(99.0, ratio)),
+        "buyIndex": rounded(buy),
+        "sellIndex": rounded(sell),
+        "buySellRatio": rounded(min(99.0, ratio)),
     }
 
 
@@ -213,7 +203,17 @@ def _comment_rows(analyzed: list[AnalyzedPost], trade_date: date, target_names: 
         return s.novice * 1.4 + s.fomo * 1.2 + s.panic * 1.2 + abs(s.direction) * 0.6
 
     rows: list[dict[str, Any]] = []
-    for item in sorted(current, key=score, reverse=True)[:limit]:
+    selected = sorted(current, key=score, reverse=True)[:limit]
+    for target_id in target_names:
+        candidates = [item for item in analyzed if item.post.target_id == target_id]
+        today = [item for item in candidates if session_date(item.post.published_at) == trade_date]
+        selected.extend(sorted(today or candidates, key=score, reverse=True)[:3])
+    seen = set()
+    for item in selected:
+        identity = hashlib.sha256(f"{item.post.source}:{item.post.target_id}:{item.post.published_at}:{item.post.text}".encode()).hexdigest()[:16]
+        if identity in seen:
+            continue
+        seen.add(identity)
         signals = item.signals
         if signals.panic >= max(signals.fomo, signals.novice) and signals.panic > 0.22:
             tone, intent = "panic", "恐慌/离场"
@@ -228,12 +228,14 @@ def _comment_rows(analyzed: list[AnalyzedPost], trade_date: date, target_names: 
         else:
             tone, intent = "neutral", "观望"
         rows.append({
-            "id": f"{item.post.source}-{item.post.target_id}-{item.post.published_at.isoformat()}",
+            "id": identity,
             "date": item.post.published_at.astimezone(CN_TZ).strftime("%Y-%m-%d %H:%M"),
             "source": SOURCE_NAMES.get(item.post.source, item.post.source),
             "sectorId": item.post.target_id,
             "sectorName": target_names.get(item.post.target_id, item.post.target_name),
-            "excerpt": _safe_excerpt(item.post.text),
+            "excerpt": _safe_excerpt(item.post.text, 240),
+            "url": item.post.url,
+            **expression_evidence(item),
             "tone": tone,
             "intent": intent,
             "signals": list(signals.matched[:5]),
@@ -320,7 +322,7 @@ def _calendar_payload(history: list[Mapping[str, Any]], days: int = 30) -> list[
 
 
 def _interpretation_payload(summary: Mapping[str, float], sectors: list[Mapping[str, Any]], trade_date: date) -> dict[str, str]:
-    hottest = sorted(sectors, key=lambda row: float(row.get("heat", 0)), reverse=True)[:3]
+    hottest = sorted(sectors, key=lambda row: float(row.get("heat") or 0), reverse=True)[:3]
     rising = [row for row in sorted(sectors, key=lambda row: float(row.get("heatChange", 0)), reverse=True) if row.get("heatChangeAvailable")][:3]
     top_names = "、".join(str(row.get("name")) for row in hottest) or "暂无"
     rising_names = "、".join(str(row.get("name")) for row in rising) or "基线积累中"
@@ -355,6 +357,9 @@ def _merge_sector_history(rows: Iterable[Mapping[str, Any]], points: Iterable[Ma
             continue
         day = str(raw.get("date", "")).strip()
         if day:
+            current = by_date.get(day)
+            if current and current.get("recordType") == "measured" and raw.get("recordType") == "estimated":
+                continue
             by_date[day] = dict(raw)
     return [by_date[day] for day in sorted(by_date)][-max(1, limit):]
 
@@ -399,16 +404,12 @@ def _daily_sector_history(analyzed: list[AnalyzedPost], targets: list[Mapping[st
                 "sampleCount": len(posts),
             })
         if sector_rows:
-            points.append({"date": day.isoformat(), "sectors": sector_rows})
+            points.append({"date": day.isoformat(), "recordType": "measured" if day == trade_date else "estimated", "sectors": sector_rows})
     return points
 
 
 def aggregate_group(posts: Iterable[AnalyzedPost], expected_sources: Iterable[str] = EXPECTED_SOURCES) -> dict[str, float]:
-    grouped: dict[str, list[AnalyzedPost]] = defaultdict(list)
-    for item in posts:
-        grouped[item.post.source].append(item)
-    source_metrics = {source: _source_metrics(grouped.get(source, [])) for source in expected_sources}
-    return {metric: _round(statistics.fmean(values[metric] for values in source_metrics.values())) for metric in ("overall", "direction", "novice", "fomo", "panic", "heat")}
+    return aggregate_scores(posts, expected_sources)
 
 
 def confidence_label(coverage: float, sample_count: int) -> str:
@@ -422,11 +423,12 @@ def confidence_label(coverage: float, sample_count: int) -> str:
 
 
 def temperature_label(score: float) -> str:
-    if score >= 80: return "极度亢奋"
-    if score >= 65: return "明显升温"
-    if score >= 45: return "情绪平稳"
-    if score >= 30: return "明显降温"
-    return "极度冷清"
+    if score is None: return "暂无样本"
+    if score >= 80: return "极热"
+    if score >= 60: return "高热"
+    if score >= 40: return "活跃"
+    if score >= 20: return "温和"
+    return "冷清"
 
 
 def readout(metrics: Mapping[str, float]) -> str:
@@ -674,6 +676,12 @@ def _merge_history_rows(rows: Iterable[Mapping[str, Any]], limit: int = 60) -> l
 
 
 def build_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
+    """Public entry point; keep V3 reproduction explicitly separate."""
+    from .pipeline_v4 import build_snapshot as build_v4
+    return build_v4(root, now)
+
+
+def build_legacy_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
     now = now or datetime.now(CN_TZ)
     config = _load_json(root / "config" / "targets.json", {})
     targets = config.get("targets") if isinstance(config, dict) else None
@@ -681,11 +689,19 @@ def build_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
         raise RuntimeError("config/targets.json 没有有效目标")
     latest_path = root / "public" / "data" / "latest.json"
     previous = _load_json(latest_path, {})
-    persisted_snapshots = [
+    all_persisted_snapshots = [
         snapshot
         for snapshot in _load_persisted_daily_snapshots(root, limit=60)
         if str((snapshot.get("meta") or {}).get("mode", "live")) != "demo"
     ]
+    persisted_snapshots = [snapshot for snapshot in all_persisted_snapshots if (snapshot.get("meta") or {}).get("methodVersion") == METHOD_VERSION]
+    old_snapshots = [snapshot for snapshot in all_persisted_snapshots if (snapshot.get("meta") or {}).get("methodVersion") != METHOD_VERSION]
+    legacy = previous.get("legacy", {}) if isinstance(previous, dict) else {}
+    if previous.get("meta", {}).get("methodVersion") != METHOD_VERSION:
+        old_snapshots.append(previous)
+        legacy = {"methodVersion": previous.get("meta", {}).get("methodVersion", "MVP-2.0"),
+                  "history": _load_persisted_market_history(old_snapshots),
+                  "sectorHistory": _load_persisted_sector_history(old_snapshots)}
     outcomes = _collect(targets)
     if not any(outcome.ok and outcome.posts for outcome in outcomes):
         raise RuntimeError("所有公开来源均未取得帖子；已保留上一份快照")
@@ -708,7 +724,7 @@ def build_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
     previous_meta = previous.get("meta", {}) if isinstance(previous, dict) and isinstance(previous.get("meta", {}), dict) else {}
     # A snapshot produced before live history metadata was introduced may still
     # contain the bundled demo curve. Start a clean live method segment once.
-    previous_is_demo = bool(previous_meta.get("mode") == "demo" or "historyMode" not in previous_meta)
+    previous_is_demo = bool(previous_meta.get("mode") == "demo" or "historyMode" not in previous_meta or previous_meta.get("methodVersion") != METHOD_VERSION)
     previous_history_rows = [] if previous_is_demo else (previous.get("history") if isinstance(previous, dict) and isinstance(previous.get("history"), list) else [])
     persisted_history = _load_persisted_market_history(persisted_snapshots)
     previous_history = _merge_history_rows([*previous_history_rows, *persisted_history])
@@ -771,7 +787,7 @@ def build_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
             "representative": str(target.get("representative") or target["name"]),
             **metrics,
             **subindices,
-            "heat": _round(current_heat),
+            "heat": _round(current_heat) if current_heat is not None else None,
             "sampleCount": len(current_posts),
             "sampleCount3d": len(sector_posts),
             "sampleShare": _round(len(current_posts) / max(1, today_sector_total) * 100),
@@ -779,7 +795,8 @@ def build_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
             "dataWindow": "当日" if current_posts else "近3日回看",
             "mixWindow": "当日" if len(current_posts) >= 5 else "近3日",
             "confidence": confidence_label(sector_coverage, len(score_posts)),
-            "change": _round(metrics["overall"] - previous_score),
+            "change": _round(metrics["overall"] - previous_score) if metrics["overall"] is not None and prior_overall else None,
+            "scoreBreakdown": contributions(metrics),
             "heatChange": heat_change,
             "heatChange5d": heat_change_5d,
             "heatChangeAvailable": heat_change_available,
@@ -796,7 +813,7 @@ def build_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
             "flowSource": quote.get("flowSource", "公开资金流字段暂不可用"),
         }
         sectors.append(row)
-    sectors.sort(key=lambda row: (-row["overall"], row["name"]))
+    sectors.sort(key=lambda row: (-(row["overall"] if row["overall"] is not None else -1), row["name"]))
     for index, row in enumerate(sectors, start=1):
         row["rank"] = index
         previous_rank = previous_sector_map.get(row["id"], {}).get("rank")
@@ -824,17 +841,21 @@ def build_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
 
     current_sector_history = {
         "date": trade_date.isoformat(),
+        "recordType": "measured",
         "sectors": [
             {
                 "id": row["id"],
                 "overall": row["overall"],
                 "heat": row["heat"],
+                "direction": row["direction"],
+                "novice": row["novice"], "fomo": row["fomo"], "panic": row["panic"], "intensity": row["intensity"],
+                "buyIndex": row["buyIndex"], "sellIndex": row["sellIndex"],
                 "sampleCount": row["sampleCount"],
                 "profitEffect": row["profitEffect"],
                 "priceChange": row["priceChange"],
                 "flowNet": row["flowNet"],
             }
-            for row in sectors
+            for row in sectors if row["sampleCount"] > 0
         ],
     }
     sector_history = _merge_sector_history(sector_history, [current_sector_history])
@@ -877,21 +898,27 @@ def build_snapshot(root: Path, now: datetime | None = None) -> dict[str, Any]:
 
     snapshot = {
         "meta": {
-            "generatedAt": now.astimezone(CN_TZ).isoformat(timespec="seconds"), "tradeDate": trade_date.isoformat(), "mode": "live", "historyMode": "live_with_estimate" if estimated_points else "live_only", "methodVersion": "MVP-2.0",
+            "generatedAt": now.astimezone(CN_TZ).isoformat(timespec="seconds"), "tradeDate": trade_date.isoformat(), "mode": "live", "historyMode": "live_with_estimate" if estimated_points else "live_only", "methodVersion": METHOD_VERSION,
+            "methodNote": "V3 使用独立的 0–100 加权公式；旧版历史单独保留，不与新版连接。",
             "coverage": round(coverage, 3), "confidence": confidence_label(coverage, len(analyzed)),
             "estimatedHistoryPoints": estimated_points,
             "historyNote": "历史曲线中的回溯点来自全市场公开股吧分页观察，仅作估算；最新交易日为实测。" if estimated_points else "历史曲线由每日实测逐步累积。",
             "disclaimer": "本工具仅用于社区情绪观察与研究，不构成投资建议。高分不代表市场必然下跌，低分也不代表市场必然上涨。", "sources": source_rows,
         },
-        "summary": {**summary_metrics, **summary_subindices, "change": _round(summary_metrics["overall"] - previous_overall), "sampleCount": len(analyzed), "label": temperature_label(summary_metrics["overall"]), "readout": readout(summary_metrics)},
+        "summary": {**summary_metrics, **summary_subindices, "scoreBreakdown": contributions(summary_metrics), "change": _round(summary_metrics["overall"] - previous_overall) if older_history else None, "sampleCount": len(analyzed), "label": temperature_label(summary_metrics["overall"]), "readout": readout(summary_metrics)},
         "marketStats": market_stats,
         "history": history, "sectorHistory": sector_history, "sectors": sectors, "signals": _top_signals(analyzed),
         "comments": comments,
         "calendar": calendar,
         "correlation": correlation,
         "interpretation": interpretation,
+        "legacy": legacy,
         "diagnostics": {"validPosts": len(analyzed), "filteredPosts": filtered, "uniqueAuthors": unique_authors, "sourceAgreement": agreement},
     }
+    if previous_meta.get("methodVersion") != METHOD_VERSION and previous_meta.get("tradeDate"):
+        archive = root / "public" / "data" / "archive" / f"{previous_meta['tradeDate']}-v2.json"
+        if not archive.exists():
+            _save_json(archive, previous)
     _save_json(latest_path, snapshot)
     _save_daily_files(root, snapshot)
     return snapshot

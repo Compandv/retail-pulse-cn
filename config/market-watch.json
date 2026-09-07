@@ -1,0 +1,14 @@
+{
+  "version": "market-watch-1.0",
+  "source": "eastmoney",
+  "pageSize": 100,
+  "maxPages": 80,
+  "workers": 3,
+  "baselineDays": 60,
+  "minimumBaselineDays": 20,
+  "groups": {
+    "industry": { "name": "行业", "filter": "m:90 t:2 f:!50" },
+    "concept": { "name": "概念", "filter": "m:90 t:3 f:!50" },
+    "stocks": { "name": "沪深北 A 股", "filter": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23,m:0 t:81" }
+  }
+}
