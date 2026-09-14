@@ -94,7 +94,16 @@ def collect_report(root, market, now=None):
             if i == 1 or i % 10 == 0 or i == len(tasks):
                 print(f"复盘任务已返回 {i}/{len(tasks)}：社区 {len(capture['feeds'])}、板块资金 {len(capture['flows'])}；稍后核验覆盖和日期。", flush=True)
     capture["completedAt"] = datetime.now(CN_TZ).isoformat(timespec="seconds")
-    # Daily path uses captured public text. Full-body enrichment remains an
-    # explicit debugging option, not thousands of extra requests per run.
+    enrichment = CONFIG.get("bodyEnrichment", {})
+    if enrichment.get("enabled") and capture.get("discovery"):
+        try:
+            from .profile_texts import enrich_profiles
+            capture = enrich_profiles(root, capture, cutoff=topic_cutoff, max_posts=int(enrichment.get("maxPosts", 48)), min_text_length=int(enrichment.get("minTextLength", 8)))
+            print(f"正文补充：尝试 {capture.get('profileEnrichment', {}).get('attempted', 0)} 条，取得 {capture.get('profileEnrichment', {}).get('observed', 0)} 条；不改变互动计数。", flush=True)
+        except Exception as exc:
+            capture["profileEnrichment"] = {"attempted": 0, "observed": 0, "failures": 1, "observedAt": datetime.now(CN_TZ).isoformat(timespec="seconds"), "sampling": "正文补充失败，继续使用公开列表文本", "error": str(exc)[:160]}
+            print(f"正文补充失败：{str(exc)[:160]}；继续使用公开列表文本。", flush=True)
+    # Daily path uses captured public text plus a bounded, auditable body
+    # sample. It never treats missing bodies as negative evidence.
     atomic_json(root / "work/report-observations" / f"{day}.json", capture)
     return capture

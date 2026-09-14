@@ -10,5 +10,10 @@
   "minimumMemberCoverage": 0.8,
   "minimumPosts": 20,
   "minimumComparableBoards": 5,
+  "bodyEnrichment": {
+    "enabled": true,
+    "maxPosts": 48,
+    "minTextLength": 8
+  },
   "indexSymbols": { "sh000001": "上证指数", "sz399001": "深证成指" }
 }

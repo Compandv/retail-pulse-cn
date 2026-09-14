@@ -7,11 +7,13 @@ from datetime import datetime
 from pathlib import Path
 from .collectors import CN_TZ
 from .market_watch import atomic_json, read_json, number, percentile
-from .measurement import prepare_observations, summarize_expressions
+from .measurement import classify_text, prepare_observations, summarize_expressions
 from .observations import CUTOFF
 from .report_sources import CONFIG, VERSION, collect_report, select_hot_boards
 from .retail_profile import refine_behavior
 from .following import VERSION as ANALYSIS_VERSION, expression_profile, following_score
+
+TOPIC_ANALYSIS_VERSION = "following-topic-2.1"
 
 
 def score(value):
@@ -57,24 +59,33 @@ def measure_members(capture, codes, day, topic=None):
         terms = terms_for(topic['name']) + topic.get('aliases', [])
         rows = [p for p in rows if p['code'] in core or any(t.lower() in p['text'].lower() for t in terms)]
     prepared = prepare_observations(rows, day, capture.get('cutoff', CUTOFF))
-    posts = [refine_behavior(post) for post in prepared["analyzed"]]
+    posts = []
+    body_count = 0
+    for raw_post in prepared["analyzed"]:
+        body = capture.get("profileBodies", {}).get(raw_post["id"], {})
+        verified = body.get("date") == raw_post["date"] and body.get("code") == raw_post["code"] and body.get("author") == raw_post["author"]
+        enriched = {**raw_post, "text": body["text"] if verified and body.get("text") else raw_post["text"]}
+        # A verified body can change the meaning of a short title. Re-run the
+        # shared classifier before the behaviour refinement so intent,
+        # direction and the follow/chase flags use the same text. If the body
+        # is malformed or outside the classifier bounds, keep the already
+        # accepted list classification instead of dropping the observation.
+        enriched["classification"] = classify_text(enriched["text"]) or raw_post["classification"]
+        body_count += bool(verified and body.get("text"))
+        posts.append(refine_behavior(enriched))
     expressions = summarize_expressions(posts)
     total = len(posts)
     refills = sum(r["refillExpression"] for r in posts)
     interactions = [r["replies"] + r["forwards"] for r in posts if number(r.get("replies")) is not None and number(r.get("forwards")) is not None and r["replies"] >= 0 and r["forwards"] >= 0]
     enough = bool(codes) and len(good) / len(codes) >= CONFIG["minimumMemberCoverage"] and total >= CONFIG["minimumPosts"]
     complete = bool(codes) and all(f and f.get("complete") and not f.get("error") for f in feeds)
-    profile_posts = []
-    body_count = 0
-    for post in posts:
-        body = capture.get("profileBodies", {}).get(post["id"], {})
-        verified = body.get("date") == post["date"] and body.get("code") == post["code"] and body.get("author") == post["author"]
-        profile_posts.append({**post, "text": body["text"] if verified and body.get("text") else post["text"]})
-        body_count += bool(verified and body.get("text"))
+    profile_posts = posts
     profile = expression_profile(profile_posts, prepared["observedAuthors"], enough and not prepared["unknownAuthorPosts"])
     profile.update(enrichedPosts=body_count, contentObservedAt=capture.get("profileEnrichment", {}).get("observedAt"), contentSampling=capture.get("profileEnrichment", {}).get("sampling", "本次使用保存的公开列表文本"))
     return {"authors": prepared["observedAuthors"], "observedPosts": prepared["observedPosts"], "sampleCount": total,
             "memberTotal": len(codes), "memberObserved": len(good), "memberComplete": sum(bool(f and f.get("complete") and not f.get("error")) for f in feeds),
+            "sourceCoverage": len(good) / len(codes) if codes else 0, "completeCoverage": sum(bool(f and f.get("complete") and not f.get("error")) for f in feeds) / len(codes) if codes else 0,
+            "bodyObserved": body_count,
             "complete": complete, "eligible": enough and not prepared["unknownAuthorPosts"],
             "density": prepared["observedAuthors"] / len(codes) if enough and codes and not prepared["unknownAuthorPosts"] else None,
             "interactionMean": statistics.mean(interactions) if enough and len(interactions) >= .8 * total else None,
@@ -121,6 +132,7 @@ def assemble_report(market, capture):
         pair_total = current_pair["authors"] + previous_pair["authors"]
         growth_ok = codes and len(paired_codes) / len(codes) >= CONFIG["minimumMemberCoverage"] and current_pair["eligible"] and previous_pair["eligible"] and pair_total
         measured.append({"id": board["id"], "code": board["code"], "name": board["name"], "selectionScore": board["selectionScore"],
+                         "rankingQuality": board.get("rankingQuality"), "historicalAttentionScore": board.get("historicalAttentionScore"), "historicalAttentionMedian": board.get("historicalAttentionMedian"), "historicalBaselineDays": board.get("historicalBaselineDays", 0),
                          "changePct": board["changePct"], "turnover": board["turnover"], "leader": board.get("leader"), "crowding": board.get("relativeActivity"),
                          "growth": {"score": score(100 * current_pair["authors"] / pair_total) if growth_ok else None, "today": current_pair["authors"], "previous": previous_pair["authors"], "pairedMembers": len(paired_codes), "previousDate": capture["previousDate"], "basis": "两日同范围；50为持平"},
                          "observation": measurement})
@@ -174,7 +186,7 @@ def assemble_report(market, capture):
     for row in flows:
         row["diagnosis"] = flow_diagnosis(row["net"], row.get("changePct"))
     flow_coverage = [{"kind": kind, "expected": sum(r["kind"] == kind for r in market["boards"]), "observed": sum(r["kind"] == kind for r in flows)} for kind in ("industry", "concept")]
-    return {"meta": {"version": VERSION, "analysisVersion": 'following-topic-2.0' if capture.get('discovery') else ANALYSIS_VERSION, 'discovery': capture.get('discovery'), "tradeDate": day, "previousDate": capture["previousDate"], "collectedAt": capture["collectedAt"],
+    return {"meta": {"version": VERSION, "analysisVersion": TOPIC_ANALYSIS_VERSION if capture.get('discovery') else ANALYSIS_VERSION, 'discovery': capture.get('discovery'), "tradeDate": day, "previousDate": capture["previousDate"], "collectedAt": capture["collectedAt"],
                      "interactionAsOf": max((f.get("observedAt", capture["collectedAt"]) for f in capture["feeds"].values()), default=capture["collectedAt"]), "cutoff": capture.get('cutoff', CUTOFF), "marketSource": market["meta"]["source"],
                      "selectionNote": capture['discovery']['note'] if capture.get('discovery') else "每日在来源概念目录中，以涨幅分位×50% + 换手分位×50%选取前十；不是讨论前十，名单随行情轮动。",
                      "feedObserved": sum(not f.get("error") and f.get("pages", 0) > 0 for code, f in capture["feeds"].items() if code in all_codes), "feedExpected": len(all_codes), "errors": capture.get("errors", []),

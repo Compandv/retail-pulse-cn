@@ -20,6 +20,8 @@ def facts_for(report):
     for s in report["sectors"]:
         p = s.get("expressionProfile", {})
         facts.append({"id": "sector:" + s["id"], "name": s["name"], "changePct": s["changePct"], "dimensions": s["dimensions"], "leekScore": s["leekScore"]["score"],
+                      "rankingQuality": s.get("rankingQuality"), "historicalAttentionScore": s.get("historicalAttentionScore"), "historicalAttentionMedian": s.get("historicalAttentionMedian"), "historicalBaselineDays": s.get("historicalBaselineDays"),
+                      "observation": {"authors": s["observation"].get("authors"), "posts": s["observation"].get("sampleCount"), "sourceCoverage": s["observation"].get("sourceCoverage"), "completeCoverage": s["observation"].get("completeCoverage"), "bodyObserved": s["observation"].get("bodyObserved")},
                       "accounts": p.get("observedAccounts"), "unknownRate": p.get("unknownRate"), "expressionRates": p.get("rates"), "scoreMeaning": s["leekScore"]["reason"]})
     for kind in ("industry", "concept"):
         rows = [r for r in report["flows"]["rows"] if r["kind"] == kind]

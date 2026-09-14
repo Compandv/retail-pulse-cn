@@ -17,9 +17,10 @@ def get_json(url):
 
 
 def collect_feed(code, day, max_pages=None):
-    result = {"code": code, "rows": [], "rawCount": 0, "pages": 0, "complete": False, "reason": "已达分页上限，数量为已观察下限", "error": None}
+    page_limit = max_pages or CONFIG["maxPages"]
+    result = {"code": code, "rows": [], "rawCount": 0, "pages": 0, "maxPages": page_limit, "pageLimitReached": False, "complete": False, "reason": "已达分页上限，数量为已观察下限", "error": None}
     seen_pages, older_pages = set(), 0
-    for page in range(1, (max_pages or CONFIG["maxPages"]) + 1):
+    for page in range(1, page_limit + 1):
         params = urllib.parse.urlencode({"code": code, "sorttype": 1, "ps": CONFIG["pageSize"], "p": page, "from": "CommonBaPost", "deviceid": "2f7f40de-2fb0-4d84-8a31-111111111111", "version": 200, "product": "Guba", "plat": "Web"})
         try:
             payload = get_json("https://gbapi.eastmoney.com/webarticlelist/api/Article/Articlelist?" + params)
@@ -55,6 +56,8 @@ def collect_feed(code, day, max_pages=None):
         except Exception as exc:
             result.update(error=str(exc)[:200], reason="部分采集失败，数量为已观察下限")
             break
+    if not result["complete"] and not result["error"] and result["pages"] >= page_limit:
+        result["pageLimitReached"] = True
     return result
 
 

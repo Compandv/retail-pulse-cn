@@ -27,15 +27,16 @@ def parse_article(body, row):
     return content
 
 
-def enrich_profiles(root, capture):
-    day = capture["date"]; chosen = {}
+def enrich_profiles(root, capture, *, max_posts=48, cutoff="15:00:00", min_text_length=8):
+    day = capture["date"]; candidates_all = []
     for detail in capture.get("members", {}).values():
         codes = [r["code"] for r in detail.get("members", [])]
         raw = [r for code in codes for r in capture["feeds"].get(code, {}).get("rows", [])]
-        posts = prepare_observations(raw, day, "15:00:00")["analyzed"]
-        candidates = [r for r in posts if r.get("contentKind") != "正文" and len(r["text"]) >= 36 and r.get("author") and re.fullmatch(r"\d+", r["id"])]
-        candidates.sort(key=lambda r: hashlib.sha256(f"{day}:{r['id']}".encode()).hexdigest())
-        for row in candidates[:64]: chosen[row["id"]] = row
+        posts = prepare_observations(raw, day, cutoff)["analyzed"]
+        candidates = [r for r in posts if r.get("contentKind") != "正文" and len(r["text"]) >= min_text_length and r.get("author") and re.fullmatch(r"\d+", r["id"])]
+        candidates_all.extend(candidates)
+    candidates_all.sort(key=lambda r: hashlib.sha256(f"{day}:{r['id']}".encode()).hexdigest())
+    chosen = {row["id"]: row for row in candidates_all[:max_posts]}
     cache = Path(root) / "work/profile-bodies" / day
     unavailable = Event(); lock = Lock(); failed_in_a_row = 0
     def fetch(row):
@@ -67,6 +68,6 @@ def enrich_profiles(root, capture):
             except Exception as error: failures.append({"id": key, "error": str(error)[:120]})
             if index % 100 == 0: print(f"分层正文核对 {index}/{len(chosen)}，成功 {len(results)}", flush=True)
     capture["profileBodies"] = results
-    capture["profileEnrichment"] = {"attempted": len(chosen), "observed": len(results), "failures": len(failures), "observedAt": datetime.now(CN_TZ).isoformat(timespec="seconds"), "sampling": "每板块按稳定哈希选最多64条长标题补正文；用于分层，不更新历史互动；非随机全市场账户样本"}
+    capture["profileEnrichment"] = {"attempted": len(chosen), "observed": len(results), "failures": len(failures), "observedAt": datetime.now(CN_TZ).isoformat(timespec="seconds"), "sampling": f"按稳定哈希选最多{max_posts}条标题补正文；用于表达分类，不更新历史互动；非随机全市场账户样本"}
     atomic_json(Path(root) / "work/profile-bodies" / f"{day}-errors.json", failures)
     return capture
