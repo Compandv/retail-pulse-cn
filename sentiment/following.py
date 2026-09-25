@@ -64,6 +64,7 @@ def classify(text):
 
 
 def expression_profile(posts, observed_authors, sampling_ok):
+    from .behavior_audit import audit_accounts
     accounts = defaultdict(dict); samples = {k: [] for k in LABELS}
     for post in sorted(posts, key=lambda p: (p["date"], p["id"]), reverse=True):
         if not post.get("author"): continue
@@ -81,7 +82,7 @@ def expression_profile(posts, observed_authors, sampling_ok):
     unknown = total - sum(any(v.values()) for v in votes)
     eligible = sampling_ok and total >= METHOD["minimumAccounts"]
     rates = {key: 100 * sum(v[key] for v in votes) / total if total else None for key in LABELS}
-    return {"version": VERSION, "observedAccounts": total, "unknownAccounts": unknown, "unknownRate": round(100 * unknown / total, 1) if total else None,
+    return {"version": VERSION, "behaviorAudit": audit_accounts(posts, observed_authors, sampling_ok, METHOD["maxPostsPerAccount"]), "observedAccounts": total, "unknownAccounts": unknown, "unknownRate": round(100 * unknown / total, 1) if total else None,
             "sampledAccounts": len(votes),
             "unmatchedAccounts": sum(not any(v.values()) for v in votes),
             "unsampledAccounts": total - len(votes),

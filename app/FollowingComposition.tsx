@@ -9,23 +9,25 @@ const names = keys.map(key => FOLLOWING_METHOD.labels[key]);
 export function FollowingComposition({ report }: {report: DailyReport}) {
   const [selected, setSelected] = useState<string | null>(null);
   const rows = [...report.sectors].sort((a,b) => (b.leekScore?.score ?? -1) - (a.leekScore?.score ?? -1));
+  const hasAudit = rows.some(r => r.expressionProfile?.behaviorAudit);
   const sector = rows.find(r => r.id === selected);
   const savedFormulas = [...new Set(rows.map(row => savedFollowingFormula(row.leekScore?.weights)))];
   if (!rows.some(r => r.expressionProfile)) return <section className="panel report-section"><h2>历史方法提示</h2><p>该日期使用旧版分类及评分，不能与新版跟风追涨分直接比较。重新回放该日期数据后可查看新的表达分类。</p></section>;
   return <section className="panel report-section"><div className="report-section-heading"><span className="report-step">03</span><div><span className="eyebrow">跟风追涨表达 · 十强热点</span><h2>哪些板块的跟风追涨更集中？</h2></div></div>
     <p className="report-summary">按韭菜分降序排列。每个账户同项取最高强度，最多使用{FOLLOWING_METHOD.maxPostsPerAccount}条去重发言。标签可以重叠，不是投资者等级，也不是实际买卖记录。</p>
     {rows.some(s => (s.expressionProfile?.unknownRate ?? 0) > FOLLOWING_METHOD.maximumUnknownRate) && <p className="fund-status fund-stale">部分题材的未知账户超过{FOLLOWING_METHOD.maximumUnknownRate}%。综合分可能因此未发布；低分或缺失都不能解释为散户理性，请结合上方质量审计与原文判断。</p>}
-    <div className="report-matrix-scroll"><table className="report-matrix"><thead><tr><th>热门板块</th>{names.map(n => <th key={n}>{n}</th>)}<th>韭菜分（原口径）</th><th>观察账户 / 未知</th></tr></thead><tbody>{rows.map(s => {
+    <div className="report-matrix-scroll"><table className="report-matrix"><thead><tr><th>热门板块</th>{names.map(n => <th key={n}>{n}</th>)}<th>韭菜分（原口径）</th>{hasAudit && <><th>追涨表达比例（试验）</th><th>判断覆盖率</th></>}<th>观察账户 / 未知</th></tr></thead><tbody>{rows.map(s => {
       const p = s.expressionProfile;
       return <tr key={s.id}><th><button onClick={() => setSelected(selected === s.id ? null : s.id)} aria-expanded={selected === s.id}>{s.name} · 依据 {selected === s.id ? "−" : "+"}</button></th>{keys.map(k => {
         const rate = p?.labels.find(l => l.key === k)?.rate;
         const band = rate == null ? "missing" : rate >= 80 ? "80" : rate >= 60 ? "60" : rate >= 40 ? "40" : rate >= 20 ? "20" : "0";
         return <td key={k} className={`heat-${band}`}>{p?.eligible ? pct(rate) : "—"}</td>;
-      })}<td className="leek-cell">{s.leekScore?.score ?? "—"}</td><td>{p?.observedAccounts ?? "—"}<small>未知 {p?.unknownAccounts ?? "—"} · {pct(p?.unknownRate)}</small></td></tr>;
+      })}<td className="leek-cell">{s.leekScore?.score ?? "—"}</td>{hasAudit && <><td>{pct(p?.behaviorAudit?.score)}<small>{p?.behaviorAudit ? `${p.behaviorAudit.targetAccounts}/${p.behaviorAudit.judgedAccounts} 个可判断账户` : "旧快照未记录"}</small></td><td>{pct(p?.behaviorAudit?.coverage)}</td></>}<td>{p?.observedAccounts ?? "—"}<small>未知 {p?.unknownAccounts ?? "—"} · {pct(p?.unknownRate)}</small></td></tr>;
     })}</tbody></table></div>
+    {hasAudit && <p className="report-footnote">试验比例按账户去重：明确跟随或追涨执行／计划账户 ÷ 可判断账户。同一账户多标签不重复累加；询问和喊涨不等同买入。至少20个可判断账户、判断覆盖率80%且来源达标才显示试验值；这些是初始保护门槛，不是已验证的准确率。原口径排序不变，试验值不与旧分直接比较。</p>}
     <p className="report-footnote">此快照保存的权重：{savedFormulas.join("；")}。具体发布状态沿用该日记录，浏览器不会重算历史分数。</p>
     <details className="quality-details"><summary>当前代码方法与历史比较边界</summary><p>{FOLLOWING_EXPLANATION}</p></details>
-    {sector?.expressionProfile && <div className="flow-reading"><h3>{sector.name} · 分类证据</h3>{sector.expressionProfile.labels.map(label => <details key={label.key}><summary>{label.label}：{label.count} 个账户 · {pct(label.rate)}</summary>{label.examples.length ? label.examples.map((e,i) => <article className="profile-example" key={i}><p>{e.text}</p><small>命中片段：{e.evidence} · {e.date}</small>{e.url && <a href={e.url} target="_blank" rel="noreferrer">核对原帖 ↗</a>}</article>) : <p>没有识别到此类证据；不代表不存在这种行为。</p>}</details>)}</div>}
+    {sector?.expressionProfile && <div className="flow-reading"><h3>{sector.name} · 分类证据</h3>{sector.expressionProfile.behaviorAudit && <div className="report-detail-note"><p>{sector.expressionProfile.behaviorAudit.note}</p><p>试验目标账户占全部观察账户：{pct(sector.expressionProfile.behaviorAudit.observedTargetRate)}；可判断样本内比例：{pct(sector.expressionProfile.behaviorAudit.conditionalRate)}（不可外推）。</p><p>未出试验值原因：{sector.expressionProfile.behaviorAudit.missing.join("；") || "无；仅供试验对照"}</p><ul>{sector.expressionProfile.behaviorAudit.unknownReasons.map(r => <li key={r.key}>{r.label}：{r.count} 个账户</li>)}</ul></div>}{sector.expressionProfile.labels.map(label => <details key={label.key}><summary>{label.label}：{label.count} 个账户 · {pct(label.rate)}</summary>{label.examples.length ? label.examples.map((e,i) => <article className="profile-example" key={i}><p>{e.text}</p><small>命中片段：{e.evidence} · {e.date}</small>{e.url && <a href={e.url} target="_blank" rel="noreferrer">核对原帖 ↗</a>}</article>) : <p>没有识别到此类证据；不代表不存在这种行为。</p>}</details>)}</div>}
   </section>;
 }
 
