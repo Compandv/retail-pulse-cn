@@ -22,7 +22,7 @@ python scripts/update_index.py
 npm run dev
 ```
 
-需要 Python 3.10+、Node.js 22.13+；首次使用运行 `npm install`。Python 采集只使用标准库，无需配置账号、Cookie 或 API Key。在线日期校验当前支持 2026 年已收盘交易日。
+需要 Python 3.10+、Node.js 22.13+；首次使用运行 `npm install`。Python 采集只使用标准库，无需配置账号、Cookie 或 API Key。`run_daily.cmd` 按 `RETAIL_PYTHON` 环境变量 → 项目 `.venv` → PATH 中的 `python.exe`（跳过 WindowsApps 占位）→ `py -3` 的顺序查找 Python 3.10+。在线日期校验当前支持 2026 年已收盘交易日。
 
 仓库当前附带 2026-09-04 的真实采集快照。列表按**所选日期 00:00–15:00（北京时间）**过滤，旧帖和盘后帖子不计入该日表达。
 

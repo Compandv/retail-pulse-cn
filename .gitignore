@@ -41,6 +41,7 @@ yarn-error.log*
 
 # Python runtime files
 __pycache__/
+/.venv/
 *.py[cod]
 .pytest_cache/
 *.tsbuildinfo

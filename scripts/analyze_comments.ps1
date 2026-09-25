@@ -1,12 +1,12 @@
-$ErrorActionPreference = 'Stop'
-$pythonCommand = Get-Command python.exe -All -ErrorAction SilentlyContinue | Where-Object { $_.Source -notlike '*\WindowsApps\*' } | Select-Object -First 1
-$launcherCommand = Get-Command py.exe -ErrorAction SilentlyContinue
-$pythonArguments = @()
-$pythonPath = if ($pythonCommand) { $pythonCommand.Source } elseif ($launcherCommand) { $pythonArguments = @('-3'); $launcherCommand.Source } else { Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' }
-if (-not (Test-Path -LiteralPath $pythonPath)) {
-    Write-Error 'Python 3.10+ was not found. Install Python and add it to PATH.'
+﻿$ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'find_python.ps1')
+$python = Resolve-ProjectPython
+if (-not $python) {
+    Write-Error '未找到可用的 Python 3.10+。请安装 Python 并加入 PATH，或设置 RETAIL_PYTHON 指向 python.exe。'
     exit 1
 }
+$pythonPath = $python.Path
+$pythonArguments = $python.Args
 $env:PYTHONIOENCODING = 'utf-8'
 Write-Host 'Starting comment analysis...'
 & $pythonPath @pythonArguments -u (Join-Path $PSScriptRoot 'analyze_comments.py') @args

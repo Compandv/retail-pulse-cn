@@ -1,13 +1,13 @@
 ﻿param([ValidateSet('all', 'market', 'community', 'report')][string]$Only = 'all', [switch]$SkipOpen)
 $ErrorActionPreference = 'Stop'
-$pythonCommand = Get-Command python.exe -All -ErrorAction SilentlyContinue | Where-Object { $_.Source -notlike '*\WindowsApps\*' } | Select-Object -First 1
-$launcherCommand = Get-Command py.exe -ErrorAction SilentlyContinue
-$pythonArguments = @()
-$pythonPath = if ($pythonCommand) { $pythonCommand.Source } elseif ($launcherCommand) { $pythonArguments = @('-3'); $launcherCommand.Source } else { Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' }
-if (-not (Test-Path -LiteralPath $pythonPath)) {
-    Write-Error '未找到 Python。请安装 Python 3.10+ 并加入 PATH，再运行每日更新。'
+. (Join-Path $PSScriptRoot 'find_python.ps1')
+$python = Resolve-ProjectPython
+if (-not $python) {
+    Write-Error '未找到可用的 Python 3.10+。请安装 Python 并加入 PATH，或设置 RETAIL_PYTHON 指向 python.exe，再运行每日更新。'
     exit 1
 }
+$pythonPath = $python.Path
+$pythonArguments = $python.Args
 $env:PYTHONIOENCODING = 'utf-8'
 if (-not $SkipOpen) {
     Write-Host 'Opening saved dashboard first. Refresh the page after data update completes.'
