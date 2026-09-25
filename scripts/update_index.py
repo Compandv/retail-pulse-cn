@@ -17,9 +17,27 @@ from sentiment.market_watch import build_market_snapshot  # noqa: E402
 from sentiment.report import build_report  # noqa: E402
 from sentiment.run_progress import logged_run, stage_progress, say
 from sentiment.semantic_agent import run_lock
+from sentiment.collectors import CN_TZ  # noqa: E402
+from sentiment.pipeline import UnsupportedCalendarYear, calendar_warning, effective_trade_date  # noqa: E402
+
+
+def check_calendar(now=None) -> bool:
+    """Stop once with a clear message rather than failing every step alike."""
+    now = now or datetime.now(CN_TZ)
+    warning = calendar_warning(now.date())
+    if warning:
+        say("提示：" + warning)
+    try:
+        effective_trade_date(now)
+    except UnsupportedCalendarYear as exc:
+        say(f"更新未启动：{exc}")
+        return False
+    return True
 
 
 def run_steps(only="all") -> int:
+    if not check_calendar():
+        return 1
     failures = []
     started = time.monotonic()
     steps = [(key, name, build) for key, name, build in (("market", "市场行情与板块", build_market_snapshot), ("community", "社区采集与本地分类", build_snapshot), ("report", "十强复盘与模型汇总解读", build_report)) if only == "all" or key == only]

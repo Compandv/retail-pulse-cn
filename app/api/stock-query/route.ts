@@ -3,6 +3,7 @@ import targetsConfig from "../../../config/targets.json";
 import persisted from "../../../public/data/latest.json";
 import { METHOD_VERSION, prepareObservations, summarizeExpressions, historicalPercentile, universeKey, marketPrefix, type BaselinePoint } from "../../../lib/measurement";
 import { collectFeed, collectTrading, summarizeTrading, latestSession, validSession, CUTOFF, fetchText, mapLimit } from "../../../lib/observations";
+import { TRADING_CALENDAR } from "../../../lib/trading-calendar";
 
 type Member = { code: string; name: string; role: string; prefix?: string };
 async function resolve(input: string): Promise<{ id: string; name: string; kind: "stock" | "basket" | "proxy"; description: string; members: Member[] }> {
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
   const input = (params.get("q") || params.get("code") || "").trim();
   const date = params.get("date") || latestSession();
   if (!input || input.length > 80) return Response.json({ error: "请输入股票代码、名称或主题（最多 80 字）" }, { status: 400 });
-  if (!validSession(date)) return Response.json({ error: "请选择 2026 年已收盘的交易日；不支持未来日期、休市日或无效日期" }, { status: 400 });
+  if (!validSession(date)) return Response.json({ error: `请选择 ${TRADING_CALENDAR.supportedYears.join("、")} 年已收盘的交易日；不支持未来日期、休市日、未配置日历的年份或无效日期` }, { status: 400 });
   const started = Date.now();
   try {
     const scope = await resolve(input);
