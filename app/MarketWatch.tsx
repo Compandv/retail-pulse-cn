@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { sortedBoards, type BoardSort } from "../lib/market-ranking";
 import type { MarketSnapshot, MarketBoard, BoardDetails } from "./market-types";
 import { temperatureTone } from "../lib/report-presentation";
+import { SnapshotHealth } from "./SnapshotHealth";
+import { MarketDiagnostics } from "./MarketDiagnostics";
 
 const fmt = (value: number | null | undefined, digits = 2) => value == null ? "—" : value.toLocaleString("zh-CN", { maximumFractionDigits: digits });
 const pct = (value: number | null | undefined) => value == null ? "—" : `${value > 0 ? "+" : ""}${fmt(value)}%`;
@@ -47,20 +49,21 @@ export function MarketWatch({ initialSnapshot }: { initialSnapshot: MarketSnapsh
   const [limit, setLimit] = useState(10), [dates, setDates] = useState<string[]>(initialSnapshot ? [initialSnapshot.meta.tradeDate] : []);
   const [selected, setSelected] = useState<MarketBoard | null>(null), [pending, setPending] = useState(false), [error, setError] = useState("");
   const request = useRef<AbortController | null>(null), sequence = useRef(0);
-  const latestDate = useRef(initialSnapshot?.meta.tradeDate);
+  const latestDate = useRef(initialSnapshot?.meta.tradeDate), followLatest = useRef(true);
+  const [historical, setHistorical] = useState(false);
   useEffect(() => { const controller = new AbortController(); void fetch("/data/market/index.json", { signal: controller.signal, cache: "no-store" }).then(async response => response.ok ? await response.json() as { dates?: string[] } : null).then(value => { if (Array.isArray(value?.dates)) setDates(value.dates.filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date))); }).catch(() => {}); return () => { controller.abort(); request.current?.abort(); }; }, []);
   useEffect(() => {
     const controller = new AbortController();
     const refresh = async () => {
       if (request.current) return;
       try {
+        const generation = sequence.current;
         const response = await fetch("/data/market/latest.json", { signal: controller.signal, cache: "no-store" });
         if (!response.ok) return;
         const value = await response.json() as MarketSnapshot;
-        if (value.meta?.methodVersion !== "market-watch-1.0" || !/^\d{4}-\d{2}-\d{2}$/.test(value.meta.tradeDate) || !Array.isArray(value.boards)) return;
-        const previousLatest = latestDate.current;
-        // Polling may advance the latest view, but never moves a historical view.
-        setSnapshot(current => !current || current.meta.tradeDate === previousLatest ? value : current);
+        if (value.meta?.methodVersion !== "market-watch-1.0" || !/^\d{4}-\d{2}-\d{2}$/.test(value.meta.tradeDate) || !Array.isArray(value.boards) || request.current || generation !== sequence.current) return;
+        // A concurrent date change must never be overwritten by a late poll.
+        if (followLatest.current) setSnapshot(value);
         latestDate.current = value.meta.tradeDate;
         setDates(current => [...new Set([...current, value.meta.tradeDate])].sort());
       } catch { /* Keep the last readable market snapshot. */ }
@@ -76,7 +79,7 @@ export function MarketWatch({ initialSnapshot }: { initialSnapshot: MarketSnapsh
       if (!response.ok) throw new Error("该日市场快照暂不可用，保留当前结果");
       const value = await response.json() as MarketSnapshot;
       if (value.meta?.methodVersion !== "market-watch-1.0" || value.meta.tradeDate !== date || !Array.isArray(value.boards)) throw new Error("快照日期或版本不匹配");
-      if (sequence.current === id) setSnapshot(value);
+      if (sequence.current === id) { followLatest.current = date === latestDate.current; setHistorical(!followLatest.current); setSnapshot(value); }
     } catch (failure) { if (!controller.signal.aborted && sequence.current === id) setError(failure instanceof Error ? failure.message : "读取失败"); }
     finally { if (sequence.current === id) { setPending(false); request.current = null; } }
   };
@@ -85,7 +88,10 @@ export function MarketWatch({ initialSnapshot }: { initialSnapshot: MarketSnapsh
   const source = snapshot.meta.sources.find(row => row.id === kind), market = snapshot.market;
   return <section className="panel market-watch" aria-busy={pending}>
     <div className="panel-head"><div><span className="eyebrow">每天从来源目录发现 · {snapshot.meta.tradeDate}</span><h2>今日板块轮动</h2></div><label className="market-date">行情日期 <select value={snapshot.meta.tradeDate} onChange={event => void changeDate(event.target.value)}>{dates.map(date => <option key={date}>{date}</option>)}</select></label></div>
+    <SnapshotHealth name="市场行情" tradeDate={snapshot.meta.tradeDate} collectedAt={snapshot.meta.collectedAt} methodVersion={snapshot.meta.methodVersion} expectedMethodVersion="market-watch-1.0" historical={historical} />
+    {historical && <button className="v4-button secondary" onClick={() => { if (latestDate.current) void changeDate(latestDate.current); }}>返回最新市场快照</button>}
     <div className="market-facts"><div><span>上涨 / 下跌 / 平盘</span><strong><i className="rise">{market.quoted ? market.up : "—"}</i> / <i className="fall">{market.quoted ? market.down : "—"}</i> / {market.quoted ? market.flat : "—"}</strong><small>{market.quoted}/{market.sourceTotal ?? "未知"} 股有当日涨跌幅</small></div><div><span>{market.amountComplete ? "成交额" : "已覆盖成交额"}</span><strong>{money(market.amount)}</strong><small>{market.amountCoverage} 股 · {market.amountChange == null ? "暂无同范围前日比较" : `较前次 ${money(market.amountChange)}`}</small></div><div><span>个股涨跌中位数</span><strong className={(market.medianChange ?? 0) >= 0 ? "rise" : "fall"}>{pct(market.medianChange)}</strong><small>{market.range}</small></div></div>
+    <MarketDiagnostics snapshot={snapshot} />
     <div className="market-toolbar"><div className="segmented" role="group" aria-label="板块类型">{[["industry", "行业"], ["concept", "概念"]].map(([value, label]) => <button key={value} aria-pressed={kind === value} className={kind === value ? "active" : ""} onClick={() => { setKind(value); setLimit(10); }}>{label}</button>)}</div><input aria-label="搜索市场板块或领涨股" placeholder="搜索板块、代码或领涨股" value={query} onChange={event => { setQuery(event.target.value); setLimit(10); }} /><label>排序 <select value={sort} onChange={event => setSort(event.target.value as BoardSort)}><option value="changePct">涨幅领跑</option><option value="turnover">换手活跃</option><option value="amount">成交规模</option><option value="activityHistory">历史换手分位</option></select></label></div>
     <p className="fine-print">已读取 {source?.observed ?? 0}/{source?.expected ?? "未知"} 个{kind === "industry" ? "行业" : "概念"}，{source?.dated ?? 0} 个具有所选日期行情。{source?.complete ? "目录已完整读取。" : "目录覆盖不完整，下表仅在已取得范围内比较。"} 每日更新候选和排名，不预留固定板块。{snapshot.meta.sourceId === "sina-tencent" && " 备用口径：涨跌与换手为至少覆盖90%成分的等权均值。"}</p>
     {pending && <p role="status">正在切换日期…</p>}{error && <p role="alert">{error}</p>}

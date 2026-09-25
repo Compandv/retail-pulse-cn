@@ -11,6 +11,8 @@ import { MarketWatch } from "./MarketWatch";
 import type { MarketSnapshot } from "./market-types";
 import { MarketReport } from "./MarketReport";
 import type { DailyReport } from "./report-types";
+import { FOLLOWING_EXPLANATION, MEASUREMENT_ANSWER } from "../lib/following-method";
+import { SnapshotHealth } from "./SnapshotHealth";
 
 const number = (value: number | null | undefined, digits = 1) => value == null || !Number.isFinite(value) ? "—" : value.toFixed(digits);
 const percent = (value: number | null | undefined) => value == null ? "—" : `${number(value)}%`;
@@ -117,7 +119,7 @@ function History({ snapshot, onSelect }: { snapshot: MeasurementSnapshot; onSele
 }
 
 function Method() {
-  return <article className="panel v4-method"><span className="eyebrow">MVP-4.0 · 可解释的试验方法</span><h2>每个数字回答一个问题</h2><dl><dt>社区关注热度：0–100 历史分位</dt><dd>以东方财富同一观察篮子、同一时段的去重活跃账户数，与此前最多 60 个有效历史日比较；低于当前值计 1，相同计 0.5，再除以历史天数并乘 100。至少需要 20 日；采集不完整、账户标识缺失或历史不足均不出分。80 分不表示 80% 的人看多。</dd><dt>讨论升温：相对自己的日常规模</dt><dd>将当日去重讨论账户数除以最近 20 个可比有效日的账户数中位数，减 1 后乘 100%。当前采集不完整、历史不足或中位数为零时留空。热度分衡量历史位置，升温幅度衡量偏离日常规模的程度。</dd><dt>成交活跃分：行情维度</dt><dd>每只股票的当日成交量相对过去最多 60 个交易日计算分位，至少需要 20 日，再对具备基线的成分等权平均。篮子至少 70% 成分具备基线才显示总分；上涨率按有报价成分计算，另列覆盖数量。这不是散户资金流。</dd><dt>追涨、恐慌：表达比例</dt><dd>先排除广告与同账户重复文本，限定观测日期 00:00–15:00，每个平台每账户最多保留三条。分母是有效分析文本数；追买自述与明确追涨意愿进入追涨比例，单纯盼涨、行情描述、否定、转述、历史回顾和询问分别标注。规则仍可能误判，可展开原文复核。</dd><dt>L1–L5 表达分层试验</dt><dd>十强日报按每账户最多三条去重发言推定分析层次；术语本身不构成晋级证据，普通讨论、转述与冲突保留未知。各级占比以已判定账户为分母，同时显示分类覆盖。韭菜分以L1+L2占35%、追涨分位占25%，讨论规模、讨论升温、传播和交易各10%；恐慌独立。分类覆盖不足50%只给未知账户对应的范围，不能认证真实经验。</dd><dt>样本覆盖与旧历史</dt><dd>抓取量、窗口内有效讨论量、限量后的分析样本量分开。公开列表分页有上限；出现重复页、超时或尚未越过日期边界时，数量仅为已观察下限。完整正文和回复目前覆盖有限。旧版综合权重停止用于 V4，旧历史单独保留。</dd></dl><p className="method-notice">这版修复了已知统计口径和语境规则问题，没有宣称复现博主算法，也未完成独立人工标注集上的准确性验证。</p></article>;
+  return <article className="panel v4-method"><span className="eyebrow">MVP-4.0 · 可解释的试验方法</span><h2>每个数字回答一个问题</h2><dl><dt>社区关注热度：0–100 历史分位</dt><dd>以东方财富同一观察篮子、同一时段的去重活跃账户数，与此前最多 60 个有效历史日比较；低于当前值计 1，相同计 0.5，再除以历史天数并乘 100。至少需要 20 日；采集不完整、账户标识缺失或历史不足均不出分。80 分不表示 80% 的人看多。</dd><dt>讨论升温：相对自己的日常规模</dt><dd>将当日去重讨论账户数除以最近 20 个可比有效日的账户数中位数，减 1 后乘 100%。当前采集不完整、历史不足或中位数为零时留空。热度分衡量历史位置，升温幅度衡量偏离日常规模的程度。</dd><dt>成交活跃分：行情维度</dt><dd>每只股票的当日成交量相对过去最多 60 个交易日计算分位，至少需要 20 日，再对具备基线的成分等权平均。篮子至少 70% 成分具备基线才显示总分；上涨率按有报价成分计算，另列覆盖数量。这不是散户资金流。</dd><dt>追涨、恐慌：表达比例</dt><dd>先排除广告与同账户重复文本，限定观测日期 00:00–15:00，每个平台每账户最多保留三条。分母是有效分析文本数；追买自述与明确追涨意愿进入追涨比例，单纯盼涨、行情描述、否定、转述、历史回顾和询问分别标注。规则仍可能误判，可展开原文复核。</dd><dt>跟风追涨表达分（当前题材日报）</dt><dd>{FOLLOWING_EXPLANATION} 当前不使用L1–L5等级；旧报告保留原方法。</dd><dt>样本覆盖与旧历史</dt><dd>抓取量、窗口内有效讨论量、限量后的分析样本量分开。公开列表分页有上限；出现重复页、超时或尚未越过日期边界时，数量仅为已观察下限。完整正文和回复目前覆盖有限。旧版综合权重停止用于 V4，旧历史单独保留。</dd></dl><p className="method-notice">这版修复了已知统计口径和语境规则问题，没有宣称复现博主算法，也未完成独立人工标注集上的准确性验证。</p></article>;
 }
 
 function QA({ snapshot, onSelect }: { snapshot: MeasurementSnapshot; onSelect: (scope: ScopeResult) => void }) {
@@ -126,7 +128,7 @@ function QA({ snapshot, onSelect }: { snapshot: MeasurementSnapshot; onSelect: (
   const ask = (text: string) => {
     setQuestion(text); setLinks([]);
     const matched = snapshot.scopes.filter(scope => [scope.name, scope.id, ...scope.members.map(member => member.name)].some(name => name && text.includes(name)) || (scope.id === "pork" && text.includes("猪肉")));
-    if (/公式|怎么算|依据/.test(text)) { setAnswer("关注热度使用同口径历史账户数分位，至少需要 20 个有效历史日；追涨和恐慌是有效表达比例；讨论升温比较最近 20 个有效日的账户数中位数。十强日报新增按账户汇总的 L1–L5 表达分层，未知单列；韭菜分使用 L1+L2 35%、追涨25%，讨论规模、日环比升温、传播、交易各10%，恐慌独立。覆盖不足只给区间，可点击核对。"); return; }
+    if (/公式|怎么算|依据/.test(text)) { setAnswer(MEASUREMENT_ANSWER); return; }
     if (matched.length) { setAnswer(matched.map(scope => `${scope.name}：已观察账户 ${scope.attention.observedAuthors}（${scope.attention.complete ? "窗口已覆盖" : "下限"}），关注热度 ${number(scope.attention.score)}，成交活跃 ${number(scope.trading.score)}，追涨表达 ${percent(scope.expressions.chase)}，${scope.expressions.sampleCount} 条分析样本。`).join("\n")); setLinks(matched); return; }
     if (/升温|最热|人数最多/.test(text)) { setAnswer("市场板块榜可按当天涨幅、换手活跃或成交规模排序，候选每日更新。社区表可比较已观察人数和同口径升温；它尚未覆盖市场榜的全部板块。"); return; }
     setAnswer("可输入已配置的主题或股票名称来核对样本，也可询问计算依据。当前数据无法确定真实持仓人数、作者实际经验或未来涨跌。");
@@ -140,6 +142,7 @@ export function MeasurementDashboard({ initialSnapshot, initialMarket = null, in
   useEffect(() => { const controller = new AbortController(); const refresh = async () => { try { const response = await fetch("/data/latest.json", { cache: "no-store", signal: controller.signal }); if (response.ok) { const next = await response.json() as MeasurementSnapshot; if (next.meta?.methodVersion === MEASUREMENT.version) setSnapshot(next); } } catch { /* Preserve the last working snapshot on refresh failure. */ } }; const timer = setInterval(refresh, 300000); return () => { clearInterval(timer); controller.abort(); }; }, []);
   if (snapshot.meta.methodVersion !== MEASUREMENT.version) return <LegacyDashboard initialSnapshot={initialSnapshot as Snapshot} />;
   return <main className="v4-main"><header className="topbar"><Link className="brand" href="/"><span className="brand-mark">温</span><span><strong>散户温度计</strong><small>PUBLIC MARKET OBSERVATORY</small></span></Link><nav aria-label="主导航">{[["overview", "观察总览"], ["scopes", "板块轮动"], ["query", "股票查询"], ["history", "历史"], ["method", "方法"]].map(([key, label]) => <button key={key} aria-current={view === key ? "page" : undefined} className={view === key ? "active" : ""} onClick={() => setView(key)}>{label}</button>)}</nav><div className="asof"><i className="mode-dot live" /><span>{snapshot.meta.tradeDate}<small>截至 15:00 · 北京时间</small></span></div></header><div className="v4-workspace"><div className="v4-intro"><div><span className="eyebrow">动态市场目录 · 公开社区观察</span><h1>看市场轮动，也看讨论升温。</h1><p>把关注规模、成交活跃与追涨表达分开，保留每个判断的证据。</p></div><div className="v4-source-status">{snapshot.meta.sources.map(source => <span key={source.id}>{source.name} · {source.observedEntrances}/{source.totalEntrances} 入口</span>)}</div></div>
+    <SnapshotHealth name="社区观察" tradeDate={snapshot.meta.tradeDate} collectedAt={snapshot.meta.collectedAt} methodVersion={snapshot.meta.methodVersion} expectedMethodVersion={MEASUREMENT.version} />
     {view === "overview" && <><MarketReport initialReport={initialReport as DailyReport | null} /><MarketWatch initialSnapshot={initialMarket} /><section className="panel"><ScopePanel scope={snapshot.summary} compact /></section><ScopeTable scopes={snapshot.scopes} onSelect={setSelected} /><Query snapshot={snapshot} /><QA snapshot={snapshot} onSelect={setSelected} /></>}
     {view === "scopes" && <><MarketWatch initialSnapshot={initialMarket} /><ScopeTable scopes={snapshot.scopes} onSelect={setSelected} /><p className="fine-print">市场板块榜每天更新候选；社区表保留已有观察范围，二者覆盖不同。</p></>}
     {view === "query" && <Query snapshot={snapshot} />}

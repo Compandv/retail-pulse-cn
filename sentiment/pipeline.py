@@ -18,12 +18,9 @@ from .scoring import METHOD_VERSION, aggregate_scores, score_source, contributio
 
 SOURCE_NAMES = {"eastmoney": "东方财富股吧", "sina": "新浪股吧", "taoguba": "淘股吧"}
 EXPECTED_SOURCES = tuple(SOURCE_NAMES)
-HOLIDAYS_2026 = {
-    date(2026, 1, 1), date(2026, 1, 2),
-    date(2026, 2, 16), date(2026, 2, 17), date(2026, 2, 18), date(2026, 2, 19), date(2026, 2, 20), date(2026, 2, 23),
-    date(2026, 4, 6), date(2026, 5, 1), date(2026, 5, 4), date(2026, 5, 5), date(2026, 6, 19), date(2026, 9, 25),
-    date(2026, 10, 1), date(2026, 10, 2), date(2026, 10, 5), date(2026, 10, 6), date(2026, 10, 7),
-}
+TRADING_CALENDAR = json.loads((Path(__file__).resolve().parents[1] / "config/trading-calendar.json").read_text(encoding="utf-8"))
+HOLIDAYS_2026 = {date.fromisoformat(day) for day in TRADING_CALENDAR["holidays"]}
+DATA_AVAILABLE_AFTER = clock_time.fromisoformat(TRADING_CALENDAR["availableAfter"])
 
 
 def is_trading_day(day: date) -> bool:
@@ -46,7 +43,7 @@ def next_trading_day(day: date) -> date:
 
 def effective_trade_date(now: datetime) -> date:
     local = now.astimezone(CN_TZ)
-    if is_trading_day(local.date()) and local.time() >= clock_time(15, 30):
+    if is_trading_day(local.date()) and local.time() >= DATA_AVAILABLE_AFTER:
         return local.date()
     probe = local.date() - timedelta(days=1)
     while not is_trading_day(probe):

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     default: "散户温度计｜A股社区情绪",
     template: "%s",
   },
-  description: "每日观察 A 股社区中的新手参与、追涨冲动、恐慌和多空方向。",
+  description: "观察 A 股行情、板块轮动与公开社区表达，分别展示数据时效、采样覆盖和计算依据。",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

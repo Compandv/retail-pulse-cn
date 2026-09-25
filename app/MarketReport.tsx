@@ -5,6 +5,9 @@ import type { DailyReport, DimensionKey, ReportSector, Thermometer, FundFlow } f
 import { rankFlows, temperatureTone } from "../lib/report-presentation";
 import { FollowingComposition, MarketReading } from "./FollowingComposition";
 import { LiveFundFlows } from "./LiveFundFlows";
+import { SnapshotHealth } from "./SnapshotHealth";
+import { ReportQuality } from "./ReportQuality";
+import { FOLLOWING_EXPLANATION, expectedReportMethod } from "../lib/following-method";
 
 const fmt = (n: number | null | undefined, digits = 1) => n == null ? "—" : n.toLocaleString("zh-CN", { maximumFractionDigits: digits });
 const change = (n: number | null | undefined) => n == null ? "—" : `${n > 0 ? "+" : ""}${fmt(n, 2)}%`;
@@ -19,7 +22,7 @@ const metricInfo: Record<DimensionKey, { name: string; unit: string; description
   growth: { name: "讨论升温", unit: "分", description: "同一板块两日均覆盖的成分集合：100×今日账户/(今日+前一交易日账户)。50为持平，66.7约为翻倍；这是当前历史较短时的日环比口径。" },
   chase: { name: "追涨倾向", unit: "%", description: "有本人追买行动／意愿证据的文本数÷有效分析文本数。询问、警示、主力行为描述不自动视为追涨。此列是文本表达占比；韭菜分另外按账户统计，未使用十强分位。" },
   trading: { name: "交易活跃", unit: "分", description: "板块换手率相对全部来源概念的分位。它描述交易活跃，不认证资金属于散户或机构。" },
-  leek: { name: "韭菜分", unit: "分", description: "跟风追涨表达试验分：账户跟随决策率30%、明确追涨强度40%、追涨询问率20%、无依据喊涨率10%。每账户同项取最高值，已追买计1、明确计划计0.7。未知仍在分母中；不认证身份，不代表实际成交。" },
+  leek: { name: "韭菜分", unit: "分", description: FOLLOWING_EXPLANATION },
 };
 function metricDescription(key: DimensionKey, report: DailyReport) {
   if (report.meta.discovery && key === "discussion") {
@@ -84,6 +87,8 @@ export function MarketReport({ initialReport }: { initialReport: DailyReport | n
   const [selected, setSelected] = useState<{ sector: ReportSector; dimension: DimensionKey } | null>(null);
   const [pending, setPending] = useState(false), [error, setError] = useState("");
   const request = useRef<AbortController | null>(null), sequence = useRef(0), latest = useRef(initialReport?.meta.tradeDate);
+  const followLatest = useRef(true);
+  const [historical, setHistorical] = useState(false);
   useEffect(() => {
     const controller = new AbortController();
     const refresh = async (initial = false) => {
@@ -93,12 +98,12 @@ export function MarketReport({ initialReport }: { initialReport: DailyReport | n
           if (response.ok) { const index = await response.json() as { dates?: string[] }; if (Array.isArray(index.dates)) setDates(index.dates.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))); }
         }
         if (request.current) return;
+        const generation = sequence.current;
         const response = await fetch("/data/report/latest.json", { signal: controller.signal, cache: "no-store" });
         if (!response.ok) return;
         const value = await response.json() as DailyReport;
-        if (value.meta?.version !== "daily-report-1.0" || !Array.isArray(value.sectors) || request.current) return;
-        const oldLatest = latest.current;
-        setReport(current => !current || current.meta.tradeDate === oldLatest ? value : current);
+        if (value.meta?.version !== "daily-report-1.0" || !Array.isArray(value.sectors) || request.current || generation !== sequence.current) return;
+        if (followLatest.current) setReport(value);
         latest.current = value.meta.tradeDate;
         setDates(current => [...new Set([...current, value.meta.tradeDate])].sort());
       } catch { /* Preserve the readable report. */ }
@@ -114,7 +119,7 @@ export function MarketReport({ initialReport }: { initialReport: DailyReport | n
       if (!response.ok) throw new Error("该日报告读取失败，保留当前报告");
       const value = await response.json() as DailyReport;
       if (value.meta?.tradeDate !== day || value.meta?.version !== "daily-report-1.0") throw new Error("报告日期或版本不匹配");
-      if (id === sequence.current) setReport(value);
+      if (id === sequence.current) { followLatest.current = day === latest.current; setHistorical(!followLatest.current); setReport(value); }
     } catch (failure) { if (!controller.signal.aborted) setError(failure instanceof Error ? failure.message : "读取失败"); }
     finally { if (id === sequence.current) { setPending(false); request.current = null; } }
   };
@@ -126,6 +131,9 @@ export function MarketReport({ initialReport }: { initialReport: DailyReport | n
   const maximum = Math.max(0, ...incoming.map(r => r.net), ...outgoing.map(r => -r.net));
   return <div className="daily-report" aria-busy={pending}>
     <div className="report-datebar"><span>盘后复盘 <b>{report.meta.tradeDate.replaceAll("-", ".")}</b><i>{report.meta.discovery ? "收盘行情 · 全天讨论" : "截至收盘"}</i></span><label>报告日期 <select aria-label="报告日期" value={report.meta.tradeDate} onChange={e => void changeDate(e.target.value)}>{dates.map(day => <option key={day}>{day}</option>)}</select></label></div>
+    <SnapshotHealth name="盘后复盘" tradeDate={report.meta.tradeDate} collectedAt={report.meta.collectedAt} methodVersion={report.meta.analysisVersion} expectedMethodVersion={expectedReportMethod(report.meta)} historical={historical} />
+    {historical && <button className="v4-button secondary" onClick={() => { if (latest.current) void changeDate(latest.current); }}>返回最新复盘快照</button>}
+    <ReportQuality report={report} />
     {pending && <p role="status">正在读取所选日报…</p>}{error && <p role="alert">{error}</p>}
     <section className="panel report-section thermometer-section"><div className="report-section-heading"><span className="report-step">01</span><div><span className="eyebrow">市场体温计 · 五个观察角度</span><h2>今天的市场，是热还是冷？</h2></div></div><p className="report-summary">{report.summary}</p>
       <div className="thermometer-grid">{report.thermometers.map(item => <ThermometerCard key={item.key} item={item} active={item.key === activeMetric} onSelect={() => setActiveMetric(activeMetric === item.key ? null : item.key)} />)}</div>

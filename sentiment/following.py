@@ -2,10 +2,15 @@
 from collections import defaultdict
 import re
 import unicodedata
+import json
+from pathlib import Path
 
-VERSION = "following-1.0"
-WEIGHTS = {"following": .30, "chase": .40, "question": .20, "hype": .10}
-LABELS = {"following": "跟随决策", "question": "追涨询问", "chase": "明确追涨", "hype": "无依据喊涨", "analysis": "有依据分析", "panic": "恐慌表达", "refill": "补仓表达", "watch": "观望", "excluded": "转述／警示／历史"}
+METHOD = json.loads((Path(__file__).resolve().parents[1] / "config/following.json").read_text(encoding="utf-8"))
+VERSION = METHOD["version"]
+WEIGHTS = METHOD["weights"]
+LABELS = METHOD["labels"]
+if set(WEIGHTS) != {"following", "chase", "question", "hype"} or abs(sum(WEIGHTS.values()) - 1) > 1e-9:
+    raise ValueError("跟风追涨权重配置无效")
 
 
 def classify(text):
@@ -47,7 +52,7 @@ def classify(text):
             plan = has(r"准备|打算|决定|我要|我想|我会")
             # Boarding/buying alone is not proof of chasing a rise.
             context = has(r"追高|追涨|追进|追入|打板|扫板|涨了|大涨|涨停|新高")
-            if context and (done or plan): mark("chase", clause, 1.0 if done else .7)
+            if context and (done or plan): mark("chase", clause, METHOD["chaseDoneStrength"] if done else METHOD["chasePlanStrength"])
         if not question and not (factual and reason) and has(r"无脑冲|无脑买|闭眼买|肯定翻倍|必定翻倍|必涨|稳赚|直接梭哈"):
             mark("hype", clause)
         if own and not question and has(r"割肉|亏麻|亏惨|心态崩|恐慌|不玩了"): mark("panic", clause)
@@ -63,7 +68,7 @@ def expression_profile(posts, observed_authors, sampling_ok):
     for post in sorted(posts, key=lambda p: (p["date"], p["id"]), reverse=True):
         if not post.get("author"): continue
         account = (post["source"], post["author"])
-        if len(accounts[account]) >= 3: continue
+        if len(accounts[account]) >= METHOD["maxPostsPerAccount"]: continue
         normalized = re.sub(r"\s+", "", post["text"])
         if normalized in accounts[account]: continue
         values, evidence = classify(post["text"])
@@ -74,11 +79,14 @@ def expression_profile(posts, observed_authors, sampling_ok):
     votes = [{key: max(v[key] for v in entries.values()) for key in LABELS} for entries in accounts.values()]
     total = max(observed_authors, len(votes))
     unknown = total - sum(any(v.values()) for v in votes)
-    eligible = sampling_ok and total >= 20
+    eligible = sampling_ok and total >= METHOD["minimumAccounts"]
     rates = {key: 100 * sum(v[key] for v in votes) / total if total else None for key in LABELS}
     return {"version": VERSION, "observedAccounts": total, "unknownAccounts": unknown, "unknownRate": round(100 * unknown / total, 1) if total else None,
+            "sampledAccounts": len(votes),
+            "unmatchedAccounts": sum(not any(v.values()) for v in votes),
+            "unsampledAccounts": total - len(votes),
             "eligible": eligible, "labels": [{"key": key, "label": label, "count": sum(v[key] > 0 for v in votes), "rate": round(rates[key], 2) if rates[key] is not None else None, "examples": samples[key]} for key, label in LABELS.items()],
-            "rates": rates, "reason": "本地规则识别的表达强度；未知仍计入分母，低分不等于理性，非实际成交或身份认证" if eligible else "至少20个观察账户且来源覆盖达标才出分"}
+            "rates": rates, "reason": "本地规则识别的表达强度；未知仍计入分母，低分不等于理性，非实际成交或身份认证" if eligible else f"至少{METHOD['minimumAccounts']}个观察账户且来源覆盖达标才出分"}
 
 
 def following_score(profile):

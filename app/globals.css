@@ -666,3 +666,42 @@ button, summary, a, input, select { -webkit-tap-highlight-color: transparent; }
 .fund-stale { background: #fff6df; color: #805016; border-color: #e4c488; }
 .flow-structure { font-size: .875rem; margin: .5rem 0; color: #476170; }.flow-structure summary { cursor: pointer; }.flow-structure p { display: block; }
 .report-archive { margin: 1rem 0; border-top: 1px solid #d1d8de; padding-top: 1rem; }.report-archive > summary { color: #486277; cursor: pointer; font-size: .875rem; }
+
+
+/* Grid children must shrink so wide data tables scroll inside their own panels. */
+.v4-workspace, .daily-report { grid-template-columns: minmax(0, 1fr); }
+.v4-workspace > *, .daily-report > * { min-width: 0; }
+.v4-table-scroll, .report-matrix-scroll { max-width: 100%; }
+@media (max-width: 760px) {
+  .v4-main .topbar { grid-template-columns: minmax(0, 1fr) auto; }
+  .v4-main .topbar nav { min-width: 0; max-width: 100%; }
+  .v4-main .topbar nav button { min-width: 0; padding: 9px 6px; font-size: 12px; }
+}
+
+/* Reliability is visually separate from hot/cold investment sentiment. */
+.snapshot-health { padding: 14px 18px; border: 1px solid #b9ccd9; border-radius: 10px; background: #edf4f8; color: #26465d; font-size: 14px; line-height: 1.7; margin: 12px 0; }
+.snapshot-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 18px; }
+.snapshot-health p { margin: 5px 0; }
+.snapshot-health summary, .quality-details > summary { cursor: pointer; padding: 4px 0; }
+.snapshot-warning { background: #fff6df; border-color: #d9b771; color: #694512; }
+.snapshot-method-warning { font-weight: 600; }
+.quality-panel { padding: clamp(18px, 2.4vw, 30px); border: 1px solid #d8dfe3; background: #fffefa; }
+.quality-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
+.quality-facts > div, .diagnostic-facts > div { border-left: 3px solid #b8cbd8; padding: 8px 14px; min-width: 0; }
+.quality-facts span, .diagnostic-facts span { display: block; color: #426076; font-size: 14px; }
+.quality-facts strong, .diagnostic-facts strong { display: block; font: 700 25px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; color: #19374d; font-variant-numeric: tabular-nums; }
+.quality-facts small, .diagnostic-facts small { display: block; font-size: 12px; color: #536775; line-height: 1.65; }
+.quality-table { min-width: 940px; }
+.quality-table td { max-width: 290px; white-space: normal; }
+.quality-table small { display: block; font-size: 12px; line-height: 1.8; }
+.quality-details { border-top: 1px solid #d8e0e6; padding-top: 10px; }
+.quality-details > summary { color: #264f6c; font-size: 14px; font-weight: 600; }
+.market-diagnostics { margin: 22px 0; padding: 20px; border: 1px solid #cbd8df; border-radius: 12px; background: #f7fafc; }
+.market-diagnostics h3 { font-size: 19px; color: #19374d; margin: 6px 0 15px; }
+.diagnostic-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.diagnostic-distribution { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding-top: 20px; }
+.diagnostic-distribution span, .diagnostic-distribution b { display: block; font-size: 13px; color: #375469; line-height: 1.8; }
+.diagnostic-distribution progress { width: 100%; height: 10px; accent-color: #426e8b; }
+.diagnostic-missing { color: #5c6c76; font-size: 13px; line-height: 1.8; background: #eaf0f4; padding: 12px 15px; border-radius: 6px; margin: 16px 0 8px; }
+@media (max-width: 900px) { .quality-facts, .diagnostic-distribution { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .quality-facts, .diagnostic-facts { grid-template-columns: 1fr; } .snapshot-heading { display: block; } .snapshot-heading span { display: block; } .market-diagnostics { padding: 14px; } }

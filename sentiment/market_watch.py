@@ -15,6 +15,7 @@ from pathlib import Path
 
 from .collectors import CN_TZ, request_text
 from .pipeline import effective_trade_date, is_trading_day
+from .market_diagnostics import build_market_diagnostics
 
 CONFIG = json.loads((Path(__file__).resolve().parents[1] / "config/market-watch.json").read_text(encoding="utf-8"))
 VERSION = CONFIG["version"]
@@ -181,7 +182,7 @@ def rank_rows(rows, field):
     return ranks
 
 
-def summarize_stocks(rows, capture, previous=None):
+def summarize_stocks(rows, capture, previous=None, diagnostics_rows=None):
     valid = [row for row in rows if row["dateValid"] and row["changePct"] is not None]
     amounts = [row["amount"] for row in rows if row["dateValid"] and row["amount"] is not None]
     complete = bool(capture.get("complete")) and len(amounts) == len(rows) and bool(rows)
@@ -196,7 +197,8 @@ def summarize_stocks(rows, capture, previous=None):
             "upRate": rounded(100 * sum(row["changePct"] > 0 for row in valid) / len(valid)) if valid else None,
             "amount": rounded(amount), "amountCoverage": len(amounts), "amountComplete": complete,
             "amountChange": rounded(amount - previous_amount) if amount is not None and previous_amount is not None else None,
-            "stockCodes": sorted(row["code"] for row in rows)}
+            "stockCodes": sorted(row["code"] for row in rows),
+            "diagnostics": build_market_diagnostics(rows if diagnostics_rows is None else diagnostics_rows, capture)}
 
 
 def assemble_market(capture, history):
@@ -244,7 +246,9 @@ def assemble_market(capture, history):
                        catalogComplete=catalog_complete, discussion=None)
         boards.extend(normalized)
     stock_capture = {**capture["groups"].get("stocks", {}), "complete": next(row["complete"] for row in source_status if row["id"] == "stocks")}
-    market = summarize_stocks(groups["stocks"], stock_capture, previous.get("market") if previous else None)
+    # Inspect records before legacy de-duplication so conflicting quotes remain visible.
+    diagnostic_rows = [normalize_row(raw, "stocks", day, provider) for raw in capture["groups"].get("stocks", {}).get("rows", [])]
+    market = summarize_stocks(groups["stocks"], stock_capture, previous.get("market") if previous else None, diagnostic_rows)
     return {"meta": {"methodVersion": VERSION, "tradeDate": day, "collectedAt": capture["collectedAt"], "source": "新浪成分目录 + 腾讯收盘行情" if provider == "sina-tencent" else SOURCE,
                      "sourceId": provider, "calculation": capture.get("sourceNote", "来源板块指数涨跌、换手及成交额；不以代表股代替板块。"),
                      "sources": source_status, "status": "ok" if all(row["status"] == "ok" for row in source_status) else "partial",

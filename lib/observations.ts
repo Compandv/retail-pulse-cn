@@ -1,18 +1,8 @@
 import { MEASUREMENT, marketPrefix, round, type Observation } from "./measurement.ts";
 
 export const CUTOFF = "15:00:00";
-const HOLIDAYS = new Set(["2026-01-01", "2026-01-02", "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-23", "2026-04-06", "2026-05-01", "2026-05-04", "2026-05-05", "2026-06-19", "2026-09-25", "2026-10-01", "2026-10-02", "2026-10-05", "2026-10-06", "2026-10-07"]);
-export function latestSession(now = new Date()) {
-  const local = new Date(now.getTime() + 8 * 3600000);
-  if (local.getUTCHours() * 60 + local.getUTCMinutes() < 15 * 60 + 30) local.setUTCDate(local.getUTCDate() - 1);
-  while ([0, 6].includes(local.getUTCDay()) || HOLIDAYS.has(local.toISOString().slice(0, 10))) local.setUTCDate(local.getUTCDate() - 1);
-  return local.toISOString().slice(0, 10);
-}
-export function validSession(day: string, now = new Date()) {
-  if (!/^2026-\d{2}-\d{2}$/.test(day)) return false;
-  const parsed = new Date(`${day}T00:00:00Z`);
-  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === day && ![0, 6].includes(parsed.getUTCDay()) && !HOLIDAYS.has(day) && day <= latestSession(now);
-}
+export { latestSession, validSession } from "./trading-calendar.ts";
+
 export async function fetchText(url: string, charset = "utf-8", timeout = 8000) {
   const response = await fetch(url, { signal: AbortSignal.timeout(timeout), headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json,text/plain,*/*" } });
   if (!response.ok) throw new Error(`数据源返回 ${response.status}`);

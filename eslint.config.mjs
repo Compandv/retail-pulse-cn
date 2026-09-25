@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     "dist/**",
     "out/**",
     "build/**",
+    // Private captures, generated probes and isolated test-browser files.
+    "work/**",
     "next-env.d.ts",
   ]),
   eslint.configs.recommended,

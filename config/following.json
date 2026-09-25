@@ -1,0 +1,28 @@
+{
+  "version": "following-1.0",
+  "topicAnalysisVersion": "following-topic-2.1",
+  "name": "跟风追涨表达分（韭菜分）",
+  "weights": {
+    "following": 0.3,
+    "chase": 0.4,
+    "question": 0.2,
+    "hype": 0.1
+  },
+  "labels": {
+    "following": "跟随决策",
+    "question": "追涨询问",
+    "chase": "明确追涨",
+    "hype": "无依据喊涨",
+    "analysis": "有依据分析",
+    "panic": "恐慌表达",
+    "refill": "补仓表达",
+    "watch": "观望",
+    "excluded": "转述／警示／历史"
+  },
+  "maxPostsPerAccount": 3,
+  "minimumAccounts": 20,
+  "chaseDoneStrength": 1.0,
+  "chasePlanStrength": 0.7,
+  "maximumUnknownRate": 50,
+  "note": "集中保存现有定义；本次没有改变权重、分类规则或出分门槛。未知率门槛适用于题材发现日报，历史结果保留原方法。"
+}

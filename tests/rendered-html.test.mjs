@@ -22,6 +22,13 @@ test("renders separated V4 measurements and explicit coverage", async () => {
   assert.doesNotMatch(html, /综合散户温度|综合买入指数|新手入场|L1\+L2 表达|散户五级分层|类型未知/);
 });
 
+test("reliability sections render without rewriting legacy snapshots", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  for (const label of ["社区观察数据状态", "市场行情数据状态", "盘后复盘数据状态", "这份报告的数据够不够", "未知账户拆分", "盘面强弱与成交分布", "净上涨广度", "此快照保存的权重"]) assert.ok(html.includes(label), label);
+});
+
 test("online date windows, stock and basket scopes, quote mapping and empty states", async () => {
   const original = globalThis.fetch;
   let empty = false, calls = 0;

@@ -11,9 +11,9 @@ from .measurement import classify_text, prepare_observations, summarize_expressi
 from .observations import CUTOFF
 from .report_sources import CONFIG, VERSION, collect_report, select_hot_boards
 from .retail_profile import refine_behavior
-from .following import VERSION as ANALYSIS_VERSION, expression_profile, following_score
+from .following import VERSION as ANALYSIS_VERSION, METHOD as FOLLOWING_METHOD, expression_profile, following_score
 
-TOPIC_ANALYSIS_VERSION = "following-topic-2.1"
+TOPIC_ANALYSIS_VERSION = FOLLOWING_METHOD["topicAnalysisVersion"]
 
 
 def score(value):
@@ -61,6 +61,7 @@ def measure_members(capture, codes, day, topic=None):
     prepared = prepare_observations(rows, day, capture.get('cutoff', CUTOFF))
     posts = []
     body_count = 0
+    content_counts = {"bodyTexts": 0, "titleOnlyTexts": 0, "unspecifiedTexts": 0}
     for raw_post in prepared["analyzed"]:
         body = capture.get("profileBodies", {}).get(raw_post["id"], {})
         verified = body.get("date") == raw_post["date"] and body.get("code") == raw_post["code"] and body.get("author") == raw_post["author"]
@@ -72,6 +73,13 @@ def measure_members(capture, codes, day, topic=None):
         # accepted list classification instead of dropping the observation.
         enriched["classification"] = classify_text(enriched["text"]) or raw_post["classification"]
         body_count += bool(verified and body.get("text"))
+        # Only explicit provenance counts as body coverage; unknown is not title.
+        if (verified and body.get("text")) or raw_post.get("contentKind") in ("正文", "全文"):
+            content_counts["bodyTexts"] += 1
+        elif raw_post.get("contentKind") == "标题":
+            content_counts["titleOnlyTexts"] += 1
+        else:
+            content_counts["unspecifiedTexts"] += 1
         posts.append(refine_behavior(enriched))
     expressions = summarize_expressions(posts)
     total = len(posts)
@@ -86,6 +94,8 @@ def measure_members(capture, codes, day, topic=None):
             "memberTotal": len(codes), "memberObserved": len(good), "memberComplete": sum(bool(f and f.get("complete") and not f.get("error")) for f in feeds),
             "sourceCoverage": len(good) / len(codes) if codes else 0, "completeCoverage": sum(bool(f and f.get("complete") and not f.get("error")) for f in feeds) / len(codes) if codes else 0,
             "bodyObserved": body_count,
+            "contentCoverage": {**content_counts, "total": total},
+            "unknownAuthorPosts": prepared["unknownAuthorPosts"],
             "complete": complete, "eligible": enough and not prepared["unknownAuthorPosts"],
             "density": prepared["observedAuthors"] / len(codes) if enough and codes and not prepared["unknownAuthorPosts"] else None,
             "interactionMean": statistics.mean(interactions) if enough and len(interactions) >= .8 * total else None,
@@ -149,10 +159,10 @@ def assemble_report(market, capture):
         row["dimensions"].update(growth=row["growth"]["score"], chase=observation["chase"], trading=row["dimensions"]["crowding"])
         row["expressionProfile"] = observation.pop("profile")
         row["leekScore"] = following_score(row["expressionProfile"])
-        if capture.get('discovery') and (row['expressionProfile'].get('unknownRate') or 0) > 50:
+        if capture.get('discovery') and (row['expressionProfile'].get('unknownRate') or 0) > FOLLOWING_METHOD['maximumUnknownRate']:
             row['leekScore'].update(rawExpressionScore=row['leekScore']['score'], score=None,
-                                    missing=['超过半数账户表达无法判别'],
-                                    reason='超过半数账户表达无法判别，暂不发布韭菜综合分；原始规则表达率仍保留，不将识别不到解释为理性。')
+                                    missing=[f"未知账户比例超过{FOLLOWING_METHOD['maximumUnknownRate']}%"],
+                                    reason=f"未知账户比例超过{FOLLOWING_METHOD['maximumUnknownRate']}%，暂不发布韭菜综合分；原始规则表达率仍保留，不将识别不到解释为理性。")
         row["shape"] = "高换手分歧" if (row["dimensions"]["crowding"] or 0) >= 80 and (observation["panic"] or 0) >= 10 else "量价活跃" if row["changePct"] > 0 and (row["dimensions"]["crowding"] or 0) >= 80 else "价格回落" if row["changePct"] < 0 else "温和活跃"
         row["diagnosis"] = f"涨跌 {row['changePct']:+.2f}% · 换手 {row['turnover']:.2f}% · 观察 {observation['authors']} 个账户；{observation['chaseCount']}/{observation['sampleCount']} 条明确追涨表达。"
     overall = measure_members(capture, sorted(all_codes), day)
@@ -187,6 +197,8 @@ def assemble_report(market, capture):
         row["diagnosis"] = flow_diagnosis(row["net"], row.get("changePct"))
     flow_coverage = [{"kind": kind, "expected": sum(r["kind"] == kind for r in market["boards"]), "observed": sum(r["kind"] == kind for r in flows)} for kind in ("industry", "concept")]
     return {"meta": {"version": VERSION, "analysisVersion": TOPIC_ANALYSIS_VERSION if capture.get('discovery') else ANALYSIS_VERSION, 'discovery': capture.get('discovery'), "tradeDate": day, "previousDate": capture["previousDate"], "collectedAt": capture["collectedAt"],
+                     "qualityVersion": "observation-quality-1.0", "marketTradeDate": market["meta"]["tradeDate"], "marketCollectedAt": market["meta"]["collectedAt"],
+                     "feedComplete": sum(bool(capture["feeds"].get(code, {}).get("complete")) and not capture["feeds"].get(code, {}).get("error") for code in all_codes),
                      "interactionAsOf": max((f.get("observedAt", capture["collectedAt"]) for f in capture["feeds"].values()), default=capture["collectedAt"]), "cutoff": capture.get('cutoff', CUTOFF), "marketSource": market["meta"]["source"],
                      "selectionNote": capture['discovery']['note'] if capture.get('discovery') else "每日在来源概念目录中，以涨幅分位×50% + 换手分位×50%选取前十；不是讨论前十，名单随行情轮动。",
                      "feedObserved": sum(not f.get("error") and f.get("pages", 0) > 0 for code, f in capture["feeds"].items() if code in all_codes), "feedExpected": len(all_codes), "errors": capture.get("errors", []),
