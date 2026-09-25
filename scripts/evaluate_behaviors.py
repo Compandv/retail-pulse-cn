@@ -38,8 +38,14 @@ def evaluate(rows):
             "note": "仅为人工标注样本上的文本分类表现，不是账户比例误差或市场预测准确率。未标注时不输出准确率；开发样本不能冒充独立测试集。"}
 
 
+def read_rows(path):
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("sample", type=Path)
+    parser.add_argument("sample", type=Path, nargs="+",
+                        help="one or more reviewed JSONL files; each is scored separately, e.g. a dev date and a held-out test date")
     args = parser.parse_args()
-    print(json.dumps(evaluate([json.loads(line) for line in args.sample.read_text(encoding="utf-8").splitlines() if line.strip()]), ensure_ascii=False, indent=2))
+    results = {str(path): evaluate(read_rows(path)) for path in args.sample}
+    print(json.dumps(results[str(args.sample[0])] if len(results) == 1 else results, ensure_ascii=False, indent=2))

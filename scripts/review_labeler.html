@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>追涨表达人工标注</title>
+<style>
+  :root { --bg: #f6f8fb; --panel: #fff; --ink: #172235; --muted: #5d6b80; --line: #d9e0ea; --accent: #2458c6;
+          --target: #c2410c; --non: #15803d; --unknown: #6b7280; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #11161f; --panel: #19202c; --ink: #e6ebf2; --muted: #9aa6b8; --line: #2c3544; --accent: #7aa2ff;
+            --target: #fb923c; --non: #4ade80; --unknown: #9ca3af; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, "Microsoft YaHei", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-top: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button, label.file { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  label.file input { display: none; }
+  .text { font-size: 20px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; margin: 8px 0; }
+  .body { border-left: 3px solid var(--line); padding-left: 12px; white-space: pre-wrap; word-break: break-word; }
+  .labels button { min-width: 128px; }
+  .labels button.on[data-label="target"] { background: var(--target); border-color: var(--target); color: #fff; }
+  .labels button.on[data-label="non_target"] { background: var(--non); border-color: var(--non); color: #fff; }
+  .labels button.on[data-label="unknown"] { background: var(--unknown); border-color: var(--unknown); color: #fff; }
+  input[type=text] { font: inherit; width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+  progress { width: 100%; height: 10px; }
+  kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+  details summary { cursor: pointer; font-weight: 600; }
+  ul { padding-left: 20px; margin: 8px 0; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>追涨表达人工标注</h1>
+  <p class="muted">离线使用：本页不联网、不上传。打开 <code>work/behavior-audit/&lt;日期&gt;/review-sample-blind.jsonl</code>，标注后保存回原文件，再运行 <code>python scripts/evaluate_behaviors.py &lt;文件&gt;</code>。进度会暂存在本浏览器中。</p>
+
+  <div class="panel row">
+    <label class="file">打开 JSONL<input id="open" type="file" accept=".jsonl,application/json"></label>
+    <button id="save" class="primary" disabled>保存 JSONL</button>
+    <span id="status" class="muted"></span>
+  </div>
+
+  <details class="panel" open>
+    <summary>标注口径（behavior-audit-0.1）</summary>
+    <ul>
+      <li><b>target 追涨</b>：作者本人明确表达<b>已经</b>跟随买入／追涨，或明确<b>计划</b>追涨买入。例：“加仓，趋势向上，猛干”。</li>
+      <li><b>non_target 非追涨</b>：能判断作者当前没有追涨行动或计划：明确不追、观望自述、卖出／清仓自述、单纯提问、劝别人别追。</li>
+      <li><b>unknown 无法判断</b>：文本截断、条件句（“如果…就买”）、转述他人、回顾历史、单纯喊涨或情绪、信息不足。拿不准时选 unknown，不要猜。</li>
+      <li>只按页面显示的文字判断，不点开链接补充信息；若显示了“核验正文”，按标题＋正文整体判断。</li>
+    </ul>
+    <p class="muted">快捷键：<kbd>1</kbd> target · <kbd>2</kbd> non_target · <kbd>3</kbd> unknown · <kbd>0</kbd> 清除 · <kbd>←</kbd>/<kbd>→</kbd> 上一条/下一条 · <kbd>N</kbd> 下一条未标注 · <kbd>Ctrl</kbd>+<kbd>S</kbd> 保存</p>
+  </details>
+
+  <section id="card" class="panel" hidden>
+    <div class="row muted"><span id="pos"></span><span>·</span><span id="meta"></span></div>
+    <progress id="bar" max="1" value="0"></progress>
+    <div id="text" class="text"></div>
+    <div id="bodyWrap" hidden><div class="muted">核验正文</div><div id="body" class="body"></div></div>
+    <div class="row labels" style="margin-top:16px">
+      <button data-label="target">1 · target 追涨</button>
+      <button data-label="non_target">2 · non_target 非追涨</button>
+      <button data-label="unknown">3 · unknown 无法判断</button>
+    </div>
+    <p style="margin:16px 0 4px" class="muted">理由（可选，按 Enter 返回快捷键）</p>
+    <input id="reason" type="text" autocomplete="off">
+    <div class="row" style="margin-top:16px">
+      <button id="prev">← 上一条</button>
+      <button id="next">下一条 →</button>
+      <button id="nextOpen">下一条未标注 (N)</button>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  const LABELS = ["target", "non_target", "unknown"];
+  const $ = id => document.getElementById(id);
+  let rows = [], index = 0, fileName = "", fileHandle = null, dirty = false;
+
+  const storeKey = () => "review-labeler:" + fileName + ":" + rows.length;
+  const persist = () => {
+    try {
+      const labels = Object.fromEntries(rows.filter(r => r.humanLabel || r.humanReason).map(r => [r.id, [r.humanLabel, r.humanReason]]));
+      localStorage.setItem(storeKey(), JSON.stringify({ index, labels }));
+    } catch { /* storage unavailable: labels stay in memory until saved */ }
+  };
+  const restore = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storeKey()) || "null");
+      if (!saved) return 0;
+      let restored = 0;
+      for (const r of rows) {
+        const entry = saved.labels[r.id];
+        if (entry && r.humanLabel == null) { [r.humanLabel, r.humanReason] = entry; restored++; }
+      }
+      index = Math.min(saved.index || 0, rows.length - 1);
+      return restored;
+    } catch { return 0; }
+  };
+
+  const done = () => rows.filter(r => LABELS.includes(r.humanLabel)).length;
+  const status = extra => { $("status").textContent = `${fileName} · 已标注 ${done()} / ${rows.length}` + (dirty ? " · 未保存" : "") + (extra ? " · " + extra : ""); };
+
+  function render() {
+    const r = rows[index];
+    $("card").hidden = false;
+    $("pos").textContent = `第 ${index + 1} / ${rows.length} 条`;
+    $("meta").textContent = [r.date, r.source, r.code].filter(Boolean).join(" · ");
+    $("bar").max = rows.length; $("bar").value = done();
+    $("text").textContent = r.text || "";
+    $("bodyWrap").hidden = !r.verifiedBody;
+    $("body").textContent = r.verifiedBody || "";
+    document.querySelectorAll(".labels button").forEach(b => b.classList.toggle("on", b.dataset.label === r.humanLabel));
+    $("reason").value = r.humanReason || "";
+    $("prev").disabled = index === 0;
+    $("next").disabled = index === rows.length - 1;
+    status();
+  }
+
+  function setLabel(label) {
+    const r = rows[index];
+    r.humanLabel = label;
+    dirty = true; persist();
+    if (label && index < rows.length - 1) index++;
+    render();
+  }
+  const go = i => { if (!rows.length) return; index = Math.max(0, Math.min(rows.length - 1, i)); persist(); render(); };
+  const nextOpen = () => {
+    for (let k = 1; k <= rows.length; k++) {
+      const i = (index + k) % rows.length;
+      if (!LABELS.includes(rows[i].humanLabel)) return go(i);
+    }
+    status("全部已标注");
+  };
+
+  function load(text, name, handle) {
+    const parsed = text.split(/\r?\n/).filter(l => l.trim()).map(l => JSON.parse(l));
+    if (!parsed.length || parsed.some(r => !r.id || typeof r.text !== "string")) throw new Error("不是复核样本 JSONL（缺少 id 或 text）");
+    rows = parsed; fileName = name; fileHandle = handle; index = 0; dirty = false;
+    const restored = restore();
+    $("save").disabled = false;
+    render();
+    status(restored ? `已从浏览器恢复 ${restored} 条未保存标注` : "");
+  }
+
+  async function open(event) {
+    try {
+      if (window.showOpenFilePicker && !event) {
+        const [handle] = await window.showOpenFilePicker({ types: [{ description: "JSONL", accept: { "application/json": [".jsonl"] } }] });
+        const file = await handle.getFile();
+        load(await file.text(), file.name, handle);
+      } else if (event) {
+        const file = event.target.files[0];
+        if (file) load(await file.text(), file.name, null);
+        event.target.value = "";
+      }
+    } catch (error) { if (error.name !== "AbortError") status("打开失败：" + error.message); }
+  }
+
+  async function save() {
+    if (!rows.length) return;
+    const text = rows.map(r => JSON.stringify(r)).join("\n") + "\n";
+    try {
+      if (fileHandle && fileHandle.createWritable) {
+        const writable = await fileHandle.createWritable();
+        await writable.write(text); await writable.close();
+      } else if (window.showSaveFilePicker) {
+        fileHandle = await window.showSaveFilePicker({ suggestedName: fileName, types: [{ description: "JSONL", accept: { "application/json": [".jsonl"] } }] });
+        const writable = await fileHandle.createWritable();
+        await writable.write(text); await writable.close();
+      } else {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+        a.download = fileName; a.click(); URL.revokeObjectURL(a.href);
+      }
+      dirty = false; status("已保存");
+    } catch (error) { if (error.name !== "AbortError") status("保存失败：" + error.message); }
+  }
+
+  const openLabel = document.querySelector("label.file");
+  if (window.showOpenFilePicker) openLabel.addEventListener("click", e => { e.preventDefault(); open(); });
+  $("open").addEventListener("change", open);
+  $("save").addEventListener("click", save);
+  $("prev").addEventListener("click", () => go(index - 1));
+  $("next").addEventListener("click", () => go(index + 1));
+  $("nextOpen").addEventListener("click", nextOpen);
+  document.querySelectorAll(".labels button").forEach(b => b.addEventListener("click", () => setLabel(b.dataset.label)));
+  $("reason").addEventListener("input", e => { rows[index].humanReason = e.target.value || null; dirty = true; persist(); status(); });
+  $("reason").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === "Escape") e.target.blur(); });
+
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); save(); return; }
+    if (!rows.length || e.target === $("reason") || e.ctrlKey || e.metaKey || e.altKey) return;
+    const map = { "1": "target", "2": "non_target", "3": "unknown" };
+    if (map[e.key]) setLabel(map[e.key]);
+    else if (e.key === "0") { rows[index].humanLabel = null; dirty = true; persist(); render(); }
+    else if (e.key === "ArrowLeft") go(index - 1);
+    else if (e.key === "ArrowRight") go(index + 1);
+    else if (e.key.toLowerCase() === "n") nextOpen();
+  });
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+})();
+</script>
+</body>
+</html>
