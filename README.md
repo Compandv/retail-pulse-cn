@@ -75,6 +75,18 @@ npm run dev
 
 `-SkipOpen` 表示不打开网页、结束时不等待按键。详细日志保存在 `work/logs/`。
 
+### 定时自动更新（Windows）
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\install_schedule.ps1
+```
+
+注册一个当前用户的计划任务 `RetailPulse-DailyUpdate`：每周一至周五 15:40 运行，只更新快照早于最近已收盘交易日的模块；周末、休市日和已更新过的日子会直接结束。电脑在 15:40 关机时，下次登录后补跑。结束后弹出系统通知，失败时注明哪些模块失败，点击通知打开日志。
+
+- `-Time 16:00`：改运行时间；`-FailuresOnly`：只在失败或需要提醒时通知。
+- `-Uninstall`：删除计划任务。
+- 只在登录状态下运行，不需要管理员权限。补跑只能采集当时最近的交易日，关机期间更早的交易日无法补回。
+
 ### 查询某只股票
 
 在"指定交易日查询"中输入 `920970`、`牧原股份` 或 `猪肉`，并选择一个交易日。代码和公司名查询个股；`猪肉` 查询 8 只股票组成的观察篮子。在线查询只读取东方财富，因此比例可能和每日快照（多来源）略有不同。
@@ -147,7 +159,7 @@ npm run dev
 
 | 命令 | 作用 |
 |---|---|
-| `python scripts/update_index.py [--only market\|community\|report]` | 每日更新入口 |
+| `python scripts/update_index.py [--only market\|community\|report] [--if-stale]` | 每日更新入口；`--if-stale` 只更新过期模块 |
 | `python scripts/update_market.py [--capture 文件]` | 单独更新市场行情，或离线回放已保存的采集 |
 | `python scripts/update_report.py [--capture 文件] [--enrich-profiles]` | 单独更新十强复盘；`--enrich-profiles` 补读原帖正文 |
 | `python scripts/reprocess_observations.py 文件 [--refresh-trading]` | 用同一份社区采集按当前规则重算，便于比较规则改动 |

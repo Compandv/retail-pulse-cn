@@ -35,12 +35,43 @@ def check_calendar(now=None) -> bool:
     return True
 
 
-def run_steps(only="all") -> int:
+# Order matters: the report reads the market snapshot saved just before it.
+STEPS = (("market", "市场行情与板块", "public/data/market/latest.json"),
+         ("community", "社区采集与本地分类", "public/data/latest.json"),
+         ("report", "十强复盘与模型汇总解读", "public/data/report/latest.json"))
+LAST_RUN = ROOT / "work/logs/last-run.json"
+
+
+def stale_keys(now=None, root=ROOT) -> list[str]:
+    """Modules whose latest snapshot is older than the most recent closed session."""
+    day = effective_trade_date(now or datetime.now(CN_TZ)).isoformat()
+    stale = []
+    for key, _, path in STEPS:
+        try:
+            saved = json.loads((root / path).read_text(encoding="utf-8")).get("meta", {}).get("tradeDate", "")
+        except (OSError, ValueError):
+            saved = ""
+        if saved < day:
+            stale.append(key)
+    return stale
+
+
+def write_summary(summary: dict) -> None:
+    """Machine-readable outcome for the scheduled task's notification."""
+    LAST_RUN.parent.mkdir(parents=True, exist_ok=True)
+    LAST_RUN.write_text(json.dumps({**summary, "finishedAt": datetime.now(CN_TZ).isoformat(timespec="seconds")}, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def run_steps(only="all", keys=None, summary=None) -> int:
+    summary = {} if summary is None else summary
     if not check_calendar():
+        summary.update(status="not_started", reason="交易日历未包含当前年份")
         return 1
     failures = []
     started = time.monotonic()
-    steps = [(key, name, build) for key, name, build in (("market", "市场行情与板块", build_market_snapshot), ("community", "社区采集与本地分类", build_snapshot), ("report", "十强复盘与模型汇总解读", build_report)) if only == "all" or key == only]
+    builders = {"market": build_market_snapshot, "community": build_snapshot, "report": build_report}
+    wanted = keys if keys is not None else [key for key, _, _ in STEPS if only == "all" or key == only]
+    steps = [(key, name, builders[key]) for key, name, _ in STEPS if key in wanted]
     succeeded = 0
     # All three paths get an attempt; failure in one does not discard the others.
     for index, (key, name, build) in enumerate(steps, 1):
@@ -57,6 +88,8 @@ def run_steps(only="all") -> int:
             failures.append(f"{name}：{exc}")
             say(f"步骤失败：{name}；{exc}。继续尝试后续独立步骤。")
     say(f"运行结束：成功 {succeeded}/{len(steps)}，失败 {len(failures)}；总耗时 {time.monotonic() - started:.1f} 秒。")
+    summary.update(status="failed" if not succeeded and failures else "partial" if failures else "ok",
+                   succeeded=succeeded, total=len(steps), failures=failures)
     if failures:
         print("部分更新失败；成功数据已保存，失败模块保留原结果：" + "；".join(failures), file=sys.stderr)
         return 1
@@ -66,20 +99,46 @@ def run_steps(only="all") -> int:
 def main(argv=()) -> int:
     parser = argparse.ArgumentParser(description="手动更新，可按模块运行；每10秒显示当前步骤耗时。")
     parser.add_argument("--only", choices=("all", "market", "community", "report"), default="all")
+    parser.add_argument("--if-stale", action="store_true",
+                        help="只更新快照早于最近已收盘交易日的模块；都已最新时直接结束（供计划任务使用）")
     args = parser.parse_args(argv)
     log_path = ROOT / "work/logs" / f"update-{datetime.now():%Y%m%d-%H%M%S}-{os.getpid()}.log"
-    with logged_run(log_path):
-        say(f"日志文件：{log_path}")
-        say("采集速度取决于数据源响应。可先查看已有看板；Ctrl+C可请求中止，正在等待的网络请求可能需要超时后退出。")
+    summary = {"log": str(log_path)}
+    try:
+        with logged_run(log_path):
+            say(f"日志文件：{log_path}")
+            keys = None
+            if args.if_stale:
+                try:
+                    keys = [key for key in stale_keys() if args.only in ("all", key)]
+                except UnsupportedCalendarYear as exc:
+                    say(f"更新未启动：{exc}")
+                    summary.update(status="not_started", reason="交易日历未包含当前年份")
+                    return 1
+                if not keys:
+                    say("各模块快照已是最近已收盘交易日，无需更新。")
+                    summary.update(status="skipped")
+                    return 0
+                say("需要更新：" + "、".join(name for key, name, _ in STEPS if key in keys))
+            say("采集速度取决于数据源响应。可先查看已有看板；Ctrl+C可请求中止，正在等待的网络请求可能需要超时后退出。")
+            try:
+                with run_lock(ROOT / "work/update-lock"):
+                    return run_steps(args.only, keys, summary)
+            except KeyboardInterrupt:
+                say("运行已中止；已保存数据保留。")
+                summary.update(status="interrupted")
+                return 130
+            except RuntimeError:
+                say("更新未启动：已有更新运行中或无法取得运行锁，请勿重复启动。")
+                summary.update(status="not_started", reason="已有更新运行中")
+                return 1
+    finally:
         try:
-            with run_lock(ROOT / "work/update-lock"):
-                return run_steps(args.only)
-        except KeyboardInterrupt:
-            say("运行已中止；已保存数据保留。")
-            return 130
-        except RuntimeError:
-            say("更新未启动：已有更新运行中或无法取得运行锁，请勿重复启动。")
-            return 1
+            summary["tradeDate"] = effective_trade_date(datetime.now(CN_TZ)).isoformat()
+        except UnsupportedCalendarYear:
+            pass
+        summary["calendarWarning"] = calendar_warning(datetime.now(CN_TZ).date())
+        write_summary(summary)
 
 
 if __name__ == "__main__":
