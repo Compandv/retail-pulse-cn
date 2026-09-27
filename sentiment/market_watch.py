@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .collectors import CN_TZ, request_text
-from .pipeline import effective_trade_date, is_trading_day
+from .trading_calendar import effective_trade_date, is_trading_day
 from .market_diagnostics import build_market_diagnostics
 
 CONFIG = json.loads((Path(__file__).resolve().parents[1] / "config/market-watch.json").read_text(encoding="utf-8"))

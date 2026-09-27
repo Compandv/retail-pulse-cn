@@ -18,7 +18,7 @@ from sentiment.report import build_report  # noqa: E402
 from sentiment.run_progress import logged_run, stage_progress, say
 from sentiment.semantic_agent import run_lock
 from sentiment.collectors import CN_TZ  # noqa: E402
-from sentiment.pipeline import UnsupportedCalendarYear, calendar_warning, effective_trade_date  # noqa: E402
+from sentiment.trading_calendar import UnsupportedCalendarYear, calendar_warning, effective_trade_date  # noqa: E402
 
 
 def check_calendar(now=None) -> bool:

@@ -9,7 +9,7 @@ from pathlib import Path
 from .collectors import CN_TZ, request_text
 from .market_watch import atomic_json, read_json, number, percentile
 from .observations import collect_feed
-from .pipeline import previous_trading_day, effective_trade_date
+from .trading_calendar import previous_trading_day, effective_trade_date
 
 CONFIG = read_json(Path(__file__).resolve().parents[1] / "config/report.json", {})
 VERSION = CONFIG["version"]

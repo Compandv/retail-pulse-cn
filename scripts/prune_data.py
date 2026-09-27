@@ -20,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from sentiment.pipeline import _save_json  # noqa: E402
+from sentiment.snapshot_store import save_json  # noqa: E402
 from sentiment.semantic_agent import run_lock  # noqa: E402
 
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -71,7 +71,7 @@ def run(root: Path, keep: int, apply: bool) -> dict:
             continue
         slimmed.append(path.stem)
         if apply:
-            _save_json(path, payload)
+            save_json(path, payload)
             freed += before - _size(path)
         else:
             # Estimate with one serialization format on both sides.

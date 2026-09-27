@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .collectors import CN_TZ, request_text
 from .market_watch import CONFIG, VERSION, atomic_json, number, read_json
-from .pipeline import effective_trade_date
+from .trading_calendar import effective_trade_date
 
 SINA = "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center."
 

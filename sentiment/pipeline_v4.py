@@ -8,13 +8,14 @@ from pathlib import Path
 from .collectors import CN_TZ, SinaCollector, TaogubaCollector, anonymous_author
 from .measurement import METHOD_VERSION, CONFIG, prepare_observations, summarize_expressions, historical_percentile, universe_key
 from .observations import CUTOFF, collect_feed, collect_trading, summarize_trading
-from .pipeline import _load_json, _save_json, _save_daily_files, _load_persisted_daily_snapshots, effective_trade_date
+from .snapshot_store import load_json, save_json, save_daily_files, load_daily_snapshots
+from .trading_calendar import effective_trade_date
 
 
 def scopes_for(root):
-    themes = _load_json(root / "config/themes.json", {"themes": []})["themes"]
+    themes = load_json(root / "config/themes.json", {"themes": []})["themes"]
     scopes = [{**theme, "kind": "basket", "group": "多股主题"} for theme in themes]
-    for target in _load_json(root / "config/targets.json", {})["targets"]:
+    for target in load_json(root / "config/targets.json", {})["targets"]:
         if target["id"] == "market" or (target["id"] == "agriculture" and any(scope["id"] == "pork" for scope in scopes)):
             continue
         name = target.get("representative") or target["name"]
@@ -55,8 +56,8 @@ def collect_batch(scopes, day, now):
 
 def assemble_snapshot(root, batch, scopes, now):
     day = batch["date"]
-    previous = _load_json(root / "public/data/latest.json", {})
-    saved = _load_persisted_daily_snapshots(root)
+    previous = load_json(root / "public/data/latest.json", {})
+    saved = load_daily_snapshots(root)
     saved.append(previous)
     saved = [item for item in saved if item.get("meta", {}).get("methodVersion") == METHOD_VERSION and item.get("meta", {}).get("tradeDate", "") <= day]
     attention_history, history_by_date, scopes_by_date = {}, {}, {}
@@ -139,7 +140,7 @@ def build_snapshot(root: Path, now=None):
     batch = collect_batch(scopes, day, now)
     if not any(feed["rows"] for feed in batch["feeds"].values()):
         raise RuntimeError("核心公开来源没有有效列表，已保留上一份快照")
-    _save_json(root / f"work/v4-observations-{day}.json", batch)
+    save_json(root / f"work/v4-observations-{day}.json", batch)
     snapshot = assemble_snapshot(root, batch, scopes, now)
     persist_snapshot(root, snapshot)
     return snapshot
@@ -149,12 +150,12 @@ def persist_snapshot(root: Path, snapshot):
     """Use the same archive and stale-date guards for collection and replay."""
     if not snapshot["summary"]["expressions"]["sampleCount"]:
         raise RuntimeError("所选交易日没有有效表达，已保留上一份快照")
-    previous = _load_json(root / "public/data/latest.json", {})
+    previous = load_json(root / "public/data/latest.json", {})
     if previous.get("meta", {}).get("tradeDate", "") > snapshot["meta"]["tradeDate"]:
         raise RuntimeError("观测日期早于最新快照，拒绝覆盖最新结果")
     if previous.get("meta", {}).get("methodVersion") != METHOD_VERSION and previous.get("meta", {}).get("tradeDate"):
         archive = root / "public/data/archive" / f"{previous['meta']['tradeDate']}-{previous['meta'].get('methodVersion', 'legacy').lower().replace('.', '-')}.json"
         if not archive.exists():
-            _save_json(archive, previous)
-    _save_json(root / "public/data/latest.json", snapshot)
-    _save_daily_files(root, snapshot)
+            save_json(archive, previous)
+    save_json(root / "public/data/latest.json", snapshot)
+    save_daily_files(root, snapshot)
