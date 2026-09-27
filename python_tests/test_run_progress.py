@@ -34,12 +34,18 @@ class ProgressTests(TestCase):
         def report(root):
             calls.append("report")
             return {"meta": {"tradeDate": "2026-09-07"}}
+        def limit(root):
+            calls.append("limit")
+            return {"meta": {"tradeDate": "2026-09-07"}}
+        def longform(root):
+            calls.append("longform")
+            return {"meta": {"tradeDate": "2026-09-07"}}
         out = io.StringIO()
-        with patch.object(update_index, "build_market_snapshot", market), patch.object(update_index, "build_snapshot", community), patch.object(update_index, "build_report", report), redirect_stdout(out), redirect_stderr(out):
+        with patch.object(update_index, "build_market_snapshot", market), patch.object(update_index, "build_snapshot", community), patch.object(update_index, "build_report", report),                 patch.object(update_index, "build_limit_snapshot", limit), patch.object(update_index, "build_longform_snapshot", longform), redirect_stdout(out), redirect_stderr(out):
             self.assertEqual(update_index.run_steps(), 1)
-            self.assertEqual(calls, ["market", "community", "report"])
-            self.assertLess(out.getvalue().index("步骤失败"), out.getvalue().index("开始：2/3"))
-            self.assertIn("运行结束：成功 2/3", out.getvalue())
+            self.assertEqual(calls, ["market", "limit", "community", "report", "longform"])
+            self.assertLess(out.getvalue().index("步骤失败"), out.getvalue().index("开始：2/5"))
+            self.assertIn("运行结束：成功 4/5", out.getvalue())
             calls.clear()
             self.assertEqual(update_index.run_steps("community"), 0)
             self.assertEqual(calls, ["community"])

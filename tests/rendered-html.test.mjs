@@ -22,6 +22,15 @@ test("renders separated V4 measurements and explicit coverage", async () => {
   assert.doesNotMatch(html, /综合散户温度|综合买入指数|新手入场|L1\+L2 表达|散户五级分层|类型未知/);
 });
 
+test("long-form daily and weekly routes render on the server", async () => {
+  for (const [path, labels] of [["/report", ["复盘长图", "涨停生态", "十强题材排名", "不构成任何投资建议"]], ["/weekly", ["周报", "市场时间线", "指数周涨跌", "不构成任何投资建议"]]]) {
+    const response = await render(path);
+    assert.equal(response.status, 200, path);
+    const html = await response.text();
+    for (const label of labels) assert.ok(html.includes(label), `${path} ${label}`);
+  }
+});
+
 test("reliability sections render without rewriting legacy snapshots", async () => {
   const response = await render();
   assert.equal(response.status, 200);

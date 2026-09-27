@@ -34,6 +34,7 @@
 | 指定日查询 | 输入股票代码、名称或"猪肉"等主题，在线查询某个交易日的讨论与行情 |
 | 趋势与导出 | 10/20/60 日趋势、追涨表达日历、本地快照问答、PNG 观察卡导出 |
 | 数据质量 | 每个模块单独显示交易日、采集时间、方法版本和采样覆盖 |
+| 复盘长图 | 日报与周报长图：涨停生态、主线轮盘、十强题材六维雷达与热力表、资金与指数底账，可导出 PNG |
 
 ## 快速开始
 
@@ -71,6 +72,8 @@ npm run dev
 .\run_daily.cmd -SkipOpen -Only market      # 只更新市场目录与行情
 .\run_daily.cmd -SkipOpen -Only community   # 只更新社区观察
 .\run_daily.cmd -SkipOpen -Only report      # 只更新十强复盘
+.\run_daily.cmd -SkipOpen -Only limit       # 只更新涨停生态
+.\run_daily.cmd -SkipOpen -Only longform    # 只重新生成复盘长图（周末含周报）
 ```
 
 `-SkipOpen` 表示不打开网页、结束时不等待按键。详细日志保存在 `work/logs/`。
@@ -86,6 +89,12 @@ powershell -ExecutionPolicy Bypass -File scripts\install_schedule.ps1
 - `-Time 16:00`：改运行时间；`-FailuresOnly`：只在失败或需要提醒时通知。
 - `-Uninstall`：删除计划任务。
 - 只在登录状态下运行，不需要管理员权限。补跑只能采集当时最近的交易日，关机期间更早的交易日无法补回。
+
+### 复盘长图
+
+看板顶部点"复盘长图"或"周报"，也可以直接打开 <http://localhost:3000/report> 和 <http://localhost:3000/weekly>。日报每个交易日自动生成，周报在每周最后一个交易日自动生成，页面右上角可以导出整页 PNG。
+
+六维分数是十强题材之间的相对分位。缺数据时显示"—"，并写明缺哪一维；有长图的交易日不够时，周报只展示市场部分。方法见 [复盘长图方法](docs/METHOD_LONGFORM.md)。
 
 ### 查询某只股票
 
@@ -166,6 +175,8 @@ powershell -ExecutionPolicy Bypass -File scripts\install_schedule.ps1
 | `python scripts/audit_behaviors.py --capture 文件` | 生成追涨表达试验对照和 500 条人工复核样本 |
 | `python scripts/evaluate_behaviors.py 样本文件…` | 用人工标签评估规则的精确率、召回率 |
 | `python scripts/prune_data.py [--apply]` | 按保留策略清理旧快照，默认只预览 |
+| `python scripts/update_limit.py [--from 日期 --to 日期]` | 采集或回补涨停生态；接口只保留约 15 个交易日 |
+| `python scripts/update_longform.py [--from 日期 --to 日期] [--week 周次] [--weekly-only]` | 由已保存快照重建日报长图、生成周报 |
 
 人工复核用离线页面 `scripts/review_labeler.html`，浏览器直接打开即可，流程见 [BEHAVIOR_AUDIT_TRIAL](docs/BEHAVIOR_AUDIT_TRIAL.md)。
 
@@ -189,6 +200,8 @@ powershell -ExecutionPolicy Bypass -File scripts\install_schedule.ps1
 | `public/data/market/` | 市场行情每日快照、板块成分明细 | 是 |
 | `public/data/report/` | 十强复盘每日快照 | 是 |
 | `public/data/archive/` | 旧版本快照归档 | 是 |
+| `public/data/limit/` | 涨停生态每日摘要 | 是 |
+| `public/data/longform/`、`public/data/weekly/` | 日报长图与周报 | 是 |
 | `work/` | 私有原始采集、日志、复核样本 | 否，请勿公开 |
 
 社区、市场、复盘各自的 `latest.json` 是最新快照，`index.json` 是日期索引。同一天重跑会替换当天记录；采集失败、没有有效样本，或试图用更早日期覆盖最新快照时，保留上一份可用结果。
@@ -218,7 +231,7 @@ npx tsc --noEmit
 ## 方法文档
 
 - [社区观察 V4 方法](docs/METHOD_V4.md)、[跟风追涨方法](docs/METHOD_FOLLOWING.md)、[表达分层与韭菜分](docs/METHOD_RETAIL_PROFILE.md)
-- [动态市场与讨论升温](docs/METHOD_MARKET_WATCH.md)、[复盘指标与资金口径](docs/METHOD_DAILY_REPORT.md)、[题材发现与关注排名](docs/METHOD_TOPIC_DISCOVERY.md)
+- [动态市场与讨论升温](docs/METHOD_MARKET_WATCH.md)、[复盘指标与资金口径](docs/METHOD_DAILY_REPORT.md)、[题材发现与关注排名](docs/METHOD_TOPIC_DISCOVERY.md)、[复盘长图（日报与周报）](docs/METHOD_LONGFORM.md)
 - [可靠性升级（2026-09-15）](docs/RELIABILITY_UPGRADE_2026-09-15.md)、[追涨表达试验与人工复核（2026-09-19）](docs/BEHAVIOR_AUDIT_TRIAL.md)
 - [启动与更新说明](docs/START_AND_UPDATE.md)、[L1–L5 暂缓记录](docs/DEFERRED_L1_L5.md)
 - 历史版本：[V4 README 归档](docs/README_V4_ARCHIVE.md)、[V3 README 归档](docs/README_V3_ARCHIVE.md)、[方法审计](docs/SENTIMENT_METHOD_AUDIT_2026-09-05.md)

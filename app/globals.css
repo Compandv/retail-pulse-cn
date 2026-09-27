@@ -229,6 +229,8 @@ main { max-width: 1540px; margin: 0 auto; min-height: 100vh; }
 .topbar nav { display: flex; align-items: center; padding: 4px; border: 1px solid var(--line); border-radius: 99px; background: rgba(255,255,255,.34); }
 .topbar nav button, .segmented button { border: 0; background: transparent; cursor: pointer; border-radius: 99px; padding: 9px 13px; color: var(--muted); transition: .2s ease; }
 .topbar nav button:hover, .segmented button:hover { color: var(--ink); }
+.topbar nav a { border-radius: 99px; padding: 9px 13px; color: var(--muted); text-decoration: none; font-size: inherit; }
+.topbar nav a:hover { color: var(--ink); background: rgba(255,255,255,.6); }
 .topbar nav button.active, .segmented button.active { background: var(--ink); color: #fff; }
 .asof { justify-self: end; display: flex; align-items: center; gap: 10px; font-size: 13px; }
 .mode-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 5px rgba(202,138,45,.13); }
@@ -705,3 +707,136 @@ button, summary, a, input, select { -webkit-tap-highlight-color: transparent; }
 .diagnostic-missing { color: #5c6c76; font-size: 13px; line-height: 1.8; background: #eaf0f4; padding: 12px 15px; border-radius: 6px; margin: 16px 0 8px; }
 @media (max-width: 900px) { .quality-facts, .diagnostic-distribution { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .quality-facts, .diagnostic-facts { grid-template-columns: 1fr; } .snapshot-heading { display: block; } .snapshot-heading span { display: block; } .market-diagnostics { padding: 14px; } }
+
+/* Long-form daily / weekly report (复盘长图). Fixed 1200px page for PNG export; single column on phones. */
+.lf-main { background: #f6f3ec; min-height: 100vh; padding: 24px 16px 48px; color: #142a3b; }
+.lf-actions { max-width: 1200px; margin: 0 auto 12px; display: flex; gap: 12px; align-items: center; justify-content: flex-end; }
+.lf-export { border: 1px solid #163b57; background: #163b57; color: #fff; border-radius: 6px; padding: 9px 16px; font-size: 14px; cursor: pointer; }
+.lf-export:disabled { opacity: .6; cursor: progress; }
+.lf-error { color: #b52b20; font-size: 14px; }
+.lf-page { max-width: 1200px; margin: 0 auto; display: grid; gap: 22px; background: #f6f3ec; padding: 8px 0; }
+/* Grid items default to min-width:auto and would grow to the wide heat table. */
+.lf-page > *, .lf-card-grid > *, .lf-flows > *, .lf-cards > * { min-width: 0; }
+.lf-hero { background: #fffefa; border: 1px solid #d8dfe3; border-radius: 14px; padding: clamp(20px, 3vw, 40px); }
+.lf-kicker { color: #24618e; font-size: 14px; letter-spacing: .12em; font-weight: 700; }
+.lf-hero h1 { font: 800 clamp(24px, 3vw, 38px)/1.35 "Segoe UI", "Microsoft YaHei", sans-serif; margin: 12px 0 16px; }
+.lf-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.lf-chips span { border: 1px solid #d6dde2; background: #f4f7f9; border-radius: 20px; padding: 7px 14px; font-size: 14px; color: #3c4f5e; }
+.lf-chips b { color: #142a3b; margin: 0 2px; }
+.lf-chips em { font-style: normal; margin-left: 6px; font-size: 13px; }
+.lf-oneliner { font-size: 17px; line-height: 1.9; margin: 20px 0 12px; padding: 16px 20px; background: #fff8ef; border-left: 4px solid #b52b20; border-radius: 6px; }
+.lf-oneliner strong { color: #b52b20; }
+.lf-toolbar { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; font-size: 14px; margin: 8px 0 12px; }
+.lf-toolbar select { margin-left: 6px; padding: 5px 8px; border-radius: 5px; border: 1px solid #c7d0d6; font-size: 14px; }
+.lf-toolbar a { color: #24618e; }
+.lf-risk { font-size: 13px; line-height: 1.8; color: #5a4a2e; background: #fff4dc; border: 1px solid #f0d9a5; border-radius: 8px; padding: 12px 16px; margin: 12px 0 0; }
+.lf-risk-compact { font-size: 12.5px; padding: 9px 14px; }
+.lf-section { background: #fffefa; border: 1px solid #d8dfe3; border-radius: 14px; padding: clamp(18px, 2.6vw, 34px); }
+.lf-heading { display: flex; gap: 14px; align-items: center; margin-bottom: 16px; }
+.lf-heading .eyebrow { color: #24618e; font-size: 13px; letter-spacing: .08em; }
+.lf-heading h2 { font: 750 clamp(19px, 2vw, 26px)/1.4 "Segoe UI", "Microsoft YaHei", sans-serif; margin: 4px 0 0; }
+.lf-note { font-size: 14px; color: #53616c; line-height: 1.85; margin: 8px 0; }
+.lf-empty { font-size: 14px; color: #6b7780; background: #f1f4f6; padding: 12px 14px; border-radius: 6px; }
+.lf-thermo { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.lf-thermo > div { border-radius: 10px; padding: 16px 12px; text-align: center; }
+.lf-thermo span { display: block; font-weight: 700; font-size: 15px; }
+.lf-thermo b { display: block; font: 800 30px/1.3 "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; margin: 6px 0; }
+.lf-thermo small { font-size: 12px; opacity: .85; line-height: 1.5; display: block; }
+.lf-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.lf-cards > div { border: 1px solid #dfe5e8; background: #fff; border-radius: 10px; padding: 14px 16px; }
+.lf-cards span { display: block; font-size: 13px; color: #5a6a76; }
+.lf-cards b { display: block; font: 800 26px/1.35 "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; margin: 4px 0; }
+.lf-cards small { display: block; font-size: 12px; color: #6b7780; line-height: 1.6; }
+.lf-ladder, .lf-dist, .lf-bars { display: grid; gap: 8px; }
+.lf-ladder > div, .lf-dist > div, .lf-bar-row { display: grid; grid-template-columns: 110px 1fr 48px; align-items: center; gap: 10px; font-size: 14px; }
+.lf-ladder b, .lf-dist b, .lf-bar-row b { text-align: right; font-variant-numeric: tabular-nums; }
+.lf-bar-track { height: 12px; background: #edf0f2; border-radius: 6px; overflow: hidden; }
+.lf-bar-track i { display: block; height: 100%; border-radius: 6px; min-width: 2px; }
+.lf-rank { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 10px; }
+.lf-rank li { display: grid; grid-template-columns: 56px 1fr 96px; align-items: center; gap: 12px; background: #fff; border: 1px solid #dfe5e8; border-left-width: 5px; border-radius: 10px; padding: 12px 16px; }
+.lf-rank-red { border-left-color: #c5392b !important; }
+.lf-rank-yellow { border-left-color: #e0a526 !important; }
+.lf-rank-green { border-left-color: #1f8f68 !important; }
+.lf-rank-grey { border-left-color: #b8c1c7 !important; }
+.lf-rank-no { font: 800 24px "Segoe UI", sans-serif; color: #24618e; }
+.lf-rank strong { font-size: 17px; margin-right: 4px; }
+.lf-rank small { display: block; font-size: 13px; color: #5a6a76; margin: 6px 0 8px; }
+.lf-total { font: 800 34px "Segoe UI", sans-serif; text-align: right; font-variant-numeric: tabular-nums; }
+.lf-total small, .lf-card header b small { font-size: 13px; color: #7a8791; font-weight: 500; }
+.lf-light { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; padding: 3px 9px; border-radius: 12px; border: 1px solid #d6dde2; margin-right: 6px; vertical-align: middle; }
+.lf-light i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.lf-light-red i { background: #d0342c; }
+.lf-light-yellow i { background: #f1c232; }
+.lf-light-green i { background: #1f9d6b; }
+.lf-light-grey i { background: #b8c1c7; }
+.lf-badge { font-size: 12px; padding: 3px 8px; background: #e7e3fb; color: #4b3aa5; border-radius: 4px; }
+.lf-delta { font-size: 13px; font-weight: 700; }
+.lf-heat td { font: 700 16px "Segoe UI", sans-serif; padding: 12px 8px; font-variant-numeric: tabular-nums; }
+.lf-heat td small { display: block; font-size: 11px; font-weight: 400; color: #6b7780; }
+.lf-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.lf-card { background: #fff; border: 1px solid #dfe5e8; border-radius: 12px; padding: 16px 18px; }
+.lf-card header { display: flex; align-items: baseline; gap: 10px; }
+.lf-card header strong { font-size: 18px; }
+.lf-card header b { margin-left: auto; font: 800 30px "Segoe UI", sans-serif; }
+.lf-card-body { display: grid; grid-template-columns: 220px 1fr; gap: 12px; align-items: center; }
+.lf-card-line { font-size: 14.5px; line-height: 1.8; color: #2f4251; margin: 6px 0; }
+.lf-card details { font-size: 13.5px; margin-top: 8px; }
+.lf-card summary { cursor: pointer; color: #24618e; }
+.lf-card blockquote { margin: 8px 0; padding: 8px 12px; background: #f5f7f9; border-radius: 6px; line-height: 1.7; }
+.lf-card blockquote small { display: block; color: #6b7780; }
+.lf-inputs { width: 100%; border-collapse: collapse; margin: 8px 0; }
+.lf-inputs th, .lf-inputs td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #edf0f2; font-weight: 400; }
+.lf-inputs td { text-align: right; font-variant-numeric: tabular-nums; }
+.lf-radar { width: 100%; max-width: 220px; height: auto; }
+.lf-radar-grid { fill: none; stroke: #d9e0e5; stroke-width: 1; }
+.lf-radar-shape { fill: #24618e33; stroke: #24618e; stroke-width: 2; }
+.lf-radar-dot { fill: #163b57; }
+.lf-radar-label { font-size: 11px; fill: #3c4f5e; }
+.lf-flows { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.lf-flow { background: #fff; border: 1px solid #dfe5e8; border-radius: 10px; padding: 12px 14px; }
+.lf-flow h3 { font-size: 14px; margin: 0 0 8px; color: #24618e; }
+.lf-flow > div { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font-size: 13.5px; padding: 5px 0; border-bottom: 1px dashed #e6eaed; }
+.lf-flow small { grid-column: 1 / -1; color: #7a8791; font-size: 12px; }
+.lf-footer { display: block; background: #fffefa; border: 1px solid #d8dfe3; border-radius: 14px; padding: 22px 28px; font-size: 13.5px; color: #4b5a66; line-height: 1.85; }
+.lf-footer h3 { margin: 0 0 6px; font-size: 16px; color: #142a3b; }
+.lf-footer ul { margin: 0 0 12px; padding-left: 20px; }
+.lf-footer .lf-risk { margin: 0; font-size: 13px; }
+.lf-footer .lf-risk strong { display: inline; font: inherit; font-weight: 700; color: inherit; }
+.lf-fill-up-strong { background: #c5392b; }
+.lf-fill-up { background: #f08a7a; }
+.lf-fill-flat { background: #aab4bb; }
+.lf-fill-down { background: #5cb592; }
+.lf-fill-down-strong { background: #087c59; }
+.lf-missing { display: block; font-size: 12px; color: #8a6a2a; }
+.lf-conclusions { margin: 0 0 12px; padding-left: 22px; font-size: 15px; line-height: 1.9; }
+.lf-timeline td { font-size: 14px; font-weight: 600; }
+.lf-timeline th small, .lf-heat th small { display: block; font-size: 11px; font-weight: 400; color: #8a6a2a; }
+.lf-series { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(64px, 1fr); gap: 12px; align-items: end; }
+.lf-series > div { display: grid; justify-items: center; gap: 4px; font-size: 13px; }
+.lf-series-bar { width: 36px; height: 140px; background: #edf0f2; border-radius: 6px; display: flex; align-items: flex-end; overflow: hidden; }
+.lf-series-bar i { width: 100%; display: block; }
+.lf-series b { font: 800 18px "Segoe UI", sans-serif; }
+.lf-series small { color: #6b7780; font-size: 12px; }
+.lf-stairs { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(140px, 1fr); gap: 12px; align-items: start; }
+.lf-stairs > div { border: 2px solid #24618e; border-radius: 10px; padding: 12px 14px; background: #f3f8fc; }
+.lf-stairs b { display: block; font: 800 24px "Segoe UI", sans-serif; color: #4b3aa5; }
+.lf-stairs strong { display: block; font-size: 15px; margin: 4px 0; }
+.lf-stairs small { color: #5a6a76; font-size: 12px; }
+.lf-tabs { flex-wrap: wrap; margin-bottom: 12px; display: flex; gap: 6px; }
+.lf-tabs button { border: 1px solid #d6dde2; }
+.lf-radar-wide { grid-template-columns: 280px 1fr; }
+.lf-leaders .lf-card header { margin-bottom: 8px; }
+.lf-recap td { font-size: 15px; font-weight: 600; padding: 12px; }
+@media (max-width: 900px) { .lf-series, .lf-stairs { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); } .lf-radar-wide { grid-template-columns: 1fr; } }
+@media (max-width: 900px) {
+  .lf-thermo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lf-card-grid, .lf-flows { grid-template-columns: 1fr; }
+  .lf-card-body { grid-template-columns: 1fr; justify-items: center; }
+  .lf-rank li { grid-template-columns: 40px 1fr 64px; padding: 10px 12px; }
+  .lf-total { font-size: 26px; }
+}
+@media (max-width: 560px) {
+  .lf-main { padding: 12px 0 32px; }
+  .lf-page, .lf-actions { padding-left: 16px; padding-right: 16px; }
+  .lf-ladder > div, .lf-dist > div, .lf-bar-row { grid-template-columns: 88px 1fr 40px; }
+}

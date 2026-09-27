@@ -15,6 +15,8 @@ if str(ROOT) not in sys.path:
 from sentiment.pipeline_v4 import build_snapshot  # noqa: E402
 from sentiment.market_watch import build_market_snapshot  # noqa: E402
 from sentiment.report import build_report  # noqa: E402
+from sentiment.limit_pool import build_limit_snapshot  # noqa: E402
+from sentiment.longform import build_longform_snapshot  # noqa: E402
 from sentiment.run_progress import logged_run, stage_progress, say
 from sentiment.semantic_agent import run_lock
 from sentiment.collectors import CN_TZ  # noqa: E402
@@ -35,10 +37,14 @@ def check_calendar(now=None) -> bool:
     return True
 
 
-# Order matters: the report reads the market snapshot saved just before it.
+# Order matters: the report reads the market snapshot saved just before it,
+# and the long-form report reads market, limit and report snapshots.
 STEPS = (("market", "市场行情与板块", "public/data/market/latest.json"),
+         ("limit", "涨停生态", "public/data/limit/latest.json"),
          ("community", "社区采集与本地分类", "public/data/latest.json"),
-         ("report", "十强复盘与模型汇总解读", "public/data/report/latest.json"))
+         ("report", "十强复盘与模型汇总解读", "public/data/report/latest.json"),
+         ("longform", "复盘长图", "public/data/longform/latest.json"))
+KEYS = tuple(key for key, _, _ in STEPS)
 LAST_RUN = ROOT / "work/logs/last-run.json"
 
 
@@ -69,7 +75,8 @@ def run_steps(only="all", keys=None, summary=None) -> int:
         return 1
     failures = []
     started = time.monotonic()
-    builders = {"market": build_market_snapshot, "community": build_snapshot, "report": build_report}
+    builders = {"market": build_market_snapshot, "limit": build_limit_snapshot, "community": build_snapshot,
+                "report": build_report, "longform": build_longform_snapshot}
     wanted = keys if keys is not None else [key for key, _, _ in STEPS if only == "all" or key == only]
     steps = [(key, name, builders[key]) for key, name, _ in STEPS if key in wanted]
     succeeded = 0
@@ -98,7 +105,7 @@ def run_steps(only="all", keys=None, summary=None) -> int:
 
 def main(argv=()) -> int:
     parser = argparse.ArgumentParser(description="手动更新，可按模块运行；每10秒显示当前步骤耗时。")
-    parser.add_argument("--only", choices=("all", "market", "community", "report"), default="all")
+    parser.add_argument("--only", choices=("all",) + KEYS, default="all")
     parser.add_argument("--if-stale", action="store_true",
                         help="只更新快照早于最近已收盘交易日的模块；都已最新时直接结束（供计划任务使用）")
     args = parser.parse_args(argv)

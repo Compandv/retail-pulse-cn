@@ -1,0 +1,33 @@
+{
+  "version": "longform-daily-1.0",
+  "weeklyVersion": "weekly-report-1.0",
+  "dimensionsVersion": "report-dimensions-2.0",
+  "dimensions": [
+    {"key": "heat", "label": "热度", "formula": "0.4 × 讨论度 + 0.6 × 资金面（题材成交额的本表分位）"},
+    {"key": "spread", "label": "扩散力", "formula": "0.5 × 传播力 + 0.5 × 讨论升温"},
+    {"key": "shake", "label": "动摇度", "formula": "0.6 × 恐慌表达分位 + 0.4 × 放量下跌分"},
+    {"key": "rebound", "label": "回补力", "formula": "回补表达率（补仓，或卖早了、踏空、还能上车吗等）的本表分位"},
+    {"key": "crowding", "label": "拥挤度", "formula": "换手率的本表分位"}
+  ],
+  "weights": {"heat": 0.30, "spread": 0.20, "shake": 0.20, "rebound": 0.15, "crowding": 0.15},
+  "high": 65,
+  "low": 45,
+  "coolingDrop": 10,
+  "shapes": [
+    {"key": "hotShaky", "label": "高热高动摇", "reference": "镰刀型", "text": "关注度和恐慌表达同时处于本表高位"},
+    {"key": "spreadCalm", "label": "扩散低动摇", "reference": "风筝型", "text": "讨论在扩散，恐慌表达较少"},
+    {"key": "shakyRebound", "label": "动摇有回补", "reference": "吸铁型", "text": "恐慌与回补表达同时较多，分歧明显"},
+    {"key": "cooling", "label": "降温", "reference": "泄气型", "text": "热度较前一交易日回落、动摇上升"},
+    {"key": "quiet", "label": "冷清", "reference": "佛系", "text": "各维度都处于本表低位"},
+    {"key": "neutral", "label": "中性", "reference": null, "text": "各维度没有突出的组合"}
+  ],
+  "alerts": {
+    "red": {"crowding": 75, "shake": 65, "text": "换手与恐慌表达同处本表高位"},
+    "yellow": {"crowding": 60, "shake": 60, "text": "换手或恐慌表达偏高"},
+    "green": {"text": "换手与恐慌表达都不突出"},
+    "grey": {"text": "数据不足"}
+  },
+  "forbidden": ["别去", "别追", "别碰", "重仓", "轻仓", "满仓", "空仓", "抄底", "上车", "持股过节", "建议买", "建议卖", "买入", "卖出", "概率", "预判", "必涨", "必跌", "印证", "兑现"],
+  "maxLength": {"title": 40, "oneLiner": 150, "conclusion": 80, "topic": 60, "summary": 250},
+  "anchorsFile": "config/report-anchors.json"
+}

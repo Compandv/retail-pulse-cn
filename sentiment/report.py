@@ -49,6 +49,22 @@ def refill_expression(text):
     return False
 
 
+def rebound_expression(text):
+    """Wanting back in after selling or missing out: '卖早了', '踏空', '还能上车吗'.
+
+    Unlike refill_expression, an own question counts ("还能上车吗" states the
+    wish); negation, advice to others, hearsay and past narration do not.
+    """
+    if re.search(r"他说|她说|据说|转发|有人说|老师说|昨天|前天|上周|上个月|去年", text):
+        return False
+    for clause in re.split(r"[，,。！!；;\n]", text):
+        if re.search(r"不要|别|不会|不怕|不想|没有|如果|假如|万一|一旦", clause):
+            continue
+        if re.search(r"卖早了|卖飞了?|卖飞|踏空了?|还能上车[吗么嘛]?|还能进[吗么]|能不能上车|回调(?:再)?接回|接回来|买回来", clause):
+            return True
+    return False
+
+
 def measure_members(capture, codes, day, topic=None):
     feeds = [capture["feeds"].get(code) for code in codes]
     good = [f for f in feeds if f and not f.get("error") and f.get("pages", 0) > 0]
@@ -84,6 +100,8 @@ def measure_members(capture, codes, day, topic=None):
     expressions = summarize_expressions(posts)
     total = len(posts)
     refills = sum(r["refillExpression"] for r in posts)
+    # Rebound = refill or wanting back in; a post counts once.
+    rebounds = sum(bool(r["refillExpression"] or rebound_expression(r["text"])) for r in posts)
     interactions = [r["replies"] + r["forwards"] for r in posts if number(r.get("replies")) is not None and number(r.get("forwards")) is not None and r["replies"] >= 0 and r["forwards"] >= 0]
     enough = bool(codes) and len(good) / len(codes) >= CONFIG["minimumMemberCoverage"] and total >= CONFIG["minimumPosts"]
     complete = bool(codes) and all(f and f.get("complete") and not f.get("error") for f in feeds)
@@ -101,10 +119,18 @@ def measure_members(capture, codes, day, topic=None):
             "interactionMean": statistics.mean(interactions) if enough and len(interactions) >= .8 * total else None,
             "panic": expressions["panic"] if enough else None, "chase": expressions["chase"] if enough else None,
             "refill": score(100 * refills / total) if enough else None,
+            "rebound": score(100 * rebounds / total) if enough else None, "reboundCount": rebounds,
             "refillCount": refills, "chaseCount": sum(r["classification"]["chase"] for r in posts), "panicCount": sum(r["classification"]["panic"] for r in posts),
             "bullishCount": sum(r["classification"]["bullish"] for r in posts), "bearishCount": sum(r["classification"]["bearish"] for r in posts),
             "profile": profile,
             "posts": public_evidence(posts)}
+
+
+def topic_amount(codes, amounts, minimum=0.9):
+    """Member turnover in yuan; left empty when under 90% of members have a dated amount."""
+    have = [amounts[code] for code in codes if code in amounts]
+    coverage = len(have) / len(codes) if codes else 0
+    return {"amount": sum(have) if codes and coverage >= minimum else None, "amountMembers": len(have), "memberCodes": list(codes)}
 
 
 def relative(values, value):
@@ -130,6 +156,7 @@ def assemble_report(market, capture):
     if capture.get("version") != VERSION or capture.get("date") != day or capture.get("marketCollectedAt") != market["meta"]["collectedAt"] or capture.get("selectedIds") != [b["id"] for b in selected]:
         raise RuntimeError("报告采集日期、版本或热点范围不匹配")
     measured, all_codes = [], set()
+    amounts = {r["code"]: r["amount"] for r in capture.get("stockFacts", []) if r.get("date") == day and number(r.get("amount")) is not None and r["amount"] >= 0}
     for board in selected:
         detail = capture.get("members", {}).get(board["id"], {})
         codes = [m["code"] for m in detail.get("members", [])] if detail.get("complete") and detail.get("date") == day else []
@@ -144,6 +171,7 @@ def assemble_report(market, capture):
         measured.append({"id": board["id"], "code": board["code"], "name": board["name"], "selectionScore": board["selectionScore"],
                          "rankingQuality": board.get("rankingQuality"), "historicalAttentionScore": board.get("historicalAttentionScore"), "historicalAttentionMedian": board.get("historicalAttentionMedian"), "historicalBaselineDays": board.get("historicalBaselineDays", 0),
                          "changePct": board["changePct"], "turnover": board["turnover"], "leader": board.get("leader"), "crowding": board.get("relativeActivity"),
+                         **topic_amount(codes, amounts),
                          "growth": {"score": score(100 * current_pair["authors"] / pair_total) if growth_ok else None, "today": current_pair["authors"], "previous": previous_pair["authors"], "pairedMembers": len(paired_codes), "previousDate": capture["previousDate"], "basis": "两日同范围；50为持平"},
                          "observation": measurement})
     for row in measured:

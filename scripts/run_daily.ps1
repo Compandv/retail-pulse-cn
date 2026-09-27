@@ -1,4 +1,4 @@
-﻿param([ValidateSet('all', 'market', 'community', 'report')][string]$Only = 'all', [switch]$SkipOpen)
+﻿param([ValidateSet('all', 'market', 'limit', 'community', 'report', 'longform')][string]$Only = 'all', [switch]$SkipOpen)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'find_python.ps1')
 $python = Resolve-ProjectPython
