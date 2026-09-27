@@ -19,13 +19,14 @@ $arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$sc
 if ($FailuresOnly) { $arguments += ' -FailuresOnly' }
 $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $arguments -WorkingDirectory (Split-Path -Parent $PSScriptRoot)
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday, Tuesday, Wednesday, Thursday, Friday -At $Time
+# WakeToRun wakes a sleeping PC (not one that is shut down; needs wake timers allowed).
 # StartWhenAvailable: a run missed while the PC was off happens at next logon;
 # update_index --if-stale then collects the missed session or exits quickly.
-$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -WakeToRun -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
     -ExecutionTimeLimit (New-TimeSpan -Hours 2) -MultipleInstances IgnoreNew
 # Interactive + Limited: runs as you, only while logged on, without admin rights, so toasts are visible.
 $principal = New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Limited
 Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal `
-    -Description '散户温度计：工作日收盘后更新过期快照，并以系统通知报告结果。' -Force | Out-Null
+    -Description '散户温度计：工作日收盘后从 GitHub 拉取、更新过期快照、推送数据，并以系统通知报告结果。' -Force | Out-Null
 Write-Host "已注册计划任务 $taskName：每周一至周五 $Time 运行（错过时开机后补跑）。"
 Write-Host "立即试运行：Start-ScheduledTask -TaskName $taskName；删除：scripts\install_schedule.ps1 -Uninstall"

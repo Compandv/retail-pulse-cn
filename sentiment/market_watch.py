@@ -198,6 +198,10 @@ def summarize_stocks(rows, capture, previous=None, diagnostics_rows=None):
             "amount": rounded(amount), "amountCoverage": len(amounts), "amountComplete": complete,
             "amountChange": rounded(amount - previous_amount) if amount is not None and previous_amount is not None else None,
             "stockCodes": sorted(row["code"] for row in rows),
+            # Aligned with stockCodes: dated turnover in yuan, so the next session can
+            # measure topic volume change without the private capture.
+            "stockAmounts": [round(row["amount"]) if row["dateValid"] and row["amount"] is not None else None
+                             for row in sorted(rows, key=lambda r: r["code"])],
             "diagnostics": build_market_diagnostics(rows if diagnostics_rows is None else diagnostics_rows, capture)}
 
 

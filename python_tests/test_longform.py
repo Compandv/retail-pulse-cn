@@ -40,6 +40,18 @@ class DimensionsTest(unittest.TestCase):
         self.assertIsNone(dims["t0"]["dimensions"]["rebound"])
 
 
+class PreviousAmountsTest(unittest.TestCase):
+    def test_public_market_snapshot_replaces_missing_capture(self):
+        sectors = [{"id": "t", "memberCodes": ["000001", "000002"]}]
+        market = {"stockCodes": ["000001", "000002", "000003"], "stockAmounts": [100, 250, None]}
+        self.assertEqual(longform.previous_amounts(sectors, None, "2026-09-25", market), {"t": 350})
+        capture = {"stockFacts": [{"code": "000001", "date": "2026-09-25", "amount": 1}, {"code": "000002", "date": "2026-09-25", "amount": 2}]}
+        self.assertEqual(longform.previous_amounts(sectors, capture, "2026-09-25", market), {"t": 3})  # private capture wins
+        self.assertEqual(longform.previous_amounts(sectors, None, "2026-09-25", {"stockCodes": ["000001"]}), {})
+        thin = {"stockCodes": ["000001", "000002"], "stockAmounts": [100, None]}
+        self.assertEqual(longform.previous_amounts(sectors, None, "2026-09-25", thin), {})  # under 90% of members
+
+
 class LabelsTest(unittest.TestCase):
     def test_shapes_follow_rule_order(self):
         self.assertEqual(longform.shape_of({"heat": 70, "spread": 50, "shake": 70, "rebound": 70, "crowding": 50}), "hotShaky")

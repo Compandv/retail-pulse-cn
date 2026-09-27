@@ -29,12 +29,19 @@ def mix(*pairs):
     return score(sum(weight * value for weight, value in pairs))
 
 
-def previous_amounts(sectors, previous_capture, previous_day):
-    """Member turnover of each topic on the previous session, same member list."""
-    if not previous_capture:
+def previous_amounts(sectors, previous_capture, previous_day, previous_market=None):
+    """Member turnover of each topic on the previous session, same member list.
+
+    Prefers the private capture; otherwise the public market snapshot's
+    stockAmounts (saved since 2026-09-27), so a cloud run can use it too.
+    """
+    if previous_capture:
+        amounts = {r["code"]: r["amount"] for r in previous_capture.get("stockFacts", [])
+                   if r.get("date") == previous_day and number(r.get("amount")) is not None and r["amount"] >= 0}
+    elif previous_market and previous_market.get("stockAmounts") and len(previous_market["stockAmounts"]) == len(previous_market.get("stockCodes", [])):
+        amounts = {code: value for code, value in zip(previous_market["stockCodes"], previous_market["stockAmounts"]) if value is not None and value >= 0}
+    else:
         return {}
-    amounts = {r["code"]: r["amount"] for r in previous_capture.get("stockFacts", [])
-               if r.get("date") == previous_day and number(r.get("amount")) is not None and r["amount"] >= 0}
     result = {}
     for sector in sectors:
         codes = sector.get("memberCodes") or []
@@ -231,7 +238,8 @@ def build_daily(root, day: str, indices=None, margin=None) -> dict:
         report = read_json(root / "public/data/report/daily" / f"{day}.json", None)
         source = "saved" if report else None
     sectors = (report or {}).get("sectors", [])
-    prior = previous_amounts(sectors, read_json(root / "work/report-observations" / f"{previous_day}.json", None), previous_day)
+    prev_market = read_json(root / "public/data/market/daily" / f"{previous_day}.json", {}).get("market", {})
+    prior = previous_amounts(sectors, read_json(root / "work/report-observations" / f"{previous_day}.json", None), previous_day, prev_market)
     dims = dimensions_v2(sectors, prior)
     previous_longform = read_json(root / "public/data/longform/daily" / f"{previous_day}.json", {})
     before = {t["id"]: t for t in previous_longform.get("topics", [])}
@@ -252,7 +260,6 @@ def build_daily(root, day: str, indices=None, margin=None) -> dict:
     line = mainline(topics, limit)
     indices = fetch_index_closes() if indices is None else indices
     margin = fetch_margin() if margin is None else margin
-    prev_market = read_json(root / "public/data/market/daily" / f"{previous_day}.json", {}).get("market", {})
     m = market["market"]
     amount_change = m["amount"] - prev_market["amount"] if m.get("amountComplete") and prev_market.get("amountComplete") else None
     result = {

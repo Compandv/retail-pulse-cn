@@ -1,5 +1,6 @@
-﻿# Run by the Windows scheduled task: update stale modules, then show a toast.
-param([switch]$FailuresOnly)
+﻿# Run by the Windows scheduled task: pull from GitHub, update stale modules,
+# push the data back, then show a toast.
+param([switch]$FailuresOnly, [switch]$NoSync)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $summaryPath = Join-Path $projectRoot 'work\logs\last-run.json'
@@ -27,6 +28,9 @@ if (-not $python) {
     exit 1
 }
 $env:PYTHONIOENCODING = 'utf-8'
+. (Join-Path $PSScriptRoot 'sync_data.ps1')
+$syncNotes = @()
+if (-not $NoSync) { $syncNotes += Sync-DataPull }
 if (Test-Path -LiteralPath $summaryPath) { Remove-Item -LiteralPath $summaryPath -Force }
 & $python.Path @($python.Args) -u (Join-Path $PSScriptRoot 'update_index.py') --if-stale *> $null
 $exitCode = $LASTEXITCODE
@@ -36,13 +40,16 @@ if (Test-Path -LiteralPath $summaryPath) { $summary = Get-Content -LiteralPath $
 $log = if ($summary) { $summary.log } else { $null }
 $day = if ($summary -and $summary.tradeDate) { $summary.tradeDate } else { '最近交易日' }
 $warning = if ($summary -and $summary.calendarWarning) { ' ' + $summary.calendarWarning } else { '' }
+if (-not $NoSync) { $syncNotes += Sync-DataPush $day }
+$syncNote = ($syncNotes | Where-Object { $_ }) -join '；'
+if ($syncNote) { $warning += ' 同步：' + $syncNote + '。' }
 
 if (-not $summary) {
     Show-Toast '散户温度计：定时更新异常' ("更新程序没有写出运行结果（退出码 $exitCode）。请查看 work\logs。") (Join-Path $projectRoot 'work\logs')
 } elseif ($summary.status -eq 'ok') {
     if (-not $FailuresOnly -or $warning) { Show-Toast "散户温度计：$day 已更新" ("$($summary.succeeded) 个模块更新成功。$warning").Trim() $log }
 } elseif ($summary.status -eq 'skipped') {
-    if ($warning) { Show-Toast '散户温度计：交易日历提醒' $warning.Trim() $log }
+    if ($warning) { Show-Toast '散户温度计：提醒' $warning.Trim() $log }
 } elseif ($summary.status -in 'partial', 'failed') {
     $detail = ($summary.failures | ForEach-Object { ($_ -split '：', 2)[0] }) -join '、'
     Show-Toast "散户温度计：$day 更新失败" ("失败 $($summary.total - $summary.succeeded)/$($summary.total)：$detail。成功部分已保存，失败部分保留上次结果。点此查看日志。$warning") $log
