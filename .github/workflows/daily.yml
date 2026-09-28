@@ -4,6 +4,9 @@ name: Update retail sentiment
 # time and pushes public/data; this run only collects modules that are still
 # older than the latest closed session, so it does nothing on days the PC ran.
 on:
+  schedule:
+    # 12:00 UTC = 20:00 Beijing, Mon-Fri; GitHub often starts scheduled runs later.
+    - cron: "0 12 * * 1-5"
   workflow_dispatch:
     inputs:
       force:
