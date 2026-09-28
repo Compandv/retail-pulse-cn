@@ -10,6 +10,8 @@ import json
 import math
 import re
 import statistics
+import time
+from collections import Counter
 from .collectors import request_text, CN_TZ
 from .market_watch import read_json, atomic_json, percentile
 from .measurement import prepare_observations
@@ -239,14 +241,25 @@ def discover(root, market, previous):
         feed['observedAt'] = datetime.now(CN_TZ).isoformat(timespec='seconds')
         return labels, feed
     print(f"题材发现：全A {len(universe)} 股中观察 {len(stocks)} 股；先读取标签和讨论，再选前十。", flush=True)
-    with ThreadPoolExecutor(max_workers=CONFIG['workers']) as pool:
-        futures = {pool.submit(task, code): code for code in stocks}
-        for i, f in enumerate(as_completed(futures), 1):
-            code = futures[f]
-            try: tags[code], feeds[code] = f.result()
-            except Exception as e: errors.append({'code': code, 'error': type(e).__name__})
-            if i % 25 == 0 or i == len(stocks): print(f'题材发现 {i}/{len(stocks)}：标签 {len(tags)}，讨论列表 {len(feeds)}', flush=True)
-    if len(tags) / len(stocks) < CONFIG['minimumSourceCoverage']: raise RuntimeError('题材映射覆盖不足，保留旧报告')
+    def run(codes, workers):
+        failed = []
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = {pool.submit(task, code): code for code in codes}
+            for i, f in enumerate(as_completed(futures), 1):
+                code = futures[f]
+                try: tags[code], feeds[code] = f.result()
+                except Exception as e: failed.append({'code': code, 'error': type(e).__name__})
+                if i % 25 == 0 or i == len(codes): print(f'题材发现 {i}/{len(codes)}：标签 {len(tags)}，讨论列表 {len(feeds)}', flush=True)
+        return failed
+    errors = run(stocks, CONFIG['workers'])
+    if errors:
+        # The F10 tag endpoint drops requests under load (2026-09-28: 90 of 348).
+        # Retry only the failures, slower; successful tags are read from the cache.
+        print(f"题材发现：{len(errors)} 只首轮失败（{dict(Counter(e['error'] for e in errors))}），稍后低并发重试一次", flush=True)
+        time.sleep(3)
+        errors = run([e['code'] for e in errors], 2)
+    if len(tags) / len(stocks) < CONFIG['minimumSourceCoverage']:
+        raise RuntimeError(f"题材映射覆盖不足（{len(tags)}/{len(stocks)}），保留旧报告")
     groups = topic_groups(stocks, tags)
     rows, selected, suppressed = rank_topics(groups, feeds, stocks, day, root=root)
     expanded_codes = select_expansion_codes(rows, stocks, feeds)

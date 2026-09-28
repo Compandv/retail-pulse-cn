@@ -4,6 +4,11 @@ param([switch]$FailuresOnly, [switch]$NoSync)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $summaryPath = Join-Path $projectRoot 'work\logs\last-run.json'
+# The task runs in a hidden window: keep a transcript so any error can be read later.
+$transcript = Join-Path $projectRoot ("work\logs\scheduled-{0:yyyyMMdd-HHmmss}.log" -f (Get-Date))
+New-Item -ItemType Directory -Force -Path (Split-Path -Parent $transcript) | Out-Null
+Start-Transcript -LiteralPath $transcript | Out-Null
+trap { Write-Output ("未处理的错误：" + $_.Exception.Message + " @ " + $_.InvocationInfo.PositionMessage); Stop-Transcript | Out-Null; exit 2 }
 
 function Show-Toast([string]$Title, [string]$Body, [string]$OpenPath) {
     try {
@@ -25,6 +30,7 @@ function Show-Toast([string]$Title, [string]$Body, [string]$OpenPath) {
 $python = Resolve-ProjectPython 3>$null
 if (-not $python) {
     Show-Toast '散户温度计：定时更新未运行' '找不到可用的 Python 3.10+。请安装 Python，或设置 RETAIL_PYTHON。' $null
+    Stop-Transcript | Out-Null
     exit 1
 }
 $env:PYTHONIOENCODING = 'utf-8'
@@ -32,8 +38,13 @@ $env:PYTHONIOENCODING = 'utf-8'
 $syncNotes = @()
 if (-not $NoSync) { $syncNotes += Sync-DataPull }
 if (Test-Path -LiteralPath $summaryPath) { Remove-Item -LiteralPath $summaryPath -Force }
+# Windows PowerShell 5.1 turns a native program's stderr into errors, and under 'Stop'
+# the first stderr line (e.g. a partial-failure note) would abort this script before
+# the push and the toast. Run Python with 'Continue' and rely on its exit code.
+$ErrorActionPreference = 'Continue'
 & $python.Path @($python.Args) -u (Join-Path $PSScriptRoot 'update_index.py') --if-stale *> $null
 $exitCode = $LASTEXITCODE
+$ErrorActionPreference = 'Stop'
 
 $summary = $null
 if (Test-Path -LiteralPath $summaryPath) { $summary = Get-Content -LiteralPath $summaryPath -Raw -Encoding UTF8 | ConvertFrom-Json }
@@ -57,4 +68,6 @@ if (-not $summary) {
     $reason = if ($summary.reason) { $summary.reason } else { $summary.status }
     Show-Toast '散户温度计：定时更新未运行' ("$reason。点此查看日志。$warning") $log
 }
+Write-Output "更新退出码 $exitCode；同步：$(if ($syncNote) { $syncNote } else { '正常' })"
+Stop-Transcript | Out-Null
 exit $exitCode

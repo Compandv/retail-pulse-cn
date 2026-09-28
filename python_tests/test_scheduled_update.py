@@ -35,9 +35,9 @@ class ScheduledUpdateTest(unittest.TestCase):
         self.save()
         self.assertEqual(update_index.stale_keys(SUNDAY, self.root), [])
         self.save(market="2026-09-23")
-        self.assertEqual(update_index.stale_keys(SUNDAY, self.root), ["market"])
+        self.assertEqual(update_index.stale_keys(SUNDAY, self.root), ["market", "longform"])  # long-form follows any refreshed input
         (self.root / "public/data/report/latest.json").write_text("{broken", encoding="utf-8")
-        self.assertEqual(update_index.stale_keys(SUNDAY, self.root), ["market", "report"])
+        self.assertEqual(update_index.stale_keys(SUNDAY, self.root), ["market", "report", "longform"])
 
     def run_main(self, stale, **builds):
         out = StringIO()

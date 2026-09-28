@@ -59,6 +59,9 @@ def stale_keys(now=None, root=ROOT) -> list[str]:
             saved = ""
         if saved < day:
             stale.append(key)
+    # The long-form report is built from the others: rebuild it whenever any input is refreshed.
+    if stale and "longform" not in stale:
+        stale.append("longform")
     return stale
 
 
