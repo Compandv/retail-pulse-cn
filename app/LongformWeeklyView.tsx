@@ -2,10 +2,57 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { LongformWeekly, WeeklyFlow, WeeklyTopic } from "./longform-types";
-import { DIMENSIONS, DimensionBars, ExportButton, Light, Radar, RiskNotice, heatClass, num, pct, signClass, yi } from "./longform-ui";
+import { DIMENSIONS, DIMENSION_GUIDE, DimensionBars, ExportButton, Guide, Light, Radar, RiskNotice, heatClass, num, pct, signClass, yi } from "./longform-ui";
 
-function Section({ step, eyebrow, title, children }: { step: string; eyebrow: string; title: string; children: React.ReactNode }) {
-  return <section className="lf-section"><div className="lf-heading"><span className="report-step">{step}</span><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2></div></div>{children}</section>;
+// Opening glossary for each section; wording describes the numbers, never what to do with them.
+const GUIDE: Record<string, [string, string][]> = {
+  key: [
+    ["周分最高题材", "本周周分排第一的题材，见第 5 节。"],
+    ["最低红盘率", "红盘率 = 当天上涨股票占比；取本周最低的一天，小字为逐日数值。"],
+    ["最大净流出行业", "本周主力净额逐日相加后，净流出最多的行业。"],
+    ["主线切换", "相邻两个交易日主线题材不同的次数，次数越多说明热点轮动越快。"],
+    ["上证周涨跌", "本周最后一个交易日收盘较上周最后一个交易日收盘的涨跌幅。"],
+  ],
+  timeline: [
+    ["红盘率", "当天上涨股票占比。"],
+    ["涨停 / 跌停、炸板率", "收盘封住涨停 / 跌停的家数；炸板率 = 碰过涨停却没封住的比例。"],
+    ["最高连板", "当天连续涨停天数最多的股票有几板。"],
+    ["主线", "十强题材中成分涨停最多的题材，括号内为涨停集中度。"],
+    ["总分最高题材", "当天日报里试验总分排第一的题材。"],
+  ],
+  mainline: [
+    ["当日主线", "十强题材中成分涨停最多的题材，并列时取涨幅更高者。"],
+    ["涨停集中度", "主线的成分涨停数 ÷ 全市场涨停数，越高说明涨停越集中在一个题材。"],
+    ["位置高低", "卡片越靠上，集中度越高。"],
+  ],
+  limit: [
+    ["柱高", "当天涨停家数，本周最高的一天为满格。"],
+    ["炸板", "当天炸板率：碰过涨停却没封住的比例。"],
+  ],
+  rank: [
+    ["周分（试验）", "该题材本周出现各天的日总分平均，至少出现 2 天；各维度同样取平均。"],
+    ["日总分", "热度 30% + 扩散力 20% + 动摇度 20% + 回补力 15% + 拥挤度 15%，五维含义见第 6 节。"],
+    ["形态与灯", "形态为按五维组合给出的描述名；红 / 黄 / 绿灯为拥挤提示（拥挤度与动摇度是否同时偏高）。"],
+    ["↑ ↓ / 新进", "周分较上周的变化；“新进”表示上周未上榜。"],
+  ],
+  heat: [
+    ["每一格", "该题材本周该维度的平均分（0–100），颜色越深越高，“—”为缺数据。"],
+    ["环比", "周分较上周的变化。"],
+    ["拥挤提示", "红 = 拥挤度与动摇度都偏高；黄 = 其一偏高；绿 = 都不突出；灰 = 缺数据。"],
+  ],
+  leaders: [["每张卡片", "同一个维度下，本周各题材从高到低排列；维度含义见第 6 节。"]],
+  indices: [
+    ["周涨跌", "本周最后一个交易日收盘较上周最后一个交易日收盘。"],
+    ["周内最高", "本周各交易日收盘价中的最高值。"],
+  ],
+  flows: [
+    ["主力净额", "新浪财经口径：大单、超大单主动买盘金额减主动卖盘金额；本周逐日相加。不同网站口径不同，数值不可直接互比。"],
+    ["四栏", "行业、概念板块各列本周净流入最多和净流出最多的五个。"],
+  ],
+};
+
+function Section({ step, eyebrow, title, guide, note, children }: { step: string; eyebrow: string; title: string; guide?: [string, string][]; note?: string; children: React.ReactNode }) {
+  return <section className="lf-section"><div className="lf-heading"><span className="report-step">{step}</span><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2></div></div>{guide && <Guide items={guide} note={note} />}{children}</section>;
 }
 
 function KeyCards({ data }: { data: LongformWeekly }) {
@@ -135,31 +182,29 @@ export function LongformWeeklyView({ initial }: { initial: LongformWeekly }) {
         </div>
         <RiskNotice compact />
       </header>
-      <Section step="1" eyebrow="关键数字" title="本周五个数"><KeyCards data={data} /></Section>
-      <Section step="2" eyebrow="市场时间线" title="逐日行情、涨停与主线"><Timeline data={data} /></Section>
-      <Section step="3" eyebrow="主线轮盘 · 涨停集中度" title={data.market.mainlineSwitches == null ? "每日主线" : `主线切换 ${data.market.mainlineSwitches} 次`}>
-        <p className="lf-note">当日主线 = 十强题材中成分涨停最多的题材；涨停集中度 = 其成分涨停数 ÷ 全市场涨停数。与参考图的“浓度”（散户分级占比）含义不同。</p>
+      <Section step="1" eyebrow="关键数字" title="本周五个数" guide={GUIDE.key}><KeyCards data={data} /></Section>
+      <Section step="2" eyebrow="市场时间线" title="逐日行情、涨停与主线" guide={GUIDE.timeline}><Timeline data={data} /></Section>
+      <Section step="3" eyebrow="主线轮盘 · 涨停集中度" title={data.market.mainlineSwitches == null ? "每日主线" : `主线切换 ${data.market.mainlineSwitches} 次`} guide={GUIDE.mainline} note="涨停集中度与参考图的“浓度”（散户分级占比）含义不同。">
         <Mainline data={data} />
       </Section>
-      <Section step="4" eyebrow="涨停生态周序列" title={`日均涨停 ${num(data.market.meanLimitUp)} 家，最高 ${data.market.maxBoards ?? "—"} 连板`}><LimitSeries data={data} /></Section>
+      <Section step="4" eyebrow="涨停生态周序列" title={`日均涨停 ${num(data.market.meanLimitUp)} 家，最高 ${data.market.maxBoards ?? "—"} 连板`} guide={GUIDE.limit}><LimitSeries data={data} /></Section>
       {m.topicsPublished && data.topics.length > 0 ? <>
-        <Section step="5" eyebrow="周九强 · 试验周分" title={`${data.topics[0].name} 周分最高`}>
-          <p className="lf-note">周分 = 出现各天日总分的平均（至少 2 天）；日总分 = 热度×30% + 扩散力×20% + 动摇度×20% + 回补力×15% + 拥挤度×15%。</p>
+        <Section step="5" eyebrow="周九强 · 试验周分" title={`${data.topics[0].name} 周分最高`} guide={GUIDE.rank} note="周分未经历史回测校准，高分表示讨论与交易集中，不是买卖信号。">
           <TopicRanking topics={data.topics} />
         </Section>
-        <Section step="6" eyebrow="五维雷达" title="逐题材查看"><RadarSwitch topics={data.topics} /></Section>
-        <Section step="7" eyebrow="题材 × 维度热力表" title="逐格对比">
+        <Section step="6" eyebrow="五维雷达" title="逐题材查看" guide={DIMENSION_GUIDE} note="周报中的每一维是该题材本周各天分数的平均。点上方题材名切换；雷达越往外代表分数越高。"><RadarSwitch topics={data.topics} /></Section>
+        <Section step="7" eyebrow="题材 × 维度热力表" title="逐格对比" guide={GUIDE.heat}>
           <div className="report-matrix-scroll"><table className="report-matrix lf-heat"><thead><tr><th>题材</th>{DIMENSIONS.map(d => <th key={d.key}>{d.label}</th>)}<th>周分</th><th>环比</th><th>拥挤提示</th></tr></thead>
             <tbody>{data.topics.map(t => <tr key={t.id}><th>{t.name}<small>出现 {t.appearances} 天</small></th>{DIMENSIONS.map(d => <td key={d.key} className={heatClass(t.dimensions[d.key])}>{num(t.dimensions[d.key], 0)}</td>)}
               <td className={heatClass(t.total)}><b>{num(t.total, 0)}</b></td><td className={signClass(t.totalChange)}>{t.isNew ? "新进" : t.totalChange == null ? "—" : `${t.totalChange > 0 ? "+" : ""}${t.totalChange}`}</td><td><Light level={t.alert.level} text={t.alert.text} /></td></tr>)}</tbody></table></div>
         </Section>
-        <Section step="8" eyebrow="分维度排行" title="谁最热、谁最动摇、谁回补最多"><DimensionLeaders topics={data.topics} /></Section>
+        <Section step="8" eyebrow="分维度排行" title="谁最热、谁最动摇、谁回补最多" guide={GUIDE.leaders}><DimensionLeaders topics={data.topics} /></Section>
       </> : <Section step="5" eyebrow="周题材排名" title="本周不发布题材排名"><p className="lf-empty">本周有长图的交易日为 {m.longformDays.length} 天，少于发布门槛 {m.requiredDays} 天。题材排名需要连续的每日采集；市场部分照常展示。</p></Section>}
-      <Section step="9" eyebrow="指数周涨跌" title={`上证指数 ${pct(data.market.shChange)}`}>
+      <Section step="9" eyebrow="指数周涨跌" title={`上证指数 ${pct(data.market.shChange)}`} guide={GUIDE.indices}>
         <div className="lf-cards">{data.indices.map(i => <div key={i.symbol}><span>{i.name}</span><b className={signClass(i.changePct)}>{pct(i.changePct)}</b><small>{i.baseDate ? `${num(i.close, 2)}（较 ${i.baseDate} 收盘）· 周内最高 ${num(i.high, 2)}` : "—"}</small></div>)}</div>
       </Section>
-      <Section step="10" eyebrow="资金底账 · 新浪主力口径" title="本周主力净额累计前五"><Flows data={data} /></Section>
-      {data.recap.length > 0 && <Section step="11" eyebrow={`上周数字回顾 · ${data.previousWeek}`} title="上周与本周，只列事实">
+      <Section step="10" eyebrow="资金底账 · 新浪主力口径" title="本周主力净额累计前五" guide={GUIDE.flows}><Flows data={data} /></Section>
+      {data.recap.length > 0 && <Section step="11" eyebrow={`上周数字回顾 · ${data.previousWeek}`} title="上周与本周，只列事实" guide={[["对照表", "同一指标上周与本周的数值并排列出，只陈述变化，不做评价。"]]}>
         <div className="report-matrix-scroll"><table className="report-matrix lf-recap"><thead><tr><th>指标</th><th>上周</th><th>本周</th></tr></thead>
           <tbody>{data.recap.map(r => <tr key={r.label}><th>{r.label}</th><td>{r.previous}</td><td>{r.current}</td></tr>)}</tbody></table></div>
       </Section>}

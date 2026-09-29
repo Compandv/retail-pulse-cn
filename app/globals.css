@@ -778,7 +778,7 @@ button, summary, a, input, select { -webkit-tap-highlight-color: transparent; }
 .lf-card header { display: flex; align-items: baseline; gap: 10px; }
 .lf-card header strong { font-size: 18px; }
 .lf-card header b { margin-left: auto; font: 800 30px "Segoe UI", sans-serif; }
-.lf-card-body { display: grid; grid-template-columns: 220px 1fr; gap: 12px; align-items: center; }
+.lf-card-body { display: grid; grid-template-columns: 240px 1fr; gap: 12px; align-items: center; }
 .lf-card-line { font-size: 14.5px; line-height: 1.8; color: #2f4251; margin: 6px 0; }
 .lf-card details { font-size: 13.5px; margin-top: 8px; }
 .lf-card summary { cursor: pointer; color: #24618e; }
@@ -787,11 +787,15 @@ button, summary, a, input, select { -webkit-tap-highlight-color: transparent; }
 .lf-inputs { width: 100%; border-collapse: collapse; margin: 8px 0; }
 .lf-inputs th, .lf-inputs td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #edf0f2; font-weight: 400; }
 .lf-inputs td { text-align: right; font-variant-numeric: tabular-nums; }
-.lf-radar { width: 100%; max-width: 220px; height: auto; }
-.lf-radar-grid { fill: none; stroke: #d9e0e5; stroke-width: 1; }
-.lf-radar-shape { fill: #24618e33; stroke: #24618e; stroke-width: 2; }
-.lf-radar-dot { fill: #163b57; }
-.lf-radar-label { font-size: 11px; fill: #3c4f5e; }
+.lf-radar { display: block; width: 100%; max-width: 250px; height: auto; margin: 0 auto; overflow: visible; }
+.lf-card-body .lf-bar-row { grid-template-columns: 56px 1fr 32px; }
+.lf-guide { background: #f2f6f8; border: 1px solid #dbe5ea; border-left: 4px solid #24618e; border-radius: 10px; padding: 12px 16px; margin: 0 0 16px; font-size: 13.5px; line-height: 1.7; color: #3c4f5e; }
+.lf-guide-title { display: block; font-weight: 700; color: #24618e; font-size: 13px; letter-spacing: .08em; margin-bottom: 6px; }
+.lf-guide dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); gap: 6px 20px; margin: 0; }
+.lf-guide dl > div { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; min-width: 0; }
+.lf-guide dt { font-weight: 700; color: #16324a; white-space: nowrap; }
+.lf-guide dd { margin: 0; }
+.lf-guide p { margin: 8px 0 0; color: #53616c; }
 .lf-flows { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .lf-flow { background: #fff; border: 1px solid #dfe5e8; border-radius: 10px; padding: 12px 14px; }
 .lf-flow h3 { font-size: 14px; margin: 0 0 8px; color: #24618e; }
@@ -824,7 +828,9 @@ button, summary, a, input, select { -webkit-tap-highlight-color: transparent; }
 .lf-stairs small { color: #5a6a76; font-size: 12px; }
 .lf-tabs { flex-wrap: wrap; margin-bottom: 12px; display: flex; gap: 6px; }
 .lf-tabs button { border: 1px solid #d6dde2; }
-.lf-radar-wide { grid-template-columns: 280px 1fr; }
+.lf-radar-wide { grid-template-columns: 300px 1fr; }
+.lf-radar-wide .lf-radar { max-width: 300px; }
+.lf-radar-wide .lf-bar-row { grid-template-columns: 70px 1fr 40px; }
 .lf-leaders .lf-card header { margin-bottom: 8px; }
 .lf-recap td { font-size: 15px; font-weight: 600; padding: 12px; }
 @media (max-width: 900px) { .lf-series, .lf-stairs { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); } .lf-radar-wide { grid-template-columns: 1fr; } }
@@ -832,6 +838,8 @@ button, summary, a, input, select { -webkit-tap-highlight-color: transparent; }
   .lf-thermo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .lf-card-grid, .lf-flows { grid-template-columns: 1fr; }
   .lf-card-body { grid-template-columns: 1fr; justify-items: center; }
+  .lf-card-body > div, .lf-card-body > .lf-bars { width: 100%; }
+  .lf-guide dl > div { grid-template-columns: 1fr; gap: 0; }
   .lf-rank li { grid-template-columns: 40px 1fr 64px; padding: 10px 12px; }
   .lf-total { font-size: 26px; }
 }

@@ -2,12 +2,54 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { LongformDaily, LongformTopic, FlowRow } from "./longform-types";
-import { DIMENSIONS, DimensionBars, ExportButton, Light, Radar, RiskNotice, heatClass, num, pct, signClass, yi } from "./longform-ui";
+import { DIMENSIONS, DIMENSION_GUIDE, DimensionBars, ExportButton, Guide, Light, Radar, RiskNotice, heatClass, num, pct, signClass, yi } from "./longform-ui";
 
 const INPUT_LABELS: Record<string, string> = {
   discussion: "讨论度（分位）", amount: "题材成交额", amountRank: "资金面（成交额分位）", spread: "传播力（分位）", growth: "讨论升温",
   panicRate: "恐慌表达率 %", panicRank: "恐慌表达分位", previousAmount: "前一交易日成交额", dropValue: "放量下跌值（跌幅绝对值）", dropRank: "放量下跌分",
   reboundRate: "回补表达率 %", reboundCount: "回补表达条数", sampleCount: "有效分析样本", turnover: "换手率 %",
+};
+
+// Opening glossary for each section; wording describes the numbers, never what to do with them.
+const GUIDE: Record<string, [string, string][]> = {
+  thermo: [
+    ["市场热度", "上证指数、深证成指成交量在此前 60 个交易日中的分位，越高说明成交越活跃。"],
+    ["赚钱效应", "当天上涨股票占全部股票的比例。"],
+    ["讨论热度", "十强题材的发帖人数与前一天相比：50 = 持平，高于 50 = 升温。"],
+    ["恐贪情绪", "帖子里看涨表达占“看涨 + 看跌”的比例，越高越偏乐观；只代表发帖者，不是全体投资者。"],
+    ["风险偏好", "创业板、科创板、北交所成交额占 A 股总成交的比例，越高说明成交越偏向高波动板块。"],
+    ["颜色", "暖色 = 数值偏高，冷色 = 数值偏低；“—”表示当天缺数据。"],
+  ],
+  limit: [
+    ["涨停 / 跌停", "收盘时封住涨停 / 跌停的股票家数。"],
+    ["炸板率", "盘中碰到过涨停、收盘却没封住的比例，越高说明封板越不牢。"],
+    ["连板高度", "连续涨停天数最多的股票有几板；下方梯队是各板数的家数。"],
+    ["晋级率", "昨天涨停的股票里，今天继续涨停的比例。"],
+    ["昨日涨停今日", "昨天涨停的股票今天的平均 / 中位涨跌幅，反映隔日表现。"],
+  ],
+  rank: [
+    ["十强题材", "按社区讨论关注度（发帖账户数、互动量等）选出的前十个题材，是后面所有题材分析的范围。"],
+    ["总分（试验）", "热度 30% + 扩散力 20% + 动摇度 20% + 回补力 15% + 拥挤度 15%，任一维缺失则不出总分。"],
+    ["形态标签", "按五维组合给出的描述名，如“高热高动摇”“扩散低动摇”，只描述状态。"],
+    ["红 / 黄 / 绿灯", "拥挤提示：红 = 拥挤度 ≥ 75 且动摇度 ≥ 65；黄 = 两者之一 ≥ 60；绿 = 都不突出；灰 = 缺数据。"],
+    ["↑ ↓ / 新进", "总分较前一交易日的变化；“新进”表示前一天不在十强里。"],
+  ],
+  heat: [
+    ["每一格", "该题材在该维度的分数（0–100），颜色越深分数越高，“—”为缺数据。"],
+    ["表头百分比", "这一维在总分里的权重。"],
+    ["追涨表达", "帖子里“追高、怕踏空”类表达的占比，仍在试验，不计入总分；下方为判断覆盖率。"],
+    ["形态", "与上一节的形态标签相同。"],
+  ],
+  flows: [
+    ["主力净额", "新浪财经口径：大单、超大单的主动买盘金额减主动卖盘金额。不同网站口径不同，数值不可直接互比。"],
+    ["四栏", "行业、概念板块各列净流入最多和净流出最多的五个；小字为板块当天涨跌幅。"],
+  ],
+  market: [
+    ["指数涨跌", "各指数收盘较前一交易日收盘的涨跌幅。"],
+    ["两融余额", "融资融券余额，交易所次一交易日才公布，所以日期通常晚一天。"],
+    ["涨跌中位数", "全部股票涨跌幅的中位数，比指数更能反映“多数股票”的表现。"],
+    ["涨跌分布", "按涨跌幅区间统计的股票家数，红色为上涨区间，绿色为下跌区间。"],
+  ],
 };
 
 const BAND_CLASS: Record<string, string> = { strongUp: "lf-fill-up-strong", up: "lf-fill-up", flat: "lf-fill-flat", down: "lf-fill-down", strongDown: "lf-fill-down-strong" };
@@ -39,8 +81,8 @@ function Header({ data, dates, onDate }: { data: LongformDaily; dates: string[];
   </header>;
 }
 
-function Section({ step, eyebrow, title, children }: { step: string; eyebrow: string; title: string; children: React.ReactNode }) {
-  return <section className="lf-section"><div className="lf-heading"><span className="report-step">{step}</span><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2></div></div>{children}</section>;
+function Section({ step, eyebrow, title, guide, note, children }: { step: string; eyebrow: string; title: string; guide?: [string, string][]; note?: string; children: React.ReactNode }) {
+  return <section className="lf-section"><div className="lf-heading"><span className="report-step">{step}</span><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2></div></div>{guide && <Guide items={guide} note={note} />}{children}</section>;
 }
 
 function Thermometers({ data }: { data: LongformDaily }) {
@@ -155,17 +197,16 @@ export function LongformDailyView({ initial }: { initial: LongformDaily }) {
     <div className="lf-actions" data-export-skip="true"><ExportButton target={page} fileName={`复盘长图-${data.meta.tradeDate}.png`} />{error && <span className="lf-error">{error}</span>}</div>
     <div className="lf-page" ref={page}>
       <Header data={data} dates={dates} onDate={load} />
-      <Section step="1" eyebrow="市场体温计" title="五支温度计"><Thermometers data={data} /></Section>
-      <Section step="2" eyebrow="涨停生态" title={data.limit ? `涨停 ${data.limit.metrics.limitUp ?? "—"} 家，炸板率 ${num(data.limit.metrics.brokenRate)}%，最高 ${data.limit.metrics.maxBoards ?? "—"} 连板` : "涨停数据未取得"}><LimitSection data={data} /></Section>
-      <Section step="3" eyebrow="十强题材排名 · 试验总分" title={data.topics[0]?.total != null ? `${data.topics[0].name} 总分最高（${num(data.topics[0].total, 0)}）` : "十强题材与六维"}>
-        <p className="lf-note">总分 = 热度×30% + 扩散力×20% + 动摇度×20% + 回补力×15% + 拥挤度×15%，任一维缺失则不出总分。各维是十强题材之间的相对分位。</p>
+      <Section step="1" eyebrow="市场体温计" title="五支温度计" guide={GUIDE.thermo}><Thermometers data={data} /></Section>
+      <Section step="2" eyebrow="涨停生态" title={data.limit ? `涨停 ${data.limit.metrics.limitUp ?? "—"} 家，炸板率 ${num(data.limit.metrics.brokenRate)}%，最高 ${data.limit.metrics.maxBoards ?? "—"} 连板` : "涨停数据未取得"} guide={GUIDE.limit} note="以上都是描述统计，不做“冰点、主升、退潮”一类的阶段判断。"><LimitSection data={data} /></Section>
+      <Section step="3" eyebrow="十强题材排名 · 试验总分" title={data.topics[0]?.total != null ? `${data.topics[0].name} 总分最高（${num(data.topics[0].total, 0)}）` : "十强题材与六维"} guide={GUIDE.rank} note="各维是十强题材之间的相对分位，五维含义见第 5 节。总分未经历史回测校准，高分表示讨论与交易集中，不是买卖信号。">
         {data.mainline && <p className="lf-note">主线：<b>{data.mainline.name}</b>，成分涨停 {data.mainline.limitUpCount} 家，占全市场涨停 {data.mainline.limitUpTotal} 家的 {num(data.mainline.concentration)}%（涨停集中度）。</p>}
         <Ranking topics={data.topics} />
       </Section>
-      <Section step="4" eyebrow="题材 × 维度热力表" title="逐格对比"><Heatmap data={data} /></Section>
-      <Section step="5" eyebrow="题材卡片" title="每个题材：雷达、分项与原帖"><div className="lf-card-grid">{data.topics.map(t => <TopicCard key={t.id} topic={t} line={data.narrative.topics[t.id]} />)}</div></Section>
-      <Section step="6" eyebrow="资金底账 · 新浪主力口径" title="行业与概念主力净额前五"><Flows data={data} /></Section>
-      <Section step="7" eyebrow="市场底账" title="指数、两融与涨跌分布"><MarketBase data={data} /></Section>
+      <Section step="4" eyebrow="题材 × 维度热力表" title="逐格对比" guide={GUIDE.heat}><Heatmap data={data} /></Section>
+      <Section step="5" eyebrow="题材卡片" title="每个题材：雷达、分项与原帖" guide={DIMENSION_GUIDE} note="雷达越往外代表该维分数越高；卡片底部“输入明细与原帖”可展开查看计算用的原始数值和代表性帖子。"><div className="lf-card-grid">{data.topics.map(t => <TopicCard key={t.id} topic={t} line={data.narrative.topics[t.id]} />)}</div></Section>
+      <Section step="6" eyebrow="资金底账 · 新浪主力口径" title="行业与概念主力净额前五" guide={GUIDE.flows}><Flows data={data} /></Section>
+      <Section step="7" eyebrow="市场底账" title="指数、两融与涨跌分布" guide={GUIDE.market}><MarketBase data={data} /></Section>
       {data.anchors.map(a => <Section key={a.date} step="★" eyebrow={`锚点对比 · ${a.name}`} title={`${a.years} 年前的今天：指数累计变化`}>
         <p className="lf-note">{a.description} 基准为锚点前一交易日收盘。</p>
         <div className="lf-cards">{a.indices.map(i => <div key={i.name}><span>{i.name}</span><b className={signClass(i.changePct)}>{pct(i.changePct)}</b><small>{num(i.base, 2)} → {num(i.close, 2)}</small></div>)}

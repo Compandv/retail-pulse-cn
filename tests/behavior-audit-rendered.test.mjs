@@ -22,6 +22,8 @@ test("audit columns preserve missing scores and identify the conditional denomin
   const report = structuredClone(saved);
   const profile = report.sectors[0].expressionProfile;
   profile.behaviorAudit = { version: "behavior-audit-0.1", targetAccounts: 20, judgedAccounts: 50, coverage: 50, score: null };
+  // A second row without the field stands in for a legacy snapshot, whatever the saved data holds.
+  delete report.sectors[1].expressionProfile?.behaviorAudit;
   const html = renderToStaticMarkup(React.createElement(FollowingComposition, { report }));
   assert.ok(html.includes("追涨表达比例（试验）"));
   assert.ok(html.includes("20/50 个可判断账户"));
