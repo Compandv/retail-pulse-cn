@@ -95,6 +95,10 @@ powershell -ExecutionPolicy Bypass -File scripts\install_schedule.ps1
 - 本地有尚未推送的代码提交；
 - 与 GitHub 上的数据冲突。
 
+**连续性提醒**：每次运行后检查最近 10 个交易日（从 2026-09-28 起算）是否都有日报和长图。发现缺的日子时，通知里会列出来，同一批缺口只提醒一次。讨论数据无法事后补采，涨停数据可在约 15 个交易日内用 `update_limit.py` 回补。
+
+**自动清理**：任务每次运行后执行 `prune_data.py --apply`，结果写在 `work/logs/prune-last.log`，规则见下方“保留策略”。
+
 **GitHub 兜底**：`.github/workflows/daily.yml` 只采集仍然过期的模块，电脑当天已推送数据时直接结束。它在海外服务器运行，没有私有采集记录，所以那一天无法离线回放或人工复核。
 
 ### 复盘长图
@@ -213,7 +217,9 @@ powershell -ExecutionPolicy Bypass -File scripts\install_schedule.ps1
 
 社区、市场、复盘各自的 `latest.json` 是最新快照，`index.json` 是日期索引。同一天重跑会替换当天记录；采集失败、没有有效样本，或试图用更早日期覆盖最新快照时，保留上一份可用结果。
 
-**保留策略**：最近 60 个交易日完整保留。更早日期的社区快照移除原帖节选（约占 90% 体积），聚合指标和历史序列保留；更早的板块成分明细删除。运行 `python scripts/prune_data.py` 预览，确认后加 `--apply`。移除的内容仍可从 Git 历史和 `work/` 中找回。
+**保留策略**：最近 60 个交易日完整保留。更早日期的社区快照移除原帖节选（约占 90% 体积），聚合指标和历史序列保留；更早的板块成分明细删除。定时任务会自动执行；手动运行 `python scripts/prune_data.py` 可预览，加 `--apply` 执行。移除的内容仍可从 Git 历史和 `work/` 中找回。
+
+私有采集记录（`work/`，不发布）：每日复盘原始记录约 40MB，最近 20 个日期保持原样，更早的压缩成 `.json.gz`（约为原来的 1/7），程序照常读取，回放和长图重算不受影响。当天重试用的缓存（`work/report-cache`、`work/market-source-cache`）只保留最近 10 个日期。可用 `--keep-raw`、`--keep-cache` 调整。
 
 ## 开发
 

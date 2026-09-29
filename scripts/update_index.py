@@ -5,7 +5,7 @@ import argparse
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,7 +20,7 @@ from sentiment.longform import build_longform_snapshot  # noqa: E402
 from sentiment.run_progress import logged_run, stage_progress, say
 from sentiment.semantic_agent import run_lock
 from sentiment.collectors import CN_TZ  # noqa: E402
-from sentiment.trading_calendar import UnsupportedCalendarYear, calendar_warning, effective_trade_date  # noqa: E402
+from sentiment.trading_calendar import UnsupportedCalendarYear, calendar_warning, effective_trade_date, previous_trading_day  # noqa: E402
 
 
 def check_calendar(now=None) -> bool:
@@ -63,6 +63,25 @@ def stale_keys(now=None, root=ROOT) -> list[str]:
     if stale and "longform" not in stale:
         stale.append("longform")
     return stale
+
+
+# Daily collection became automatic on this date; earlier gaps are known and not reported.
+CONTINUITY_SINCE = "2026-09-28"
+CONTINUITY_SESSIONS = 10
+# A day counts as complete only when both the report and the long-form page were saved.
+DAILY_FILES = ("public/data/report/daily/{}.json", "public/data/longform/daily/{}.json")
+
+
+def missing_days(day: str, root=ROOT, sessions=CONTINUITY_SESSIONS, since=CONTINUITY_SINCE) -> list[str]:
+    """Recent sessions (up to `day`) lacking a daily report; discussion data cannot be collected afterwards."""
+    current, missing = date.fromisoformat(day), []
+    for _ in range(sessions):
+        if current.isoformat() < since:
+            break
+        if not all((root / pattern.format(current.isoformat())).exists() for pattern in DAILY_FILES):
+            missing.append(current.isoformat())
+        current = previous_trading_day(current)
+    return sorted(missing)
 
 
 def write_summary(summary: dict) -> None:
@@ -148,6 +167,12 @@ def main(argv=()) -> int:
         except UnsupportedCalendarYear:
             pass
         summary["calendarWarning"] = calendar_warning(datetime.now(CN_TZ).date())
+        try:
+            summary["missingDays"] = missing_days(summary["tradeDate"]) if summary.get("tradeDate") else []
+        except (UnsupportedCalendarYear, ValueError):
+            summary["missingDays"] = []
+        if summary["missingDays"]:
+            say(f"连续性提醒：近 {CONTINUITY_SESSIONS} 个交易日中缺少日报：{'、'.join(summary['missingDays'])}。讨论数据无法事后补采。")
         write_summary(summary)
 
 

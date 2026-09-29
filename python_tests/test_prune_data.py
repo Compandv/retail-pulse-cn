@@ -66,6 +66,28 @@ class PruneDataTest(unittest.TestCase):
         self.assertEqual(again["communityPostsRemoved"], [])
         self.assertEqual(again["memberDetailsRemoved"], [])
 
+    def test_old_captures_are_compressed_and_stay_readable(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from sentiment.market_watch import read_json
+        work = self.root / "work"
+        (work / "report-observations").mkdir(parents=True)
+        for day in self.days[:8]:
+            (work / "report-observations" / f"{day}.json").write_text(json.dumps({"day": day, "text": "文" * 300}), encoding="utf-8")
+            for base in (work / "report-cache/v1", work / "market-source-cache"):
+                (base / day).mkdir(parents=True)
+                (base / day / "page.json").write_text("{}", encoding="utf-8")
+        result = prune_data.run(self.root, 60, apply=True, keep_raw=5, keep_cache=3)
+        self.assertEqual(result["capturesCompressed"], self.days[:3])
+        self.assertEqual(len(result["cachesRemoved"]), 10)
+        first = work / "report-observations" / f"{self.days[0]}.json"
+        self.assertFalse(first.exists())
+        self.assertEqual(read_json(first, None), {"day": self.days[0], "text": "文" * 300})
+        self.assertTrue((work / "report-observations" / f"{self.days[3]}.json").exists())
+        self.assertFalse((work / "market-source-cache" / self.days[4]).exists())
+        self.assertTrue((work / "report-cache/v1" / self.days[5]).exists())
+        again = prune_data.run(self.root, 60, apply=True, keep_raw=5, keep_cache=3)
+        self.assertEqual((again["capturesCompressed"], again["cachesRemoved"]), ([], []))
+
     def test_keep_below_baseline_window_is_rejected(self):
         with self.assertRaises(SystemExit):
             prune_data.main(["--keep", "20"])

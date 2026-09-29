@@ -2,13 +2,25 @@ import json
 from unittest import TestCase
 from unittest.mock import patch
 from datetime import datetime
-from sentiment.topic_discovery import fetch_tags, select_expansion_codes, stock_sample, topic_groups, rank_topics
+from sentiment.topic_discovery import fetch_tags, recent_tags, select_expansion_codes, stock_sample, topic_groups, rank_topics
 from sentiment.collectors import CN_TZ
 from sentiment.report import assemble_report, measure_members
 from python_tests.test_report import fixture
 
 
 class TopicDiscoveryTests(TestCase):
+    def test_recent_tags_reuse_newest_capture_within_window(self):
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as tmp:
+            for day, name in [('2026-09-10', '旧'), ('2026-09-24', '新'), ('2026-09-28', '当日')]:
+                folder = Path(tmp) / 'work/topic-discovery' / day / 'tags'; folder.mkdir(parents=True)
+                (folder / '300308.json').write_text(json.dumps({'schema': 3, 'tags': [{'name': name}]}), encoding='utf-8')
+            self.assertEqual(recent_tags(tmp, '300308', '2026-09-28'), ([{'name': '新'}], '2026-09-24'))
+            self.assertEqual(recent_tags(tmp, '300308', '2026-09-28', max_age_days=3), (None, None))
+            self.assertEqual(recent_tags(tmp, '000001', '2026-09-28'), (None, None))
+            self.assertEqual(recent_tags(Path(tmp) / 'missing', '300308', '2026-09-28'), (None, None))
+
     def test_business_keyword_without_literal_main_business(self):
         payload = {'ssbk': [{'SECURITY_CODE': '300502', 'BOARD_CODE': '1', 'BOARD_NAME': 'CPO概念', 'BOARD_RANK': 20}],
                    'hxtc': [{'KEYWORD': '光模块的研发、生产和销售', 'MAINPOINT_CONTENT': '公司业务主要涵盖光通信应用'}]}

@@ -44,6 +44,9 @@ if (Test-Path -LiteralPath $summaryPath) { Remove-Item -LiteralPath $summaryPath
 $ErrorActionPreference = 'Continue'
 & $python.Path @($python.Args) -u (Join-Path $PSScriptRoot 'update_index.py') --if-stale *> $null
 $exitCode = $LASTEXITCODE
+# Retention: compress old private captures, drop old retry caches, slim public snapshots past 60 dates.
+# Idempotent and quick when there is nothing to do; its outcome never changes the update's exit code.
+& $python.Path @($python.Args) (Join-Path $PSScriptRoot 'prune_data.py') --apply *> (Join-Path $projectRoot 'work\logs\prune-last.log')
 $ErrorActionPreference = 'Stop'
 
 $summary = $null
@@ -51,6 +54,12 @@ if (Test-Path -LiteralPath $summaryPath) { $summary = Get-Content -LiteralPath $
 $log = if ($summary) { $summary.log } else { $null }
 $day = if ($summary -and $summary.tradeDate) { $summary.tradeDate } else { '最近交易日' }
 $warning = if ($summary -and $summary.calendarWarning) { ' ' + $summary.calendarWarning } else { '' }
+# Remind about a missing day once, not on every run while it stays inside the checked window.
+$gapsPath = Join-Path $projectRoot 'work\logs\notified-gaps.json'
+$notified = @(if (Test-Path -LiteralPath $gapsPath) { Get-Content -LiteralPath $gapsPath -Raw -Encoding UTF8 | ConvertFrom-Json })
+$missing = @(if ($summary -and $summary.missingDays) { $summary.missingDays })
+if (@($missing | Where-Object { $notified -notcontains $_ }).Count) { $warning += ' 近期缺日报：' + ($missing -join '、') + '（讨论数据无法补采）。' }
+ConvertTo-Json -InputObject @($missing) -Compress | Set-Content -LiteralPath $gapsPath -Encoding UTF8
 if (-not $NoSync) { $syncNotes += Sync-DataPush $day }
 $syncNote = ($syncNotes | Where-Object { $_ }) -join '；'
 if ($syncNote) { $warning += ' 同步：' + $syncNote + '。' }

@@ -31,6 +31,18 @@ class ScheduledUpdateTest(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(json.dumps({"meta": {"tradeDate": dates.get(key, "2026-09-24")}}), encoding="utf-8")
 
+    def test_missing_days_lists_recent_sessions_without_both_daily_files(self):
+        for day in ("2026-09-24", "2026-09-28", "2026-09-30"):
+            for pattern in update_index.DAILY_FILES:
+                target = self.root / pattern.format(day)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("{}", encoding="utf-8")
+        (self.root / update_index.DAILY_FILES[1].format("2026-09-30")).unlink()
+        # 09-29 absent, 09-30 has only the report; 09-24 predates the tracking start.
+        self.assertEqual(update_index.missing_days("2026-09-30", self.root), ["2026-09-29", "2026-09-30"])
+        self.assertEqual(update_index.missing_days("2026-09-30", self.root, sessions=1), ["2026-09-30"])
+        self.assertEqual(update_index.missing_days("2026-09-28", self.root), [])
+
     def test_stale_keys_follow_latest_closed_session(self):
         self.save()
         self.assertEqual(update_index.stale_keys(SUNDAY, self.root), [])

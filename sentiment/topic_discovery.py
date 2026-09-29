@@ -3,7 +3,7 @@
 F10 tags describe observed current membership, never a historical universe.
 """
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 import hashlib
 import json
@@ -141,6 +141,23 @@ def fetch_tags(code):
             for t in tags if t.get('BOARD_CODE') and t.get('BOARD_NAME')]
 
 
+# F10 tags change slowly; when today's request keeps failing, a capture this recent stands in.
+TAG_REUSE_DAYS = 10
+
+
+def recent_tags(root, code, day, max_age_days=TAG_REUSE_DAYS):
+    """Newest earlier capture of a stock's tags within max_age_days, as (tags, capture date)."""
+    base = Path(root) / 'work/topic-discovery'
+    today = date.fromisoformat(day)
+    earlier = sorted((p.name for p in base.glob('????-??-??') if p.name < day), reverse=True) if base.exists() else []
+    for folder in earlier:
+        if (today - date.fromisoformat(folder)).days > max_age_days: break
+        saved = read_json(base / folder / 'tags' / f'{code}.json', {})
+        if saved.get('schema') == 3 and saved.get('tags'):
+            return saved['tags'], folder
+    return None, None
+
+
 def topic_groups(stocks, tags):
     groups = {}
     for code, labels in tags.items():
@@ -229,22 +246,28 @@ def discover(root, market, previous):
     raw = read_json(root / 'work/market-observations' / f'{day}.json', {})
     universe, stocks = stock_sample(raw, day)
     if not stocks: raise RuntimeError('题材发现缺少已核验的当日个股行情')
-    tags, feeds, errors = {}, {}, []
+    tags, feeds, errors, reused = {}, {}, [], {}
     cache = root / 'work/topic-discovery' / day
-    def task(code):
+    def task(code, allow_reuse=False):
         saved = read_json(cache / 'tags' / f'{code}.json', {})
         labels = saved.get('tags') if saved.get('date') == day and saved.get('schema') == 3 else None
         if not labels:
-            labels = fetch_tags(code)
-            atomic_json(cache / 'tags' / f'{code}.json', {'date': day, 'schema': 3, 'observedAt': datetime.now(CN_TZ).isoformat(), 'tags': labels})
+            try:
+                labels = fetch_tags(code)
+                atomic_json(cache / 'tags' / f'{code}.json', {'date': day, 'schema': 3, 'observedAt': datetime.now(CN_TZ).isoformat(), 'tags': labels})
+            except Exception:
+                labels, source = recent_tags(root, code, day) if allow_reuse else (None, None)
+                if not labels: raise
+                # Not written to today's cache: a later run still tries a fresh capture.
+                reused[code] = source
         feed = collect_feed(code, previous, CONFIG['feedPages'])
         feed['observedAt'] = datetime.now(CN_TZ).isoformat(timespec='seconds')
         return labels, feed
     print(f"题材发现：全A {len(universe)} 股中观察 {len(stocks)} 股；先读取标签和讨论，再选前十。", flush=True)
-    def run(codes, workers):
+    def run(codes, workers, allow_reuse=False):
         failed = []
         with ThreadPoolExecutor(max_workers=workers) as pool:
-            futures = {pool.submit(task, code): code for code in codes}
+            futures = {pool.submit(task, code, allow_reuse): code for code in codes}
             for i, f in enumerate(as_completed(futures), 1):
                 code = futures[f]
                 try: tags[code], feeds[code] = f.result()
@@ -258,6 +281,12 @@ def discover(root, market, previous):
         print(f"题材发现：{len(errors)} 只首轮失败（{dict(Counter(e['error'] for e in errors))}），稍后低并发重试一次", flush=True)
         time.sleep(3)
         errors = run([e['code'] for e in errors], 2)
+    if errors:
+        # Last pass: one more fresh try, then fall back to a capture from the last few days.
+        time.sleep(5)
+        errors = run([e['code'] for e in errors], 1, allow_reuse=True)
+        if reused:
+            print(f"题材发现：{len(reused)} 只沿用 {TAG_REUSE_DAYS} 天内最近一次的题材标签（{dict(Counter(reused.values()))}）", flush=True)
     if len(tags) / len(stocks) < CONFIG['minimumSourceCoverage']:
         raise RuntimeError(f"题材映射覆盖不足（{len(tags)}/{len(stocks)}），保留旧报告")
     groups = topic_groups(stocks, tags)
@@ -287,7 +316,7 @@ def discover(root, market, previous):
     cohort_quality = next((r.get('cohortQuality') for r in rows if r.get('attentionScore') is not None), 'insufficient')
     ranking_quality = 'complete' if selected and all(r.get('coverageQuality') == 'complete' for r in selected) else 'partial-lower-bound'
     selected_partial = sum(r.get('coverageQuality') != 'complete' for r in selected)
-    meta = {'version': VERSION, 'methodHash': CONFIG_HASH, 'universeStocks': len(universe), 'sampleStocks': len(stocks), 'tagCoverage': len(tags), 'candidateTopics': len(rows), 'eligibleTopics': sum(r['eligible'] for r in rows), 'completeTopics': sum(r.get('coverageQuality') == 'complete' for r in rows if r.get('eligible')), 'rankingQuality': ranking_quality, 'cohortQuality': cohort_quality, 'selectedPartialTopics': selected_partial, 'expandedStocks': len(expanded_codes), 'historicalBaselineDays': CONFIG.get('minimumHistoricalDays', 20), 'suppressed': suppressed,
+    meta = {'version': VERSION, 'methodHash': CONFIG_HASH, 'universeStocks': len(universe), 'sampleStocks': len(stocks), 'tagCoverage': len(tags), 'tagsReused': len(reused), 'tagReuseDays': TAG_REUSE_DAYS, 'candidateTopics': len(rows), 'eligibleTopics': sum(r['eligible'] for r in rows), 'completeTopics': sum(r.get('coverageQuality') == 'complete' for r in rows if r.get('eligible')), 'rankingQuality': ranking_quality, 'cohortQuality': cohort_quality, 'selectedPartialTopics': selected_partial, 'expandedStocks': len(expanded_codes), 'historicalBaselineDays': CONFIG.get('minimumHistoricalDays', 20), 'suppressed': suppressed,
             'amountCoverage': sum(s['f6'] for s in stocks.values()) / sum(s['f6'] for s in universe.values()),
             'note': '全A成交额/涨幅/换手活跃样本＋按日期固定抽样；东方财富题材标签与主营业务证据。主营相关股票的讨论或明确提及题材的帖子才归入该题材，不复制所有概念标签。非全市场发言普查；关注分为候选题材内账户规模65%与回复互动35%的相对分位，描述关注总量而非每股讨论密度。达到完整来源门槛才使用完整排名，否则明确标为观测下限；回复和转发均计入互动。全天发言截至采集时间；相近题材按成分包含关系去重。'}
     atomic_json(cache / 'discovery.json', {'meta': meta, 'date': day, 'stocks': stocks, 'tags': tags, 'topics': rows, 'selectedIds': [s['id'] for s in selected], 'errors': errors})

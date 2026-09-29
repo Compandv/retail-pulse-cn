@@ -1,6 +1,7 @@
 """Daily, source-defined sector discovery independent of the community watchlist."""
 from __future__ import annotations
 
+import gzip
 import json
 import hashlib
 import math
@@ -52,9 +53,15 @@ def atomic_json(path, value):
 
 
 def read_json(path, default):
+    path = Path(path)
     try:
-        return json.loads(Path(path).read_text(encoding="utf-8-sig"))
-    except (OSError, ValueError):
+        # Old private captures are kept gzip-compressed by scripts/prune_data.py.
+        packed = path.with_name(path.name + ".gz")
+        if not path.exists() and packed.exists():
+            with gzip.open(packed, "rt", encoding="utf-8-sig") as handle:
+                return json.load(handle)
+        return json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError, EOFError):
         return default
 
 
