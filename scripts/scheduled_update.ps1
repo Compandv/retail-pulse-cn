@@ -36,7 +36,7 @@ if (-not $python) {
 $env:PYTHONIOENCODING = 'utf-8'
 . (Join-Path $PSScriptRoot 'sync_data.ps1')
 $syncNotes = @()
-if (-not $NoSync) { $syncNotes += Sync-DataPull }
+if (-not $NoSync) { $syncNotes += Sync-DataPull $python }
 if (Test-Path -LiteralPath $summaryPath) { Remove-Item -LiteralPath $summaryPath -Force }
 # Windows PowerShell 5.1 turns a native program's stderr into errors, and under 'Stop'
 # the first stderr line (e.g. a partial-failure note) would abort this script before
@@ -60,7 +60,7 @@ $notified = @(if (Test-Path -LiteralPath $gapsPath) { Get-Content -LiteralPath $
 $missing = @(if ($summary -and $summary.missingDays) { $summary.missingDays })
 if (@($missing | Where-Object { $notified -notcontains $_ }).Count) { $warning += ' 近期缺日报：' + ($missing -join '、') + '（讨论数据无法补采）。' }
 ConvertTo-Json -InputObject @($missing) -Compress | Set-Content -LiteralPath $gapsPath -Encoding UTF8
-if (-not $NoSync) { $syncNotes += Sync-DataPush $day }
+if (-not $NoSync) { $syncNotes += Sync-DataPush $day $python }
 $syncNote = ($syncNotes | Where-Object { $_ }) -join '；'
 if ($syncNote) { $warning += ' 同步：' + $syncNote + '。' }
 

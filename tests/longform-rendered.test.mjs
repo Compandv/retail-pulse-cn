@@ -23,10 +23,12 @@ const FORBIDDEN = JSON.parse(readFileSync(new URL("../config/longform.json", imp
 const visible = html => html.replace(/<[^>]+>/g, " ");
 
 test("daily long-form renders every section, missing values and the risk notice", () => {
-  const data = read("longform/latest.json");
+  // Saved data changes daily; one topic is stripped of a dimension so the missing path always renders.
+  const data = structuredClone(read("longform/latest.json"));
+  Object.assign(data.topics[0], { total: null, missing: ["动摇度"], dimensions: { ...data.topics[0].dimensions, shake: null } });
   const html = renderToStaticMarkup(React.createElement(LongformDailyView, { initial: data }));
   for (const label of ["五支温度计", "涨停生态", "十强题材排名", "逐格对比", "题材卡片", "资金底账", "市场底账", "口径说明", "不构成任何投资建议", "导出长图 PNG"]) assert.ok(html.includes(label), label);
-  assert.ok(html.includes("缺动摇度") || data.topics.every(t => t.total != null), "missing dimensions are named");
+  assert.ok(html.includes("缺动摇度"), "missing dimensions are named");
   assert.doesNotMatch(html, /NaN|undefined|null%/);
 });
 
@@ -47,9 +49,10 @@ test("weekly long-form shows the published ranking with synthetic topics", () =>
 });
 
 test("weekly long-form without enough days explains the missing ranking", () => {
-  const data = read("weekly/latest.json");
+  const data = structuredClone(read("weekly/latest.json"));
+  Object.assign(data.meta, { topicsPublished: false, longformDays: data.meta.longformDays.slice(0, 1) });
+  data.topics = [];
   const html = renderToStaticMarkup(React.createElement(LongformWeeklyView, { initial: data }));
-  assert.equal(data.meta.topicsPublished, false);
   assert.ok(html.includes("本周不发布题材排名"));
   assert.ok(html.includes("上证指数"));
 });

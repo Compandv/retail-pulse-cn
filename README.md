@@ -90,10 +90,10 @@ powershell -ExecutionPolicy Bypass -File scripts\install_schedule.ps1
 - `-Uninstall`：删除计划任务。
 - 只在登录状态下运行，不需要管理员权限。电脑睡眠时会被唤醒运行，关机时无效。补跑只能采集当时最近的交易日，关机期间更早的交易日无法补回。
 
-**与 GitHub 同步**：任务运行前先从 GitHub 快进拉取；更新成功后只提交 `public/data` 并推送到 main。以下情况会跳过推送，并在通知里说明：
-- 当前不在 main 分支；
-- 本地有尚未推送的代码提交；
-- 与 GitHub 上的数据冲突。
+**与 GitHub 同步**：任务运行前先从 GitHub 拉取；更新成功后只提交 `public/data` 并推送到 main。
+- 连不上 GitHub 时隔 2 分钟重试，最多 3 次；仍失败则数据留在本地，下次运行自动补推。
+- GitHub 上已有新数据（例如云端兜底采了同一天）时，把本地数据接在其后。冲突按文件整份选择，由 `scripts/resolve_data_conflict.py` 处理：日期索引取两边并集；快照保留交易日更新的一份，同一天保留本地（含模型文字和私有采集记录）。
+- 以下情况跳过推送，并在通知里说明：当前不在 main 分支；本地有尚未推送的代码提交；冲突涉及 `public/data` 以外或非 JSON 文件。未提交的代码修改会被暂时收起，合并后原样放回，不会被推送。
 
 **连续性提醒**：每次运行后检查最近 10 个交易日（从 2026-09-28 起算）是否都有日报和长图。发现缺的日子时，通知里会列出来，同一批缺口只提醒一次。讨论数据无法事后补采，涨停数据可在约 15 个交易日内用 `update_limit.py` 回补。
 
@@ -189,7 +189,7 @@ powershell -ExecutionPolicy Bypass -File scripts\install_schedule.ps1
 | `python scripts/update_limit.py [--from 日期 --to 日期]` | 采集或回补涨停生态；接口只保留约 15 个交易日 |
 | `python scripts/update_longform.py [--from 日期 --to 日期] [--week 周次] [--weekly-only]` | 由已保存快照重建日报长图、生成周报 |
 
-人工复核用离线页面 `scripts/review_labeler.html`，浏览器直接打开即可，流程见 [BEHAVIOR_AUDIT_TRIAL](docs/BEHAVIOR_AUDIT_TRIAL.md)。
+人工复核用离线页面 `scripts/review_labeler.html`，浏览器直接打开即可，流程见 [BEHAVIOR_AUDIT_TRIAL](docs/BEHAVIOR_AUDIT_TRIAL.md)。恐慌、贪婪、回补、看涨/看跌的分类用 AI 预标注加人工盲抽查检验：`python scripts/expression_review.py sample|queue|evaluate --date 日期`，抽查页面为 `scripts/expression_labeler.html`，流程见 [EXPRESSION_REVIEW](docs/EXPRESSION_REVIEW.md)。
 
 ## 在线查询接口
 

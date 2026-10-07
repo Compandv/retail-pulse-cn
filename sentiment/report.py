@@ -65,15 +65,8 @@ def rebound_expression(text):
     return False
 
 
-def measure_members(capture, codes, day, topic=None):
-    feeds = [capture["feeds"].get(code) for code in codes]
-    good = [f for f in feeds if f and not f.get("error") and f.get("pages", 0) > 0]
-    rows = [r for f in feeds if f for r in f.get("rows", [])]
-    if topic:
-        from .topic_discovery import terms_for
-        core = set(topic.get('coreMembers', []))
-        terms = terms_for(topic['name']) + topic.get('aliases', [])
-        rows = [p for p in rows if p['code'] in core or any(t.lower() in p['text'].lower() for t in terms)]
+def analyze_posts(capture, rows, day):
+    """Classify one day's posts the way the report does: verified bodies replace titles."""
     prepared = prepare_observations(rows, day, capture.get('cutoff', CUTOFF))
     posts = []
     body_count = 0
@@ -97,6 +90,31 @@ def measure_members(capture, codes, day, topic=None):
         else:
             content_counts["unspecifiedTexts"] += 1
         posts.append(refine_behavior(enriched))
+    return prepared, posts, body_count, content_counts
+
+
+def rule_labels(post):
+    """The report's per-post judgments behind shake, rebound, the bull/bear balance and chasing.
+
+    `greed` is scored against the chase flag, the only greed-side rule so far; the
+    human "greed" label is broader (fear of missing out, all-in, get-rich talk).
+    """
+    c = post["classification"]
+    direction = "both" if c["bullish"] and c["bearish"] else "bullish" if c["bullish"] else "bearish" if c["bearish"] else "none"
+    return {"panic": bool(c["panic"]), "greed": bool(c["chase"]), "direction": direction,
+            "rebound": bool(post.get("refillExpression") or rebound_expression(post["text"]))}
+
+
+def measure_members(capture, codes, day, topic=None):
+    feeds = [capture["feeds"].get(code) for code in codes]
+    good = [f for f in feeds if f and not f.get("error") and f.get("pages", 0) > 0]
+    rows = [r for f in feeds if f for r in f.get("rows", [])]
+    if topic:
+        from .topic_discovery import terms_for
+        core = set(topic.get('coreMembers', []))
+        terms = terms_for(topic['name']) + topic.get('aliases', [])
+        rows = [p for p in rows if p['code'] in core or any(t.lower() in p['text'].lower() for t in terms)]
+    prepared, posts, body_count, content_counts = analyze_posts(capture, rows, day)
     expressions = summarize_expressions(posts)
     total = len(posts)
     refills = sum(r["refillExpression"] for r in posts)
