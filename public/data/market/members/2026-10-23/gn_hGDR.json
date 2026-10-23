@@ -1,0 +1,1 @@
+{"code":"gn_hGDR","date":"2026-10-23","collectedAt":"2026-10-23T15:40:02+08:00","expected":1,"complete":true,"reason":"当次采集的新浪成分；腾讯行情按日期核验；剔除 0 个不在完整当期 A 股目录的成员","listedUniverseComplete":true,"rawMemberCount":1,"excludedMembers":[],"members":[{"code":"601688","name":"XD华泰证","changePct":1.95,"amount":1301770000.0,"turnover":1.05,"asOf":"2026-10-23T15:40:40+08:00"}]}
